@@ -23,6 +23,6 @@
     "baseUrl": "./"
   },
   "include": [
-    "src",
+    "src", "src/features/Auth/Components/AskAuth.tsx",
   ]
 }
