@@ -1,4 +1,5 @@
 import { Search } from '@components/index';
+import TaskBarHeader from '@components/TaskBarHeader';
 import { LayoutScreen } from '@layouts/index';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -8,27 +9,42 @@ export interface IHeaderProps {
     showRecentSearch: boolean;
     selectInput: boolean;
     valueSearch: string;
-    handleBlurSearch: (e: React.FocusEvent<HTMLInputElement>) => void;
-    handleFocusSearch: (e: React.FocusEvent<HTMLInputElement>) => void;
+    showSettingUser: boolean;
     handleChangeSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    useHandleSettingUser: (ref: React.RefObject<HTMLDivElement>) => void;
+    useOutsideSearch: (
+        refSearch: React.RefObject<HTMLDivElement>,
+        refClose: React.RefObject<HTMLDivElement>
+    ) => void;
 }
 
 export function Header(props: IHeaderProps) {
-    const { showRecentSearch, valueSearch, selectInput, handleBlurSearch, handleFocusSearch, handleChangeSearch } = props;
+    const {
+        showRecentSearch,
+        valueSearch,
+        selectInput,
+        showSettingUser,
+        useHandleSettingUser,
+        useOutsideSearch,
+        handleChangeSearch,
+    } = props;
     return (
         <Container>
             <LayoutScreen className="content-header">
                 <LogoInstagram className="logo" />
                 <Search
                     className="search-bar"
-                    onBlurSearch={handleBlurSearch}
-                    onFocusSearch={handleFocusSearch}
                     onChangeSearch={handleChangeSearch}
                     showRecentSearch={showRecentSearch}
                     valueSearch={valueSearch}
                     selectInput={selectInput}
+                    useOutsideSearch={useOutsideSearch}
                 />
-                <LogoInstagram className="logo" />
+                <TaskBarHeader
+                    className="taskbar"
+                    useHandleSettingUser={useHandleSettingUser}
+                    showSettingUser={showSettingUser}
+                />
             </LayoutScreen>
         </Container>
     );
@@ -47,7 +63,8 @@ const Container = styled.header`
         justify-content: center;
         align-items: center;
         height: inherit;
-        .logo {
+        .logo,
+        .taskbar {
             flex: 1;
         }
 

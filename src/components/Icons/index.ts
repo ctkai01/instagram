@@ -1,2 +1,7 @@
 export * from './SearchIcon'
 export * from './CloseCircleIcon'
+export * from './HomeIcon'
+export * from './CompassIcon'
+export * from './HeartIcon'
+export * from './PlusSquareIcon'
+export * from './PlaneIcon'
