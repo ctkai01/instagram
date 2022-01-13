@@ -1,8 +1,8 @@
 import { Paper } from '@material-ui/core';
 import * as React from 'react';
 import styled from 'styled-components';
-import { Arrow } from './common/Arrow';
-import { CloseCircleIcon, SearchIcon } from './Icons';
+import { Arrow } from '../common/Arrow';
+import { CloseCircleIcon, SearchIcon } from '../Icons';
 
 export interface ISearchProps {
     className: string;

@@ -1,9 +1,8 @@
-import { Paper } from '@material-ui/core';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { Arrow } from './common/Arrow';
-import { CompassIcon, HeartIcon, HomeIcon, PlaneIcon, PlusSquareIcon }  from './Icons'
+import { CompassIcon, HeartIcon, HomeIcon, PlaneIcon, PlusSquareIcon } from '../Icons';
+import { SettingUser } from './SettingUser';
 
 export interface ITaskBarHeaderProps {
     className: string;
@@ -36,13 +35,7 @@ export default function TaskBarHeader(props: ITaskBarHeaderProps) {
             <div className='image-user' style={{ border: `${showSettingUser ? '1px solid rgba(var(--i1d,38,38,38),1)' : ''}` }}>
                 <img alt='user' src='https://ecdn.game4v.com/g4v-content/uploads/2021/03/Luffy.jpg'/>
             </div>
-            {showSettingUser ? <Paper className='setting-user'>
-               <p>1</p>
-               <p>1</p>
-               <p>1</p>
-               <p>1</p> 
-               <Arrow position='right-top'/>
-            </Paper> : ''
+            {showSettingUser ? <SettingUser className='setting-user'/> : ''
             }
             
         </div>
@@ -54,7 +47,6 @@ const Container = styled.div`
     justify-content: space-evenly;
     padding-left: 20px;
 
-
     .setting-user {
         position: absolute;
         top: 42px;
@@ -62,6 +54,7 @@ const Container = styled.div`
         transform-style: preserve-3d;
         transform: translateX(-100%) translateX(54px);
     }
+
     .user-current-box {
         width: 24px;
         height: 24px;

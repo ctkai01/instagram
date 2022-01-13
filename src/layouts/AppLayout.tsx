@@ -1,4 +1,4 @@
-import { Header } from '@components/common';
+import { Header } from '@components/Header';
 import { IRoute } from '@models/index';
 import { routeApp } from '@routes/index';
 import React, { useEffect, useState } from 'react';

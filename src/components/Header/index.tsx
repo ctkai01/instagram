@@ -1,9 +1,9 @@
-import { Search } from '@components/index';
-import TaskBarHeader from '@components/TaskBarHeader';
+import { LogoInstagram } from '@components/common';
+import TaskBarHeader from '@components/Header/TaskBarHeader';
 import { LayoutScreen } from '@layouts/index';
 import * as React from 'react';
 import styled from 'styled-components';
-import { LogoInstagram } from './LogoInstagram';
+import { Search } from './Search';
 
 export interface IHeaderProps {
     showRecentSearch: boolean;
