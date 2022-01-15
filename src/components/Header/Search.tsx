@@ -1,8 +1,7 @@
-import { Paper } from '@material-ui/core';
 import * as React from 'react';
 import styled from 'styled-components';
-import { Arrow } from '../common/Arrow';
 import { CloseCircleIcon, SearchIcon } from '../Icons';
+import { ExpandSearch } from './ExpandSearch';
 
 export interface ISearchProps {
     className: string;
@@ -10,10 +9,9 @@ export interface ISearchProps {
     valueSearch: string;
     selectInput: boolean;
     onChangeSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    useOutsideSearch: (
-        refSearch: React.RefObject<HTMLDivElement>,
-        refClose: React.RefObject<HTMLDivElement>
-    ) => void;
+    handleCloseSearch: () => void;
+    handleShowSearchRecent: () => void;
+    handleOutsideSearch: () => void;
 }
 
 export function Search(props: ISearchProps) {
@@ -23,12 +21,12 @@ export function Search(props: ISearchProps) {
         valueSearch,
         selectInput,
         onChangeSearch,
-        useOutsideSearch,
+        handleShowSearchRecent,
+        handleCloseSearch,
+        handleOutsideSearch,
     } = props;
 
     const inputRef = React.useRef(null);
-    const searchRef = React.useRef(null);
-    const closeRef = React.useRef(null);
 
     React.useEffect(() => {
         if (selectInput) {
@@ -39,54 +37,40 @@ export function Search(props: ISearchProps) {
         }
     }, [selectInput]);
 
-    useOutsideSearch(searchRef, closeRef);
     return (
-        <Container className={className} ref={searchRef}>
-            <input
-                onChange={onChangeSearch}
-                type="text"
-                ref={inputRef}
-                value={valueSearch}
-                style={{ color: `${showRecentSearch ? '#8e8e8e' : '#efefef'}` }}
-            />
-            {showRecentSearch ? (
-                <div className="box-close" ref={closeRef}>
-                    <CloseCircleIcon className="icon-close" />
+        <Wrapper>
+            <Container className={className} onClick={handleShowSearchRecent}>
+                <input
+                    onChange={onChangeSearch}
+                    type="text"
+                    ref={inputRef}
+                    value={valueSearch}
+                    style={{ color: `${showRecentSearch ? '#8e8e8e' : '#efefef'}` }}
+                />
+                <div className="input-text">
+                    {!showRecentSearch ? <SearchIcon className="iconSearch" /> : ''}
+                    {!showRecentSearch ? <span>{valueSearch ? valueSearch : 'Search'}</span> : ''}
                 </div>
-            ) : (
-                ''
-            )}
-            <div className="input-text">
-                {!showRecentSearch ? <SearchIcon className="iconSearch" /> : ''}
-                {!showRecentSearch ? <span>{valueSearch ? valueSearch : 'Search'}</span> : ''}
-            </div>
+            </Container>
             {showRecentSearch ? (
-                <Paper className="recent-search" elevation={4}>
-                    <div className="content">
-                        {/* <a href='/jj'>lorem44</a> */}
-                        <div>Recent2</div>
-                        <div>Recent3</div>
+                <>
+                    <div className="box-close" onClick={handleCloseSearch}>
+                        <CloseCircleIcon className="icon-close" />
                     </div>
-                    <Arrow position="center-top" />
-                </Paper>
+                    <ExpandSearch
+                        showRecentSearch={showRecentSearch}
+                        handleOutsideSearch={handleOutsideSearch}
+                    />
+                </>
             ) : (
                 ''
             )}
-        </Container>
+        </Wrapper>
     );
 }
 
-const Container = styled.div`
-    padding: 6px 16px;
-    display: flex;
-    align-items: center;
-    background-color: #efefef;
-    border-radius: 8px;
+const Wrapper = styled.div`
     position: relative;
-
-    .iconSearch {
-        margin-right: 10px;
-    }
 
     .icon-close {
         width: 15px;
@@ -99,6 +83,24 @@ const Container = styled.div`
         position: absolute;
         cursor: pointer;
         right: 2px;
+        z-index: 999;
+
+        top: 50%;
+        transform: translateY(-50%);
+    }
+`;
+
+const Container = styled.div`
+    padding: 6px 16px;
+    display: flex;
+    align-items: center;
+    background-color: #efefef;
+    border-radius: 8px;
+    position: relative;
+    z-index: 99;
+
+    .iconSearch {
+        margin-right: 10px;
     }
 
     .input-text {
@@ -131,21 +133,5 @@ const Container = styled.div`
 
     input::placeholder {
         color: transparent;
-    }
-
-    .recent-search {
-        border-radius: 8px;
-        position: absolute;
-        width: 375px;
-        top: 50px;
-        transform: translateX(-50%);
-        left: 50%;
-        transform-style: preserve-3d;
-        z-index: 99;
-        .content {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
     }
 `;

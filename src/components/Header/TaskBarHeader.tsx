@@ -6,40 +6,66 @@ import { SettingUser } from './SettingUser';
 
 export interface ITaskBarHeaderProps {
     className: string;
-    showSettingUser: boolean;
-    useHandleSettingUser: (ref: React.RefObject<HTMLDivElement>) => void;
+    handleLogout: () => void;
 }
 
 export default function TaskBarHeader(props: ITaskBarHeaderProps) {
-    const { className, showSettingUser, useHandleSettingUser } = props;
-    const settingUserRef =React.useRef(null)
-    useHandleSettingUser(settingUserRef);
+    const { className, handleLogout } = props;
 
-    return <Container className={className}>
-        <Link to='/home'>
-            {showSettingUser ? <HomeIcon color='white'/> : <HomeIcon color='black'/>}
-        </Link>
-        <Link to='/box'>
-            <PlaneIcon/>
-        </Link>
-        <Link to='/new-post'>
-            <PlusSquareIcon/>
-        </Link>
-        <Link to='/find-people'>
-            <CompassIcon/>
-        </Link>
-        <Link to='/activity-feed'>
-            <HeartIcon/>
-        </Link>
-        <div className='user-current-box' ref={settingUserRef}>
-            <div className='image-user' style={{ border: `${showSettingUser ? '1px solid rgba(var(--i1d,38,38,38),1)' : ''}` }}>
-                <img alt='user' src='https://ecdn.game4v.com/g4v-content/uploads/2021/03/Luffy.jpg'/>
+    const [showModal, setShowModal] = React.useState<boolean>(false);
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
+
+    const handleShowModal = () => {
+        if (!showModal) {
+            setShowModal(true);
+        }
+    };
+
+    return (
+        <Container className={className}>
+            <Link to="/home">
+                {showModal ? <HomeIcon color="white" /> : <HomeIcon color="black" />}
+            </Link>
+            <Link to="/box">
+                <PlaneIcon />
+            </Link>
+            <Link to="/new-post">
+                <PlusSquareIcon />
+            </Link>
+            <Link to="/find-people">
+                <CompassIcon />
+            </Link>
+            <Link to="/activity-feed">
+                <HeartIcon />
+            </Link>
+            <div onClick={handleShowModal} className="user-current-box">
+                <div
+                    className="image-user"
+                    style={{
+                        border: `${showModal ? '1px solid rgba(var(--i1d,38,38,38),1)' : ''}`,
+                    }}
+                >
+                    <img
+                        alt="user"
+                        src="https://ecdn.game4v.com/g4v-content/uploads/2021/03/Luffy.jpg"
+                    />
+                </div>
+                {showModal ? (
+                    <SettingUser
+                        className="setting-user"
+                        onLogout={handleLogout}
+                        showModal={showModal}
+                        handleCloseModal={handleCloseModal}
+                    />
+                ) : (
+                    ''
+                )}
             </div>
-            {showSettingUser ? <SettingUser className='setting-user'/> : ''
-            }
-            
-        </div>
-    </Container>;
+        </Container>
+    );
 }
 
 const Container = styled.div`
