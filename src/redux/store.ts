@@ -5,7 +5,7 @@ import {
     combineReducers, configureStore,
     ThunkAction
 } from '@reduxjs/toolkit';
-import { history } from '@utils/history';
+import { history } from '@utils/index';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import logger from 'redux-logger';
 import { persistReducer, persistStore } from 'redux-persist';

@@ -39,7 +39,6 @@ function* handleLogin(payload: Login) {
 function* handleLogout() {
     try {
         yield AuthApi.logout()
-        // yield put(push(PATH_BASE))
 
     } catch (ex) {
         // console.log('ERRRRR')
@@ -67,6 +66,7 @@ function* watchLogout() {
     while (true) {
         yield take(authActions.logout.type)
         yield call(handleLogout)
+        yield put(push(PATH_BASE))
         yield put(authActions.logoutSuccess())
     }
 }

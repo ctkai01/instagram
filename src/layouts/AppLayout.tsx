@@ -8,7 +8,7 @@ import { LayoutScreen } from '.';
 
 export function AppLayout() {
     return (
-        <>
+        <Wrapper>  
             <LayoutScreen>
                 <Header />
                 <Content>
@@ -19,10 +19,14 @@ export function AppLayout() {
                     </Switch>
                 </Content>
             </LayoutScreen>
-        </>
+        </Wrapper>
     );
 }
 
-const Content = styled.main`
+const Wrapper = styled.main`
+    background-color: #fafafa;
+`
+
+const Content = styled.section`
     margin-top: 60px;
 `;

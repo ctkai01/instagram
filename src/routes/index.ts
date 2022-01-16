@@ -1,6 +1,6 @@
 import { IRoute } from '@models/index';
 import { Login, Register } from '@features/Auth/Pages';
-import Home from '@features/Home/Pages/Home';
+import { Home } from '@features/Home/Pages';
 
 export const PATH_BASE = '/';
 export const PATH_REGISTER = '/accounts/emailsignup/';

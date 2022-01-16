@@ -1,3 +1,4 @@
+import { Avatar } from '@components/common';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -26,33 +27,23 @@ export default function TaskBarHeader(props: ITaskBarHeaderProps) {
 
     return (
         <Container className={className}>
-            <Link to="/home">
+            <Link to="/home" className='item-taskbar'>
                 {showModal ? <HomeIcon color="white" /> : <HomeIcon color="black" />}
             </Link>
-            <Link to="/box">
+            <Link to="/box" className='item-taskbar'>
                 <PlaneIcon />
             </Link>
-            <Link to="/new-post">
+            <Link to="/new-post" className='item-taskbar'>
                 <PlusSquareIcon />
             </Link>
-            <Link to="/find-people">
+            <Link to="/find-people" className='item-taskbar'>
                 <CompassIcon />
             </Link>
-            <Link to="/activity-feed">
+            <Link to="/activity-feed"className='item-taskbar'>
                 <HeartIcon />
             </Link>
-            <div onClick={handleShowModal} className="user-current-box">
-                <div
-                    className="image-user"
-                    style={{
-                        border: `${showModal ? '1px solid rgba(var(--i1d,38,38,38),1)' : ''}`,
-                    }}
-                >
-                    <img
-                        alt="user"
-                        src="https://ecdn.game4v.com/g4v-content/uploads/2021/03/Luffy.jpg"
-                    />
-                </div>
+            <div onClick={handleShowModal} className="user-current-box item-taskbar">
+                <Avatar className='image-user' size='small' thicknessBorder={1} border={showModal ? 'normal' : 'none'} url='https://ecdn.game4v.com/g4v-content/uploads/2021/03/Luffy.jpg'/>
                 {showModal ? (
                     <SettingUser
                         className="setting-user"
@@ -70,8 +61,12 @@ export default function TaskBarHeader(props: ITaskBarHeaderProps) {
 
 const Container = styled.div`
     display: flex;
-    justify-content: space-evenly;
     padding-left: 20px;
+    justify-content: flex-end;
+
+    .item-taskbar:not(:first-child) {
+        margin-left: 30px;
+    }
 
     .setting-user {
         position: absolute;

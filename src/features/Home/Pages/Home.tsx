@@ -1,18 +1,17 @@
-import { authActions } from '@features/Auth/authSlice';
-import { useAppDispatch } from '@redux/hooks';
+import { Grid } from '@material-ui/core';
 import * as React from 'react';
+import StoriesList from '../Components/StoriesList';
 
 export interface IHomeProps {}
 
-export default function Home(props: IHomeProps) {
-    const dispatch = useAppDispatch();
-
-    const handleLogin = () => {
-        dispatch(authActions.logout())
-    };
+export function Home(props: IHomeProps) {
     return (
-        <div>
-            <button onClick={handleLogin}>Login</button>
-        </div>
+        <Grid container justifyContent='space-between' style={{ paddingTop: '30px' }}>
+            <Grid item lg={8}>
+                <StoriesList/>
+
+            </Grid>
+            <Grid item lg={4} style={{ paddingLeft: '28px' }}>Sidebar</Grid>
+        </Grid>
     );
 }

@@ -75,7 +75,8 @@ const Container = styled.header`
     left: 0;
     height: 60px;
     border-bottom: 1px solid rgba(219, 219, 219);
-
+    background: '#fff';
+    
     .content-header {
         display: flex;
         justify-content: center;
@@ -87,7 +88,7 @@ const Container = styled.header`
         }
 
         .search-bar {
-            width: 268px;
+            width: 300px;
         }
     }
 `;
