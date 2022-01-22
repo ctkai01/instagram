@@ -20,19 +20,19 @@ export const SettingUser = (props: ISettingUserProps) => {
             <Container className={className}>
                 <div className="setting-container">
                     <Link to="/user" className="setting-item">
-                        <UserIconIcon className="icon" />
+                        <UserIconIcon className="icon" ariaLabel='Profile'/>
                         <div className="setting-item-text">Profile</div>
                     </Link>
                     <Link to="/saved" className="setting-item">
-                        <SaveIconIcon className="icon" />
+                        <SaveIconIcon className="icon" ariaLabel='Saved'/>
                         <div className="setting-item-text">Saved</div>
                     </Link>
                     <Link to="/setting" className="setting-item">
-                        <SettingIcon className="icon" />
+                        <SettingIcon className="icon" ariaLabel='Settings'/>
                         <div className="setting-item-text">Settings</div>
                     </Link>
                     <div className="setting-item">
-                        <SwitchIcon className="icon" />
+                        <SwitchIcon className="icon" ariaLabel='Switch Account'/>
                         <div className="setting-item-text">Switch Accounts</div>
                     </div>
                     <div className="setting-item setting-footer" onClick={onLogout}>

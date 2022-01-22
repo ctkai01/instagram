@@ -23,6 +23,7 @@ export function Header(props: IHeaderProps) {
     };
 
     const handleLogout = () => {
+        console.log(11);
         dispatch(authActions.logout());
     };
 
@@ -71,11 +72,12 @@ export function Header(props: IHeaderProps) {
 const Container = styled.header`
     position: fixed;
     top: 0;
-    width: 100vw;
+    width: calc(100vw - 19px);
     left: 0;
     height: 60px;
     border-bottom: 1px solid rgba(219, 219, 219);
-    background: '#fff';
+    background-color: #fff;
+    z-index: 9999;
     
     .content-header {
         display: flex;

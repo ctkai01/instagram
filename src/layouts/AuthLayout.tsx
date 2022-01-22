@@ -8,6 +8,9 @@ export function AuthLayout() {
                 {routeAuth.map((e: IRoute, key) => (
                     <Route key={key} {...e} />
                 ))}
+                <Route>
+                    Sorry, this page isn't available
+                </Route>
             </Switch>
         </>
     );

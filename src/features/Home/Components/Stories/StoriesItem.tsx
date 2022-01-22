@@ -11,26 +11,20 @@ export interface IStoriesItemProps {
 export default function StoriesItem(props: IStoriesItemProps) {
     const { username, urlImage } = props;
     return (
-        <Container to='gg' hidden={true}>
+        <Container to='gg'>
             <Avatar url={urlImage} />
             <div className="username-text">{username}</div>
         </Container>
     );
 }
 const Container = styled(Link)`
-    width: 100px;
-    height: 100px;
+    height: 83px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-decoration: none;
     color: #000;
-    .image-story {
-        width: 66px;
-        height: 66px;
-        border-radius: 50%;
-    }
 
     .username-text {
         margin-top: 6px;

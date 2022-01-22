@@ -1,12 +1,10 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import StoriesItem from './StoriesItem';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import SwiperCore, { Navigation } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import NextButton from './NextButton';
-import SwiperCore, { Navigation } from 'swiper';
-import PrevButton from './PrevButton';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import StoriesItem from './StoriesItem';
 // import img from './images/bgIcon.png';
 export interface IStoriesListProps {}
 SwiperCore.use([Navigation]);
@@ -17,7 +15,7 @@ interface StyledStoriesProps {
 }
 export default function StoriesList(props: IStoriesListProps) {
     const listStories = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15'];
-    // const listStories = ['1', '2', '3'];
+    // const listStories = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
     let add;
     if (listStories.length <= 7) {
@@ -57,7 +55,6 @@ export default function StoriesList(props: IStoriesListProps) {
                         </SwiperSlide>
                     ))}
                     {arrayAddFake.map((item) => {
-                        console.log('RE');
                         return <SwiperSlide />;
                     })}
                 </Swiper>

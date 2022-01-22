@@ -3,16 +3,17 @@ import * as React from 'react';
 export interface IHomeIconProps {
     className?: string;
     color: 'black' | 'white';
+    ariaLabel?: string;
 }
 
 export function HomeIcon(props: IHomeIconProps) {
-    const { className, color } = props;
+    const { className, color, ariaLabel } = props;
  
     return (
         <>
             {color === 'white' ? (
                 <svg
-                    aria-label="Home"
+                    aria-label={ariaLabel}
                     className={className}
                     color="#262626"
                     fill="#262626"
@@ -31,7 +32,7 @@ export function HomeIcon(props: IHomeIconProps) {
                 </svg>
             ) : (
                 <svg
-                    aria-label="Home"
+                    aria-label={ariaLabel}
                     className={className}
                     color="#262626"
                     fill="#262626"

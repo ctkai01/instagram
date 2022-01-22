@@ -28,19 +28,19 @@ export default function TaskBarHeader(props: ITaskBarHeaderProps) {
     return (
         <Container className={className}>
             <Link to="/home" className='item-taskbar'>
-                {showModal ? <HomeIcon color="white" /> : <HomeIcon color="black" />}
+                {showModal ? <HomeIcon ariaLabel='Home' color="white" /> : <HomeIcon ariaLabel='Home' color="black" />}
             </Link>
             <Link to="/box" className='item-taskbar'>
-                <PlaneIcon />
+                <PlaneIcon ariaLabel='Direct'/>
             </Link>
             <Link to="/new-post" className='item-taskbar'>
-                <PlusSquareIcon />
+                <PlusSquareIcon ariaLabel='New Post'/>
             </Link>
             <Link to="/find-people" className='item-taskbar'>
-                <CompassIcon />
+                <CompassIcon ariaLabel='Find People'/>
             </Link>
             <Link to="/activity-feed"className='item-taskbar'>
-                <HeartIcon />
+                <HeartIcon ariaLabel='Activity Feed'/>
             </Link>
             <div onClick={handleShowModal} className="user-current-box item-taskbar">
                 <Avatar className='image-user' size='small' thicknessBorder={1} border={showModal ? 'normal' : 'none'} url='https://ecdn.game4v.com/g4v-content/uploads/2021/03/Luffy.jpg'/>
@@ -82,7 +82,7 @@ const Container = styled.div`
         cursor: pointer;
         position: relative;
 
-        .image-user {
+        /* .image-user {
             width: 100%;
             height: 100%;
             border-radius: 50%;
@@ -92,6 +92,6 @@ const Container = styled.div`
             width: 100%;
             height: 100%;
             border-radius: 50%;
-        }
+        } */
     }
 `;

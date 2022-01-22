@@ -9,7 +9,7 @@ export interface IModalProps {
 export function Modal(props: IModalProps) {
     const { showModal, onCloseModal } = props;
     
-    return <>{showModal && <Container onClick={onCloseModal} />}</>;
+    return <>{showModal && <Container className='ha' onClick={onCloseModal} />}</>;
 }
 
 const Container = styled.div`

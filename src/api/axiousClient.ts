@@ -18,10 +18,10 @@ axiosClient.interceptors.request.use(
         // Do something before request is sent
 
         if (config.url === '/auth/refreshToken') {
-          const refreshToken = lsRefreshTokenAuth.getItem();
-          config.headers!.authorization = `Bearer ${refreshToken}`;
+            const refreshToken = lsRefreshTokenAuth.getItem();
+            config.headers!.authorization = `Bearer ${refreshToken}`;
 
-          return config;
+            return config;
         }
         const token = lsTokenAuth.getItem();
         config.headers!.authorization = `Bearer ${token}`;
@@ -46,10 +46,11 @@ axiosClient.interceptors.response.use(
         // Do something with response error
         const originalRequest = error.config;
         if (error.response?.status === 401) {
-            const { access_token, refresh_token } = await AuthApi.refreshToken();
-            lsTokenAuth.setItem(access_token);
-            lsRefreshTokenAuth.setItem(refresh_token);
-            return axiosClient(originalRequest);
+            console.log(error.respons.config, 'Reposnse');
+            // const { access_token, refresh_token } = await AuthApi.refreshToken();
+            // lsTokenAuth.setItem(access_token);
+            // lsRefreshTokenAuth.setItem(refresh_token);
+            // return axiosClient(originalRequest);
         }
         return Promise.reject(error);
     }

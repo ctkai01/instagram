@@ -6,19 +6,19 @@ import { axiosClient } from './axiousClient';
 
 export const AuthApi = {
     login: (data: Login) => {
-        const url = 'auth/login';
+        const url = 'api/auth/login';
         return axiosClient.post(url, data);
     },
     register: (data: SignIn): Promise<User> => {
-        const url = 'auth/signup';
+        const url = 'api/auth/signup';
         return axiosClient.post(url, data);
     },
     logout: () => {
-        const url = 'auth/logout';
+        const url = 'api/auth/logout';
         return axiosClient.post(url);
     },
     refreshToken: (): Promise<Tokens> => {
-        const url = '/auth/refreshToken';
+        const url = 'api/auth/refreshToken';
         return axiosClient.post(url);
     },
 };

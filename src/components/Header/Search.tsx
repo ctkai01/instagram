@@ -48,7 +48,7 @@ export function Search(props: ISearchProps) {
                     style={{ color: `${showRecentSearch ? '#8e8e8e' : '#efefef'}` }}
                 />
                 <div className="input-text">
-                    {!showRecentSearch ? <SearchIcon className="iconSearch" /> : ''}
+                    {!showRecentSearch ? <SearchIcon ariaLabel='Search' className="iconSearch" /> : ''}
                     {!showRecentSearch ? <span>{valueSearch ? valueSearch : 'Search'}</span> : ''}
                 </div>
             </Container>
