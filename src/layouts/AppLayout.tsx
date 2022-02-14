@@ -1,5 +1,7 @@
 import { Header } from '@components/Header';
+import { selectUserAuth } from '@features/Auth/authSlice';
 import { IRoute } from '@models/index';
+import { useAppSelector } from '@redux/hooks';
 import { routeApp } from '@routes/index';
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
@@ -10,7 +12,7 @@ export function AppLayout() {
     return (
         <Wrapper>  
             <LayoutScreen>
-                <Header />
+                <Header/>
                 <Content>
                     <Switch>
                         {routeApp.map((e: IRoute, key) => (

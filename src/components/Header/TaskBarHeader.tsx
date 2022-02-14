@@ -1,4 +1,5 @@
 import { Avatar } from '@components/common';
+import { User } from '@models/User';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -8,10 +9,11 @@ import { SettingUser } from './SettingUser';
 export interface ITaskBarHeaderProps {
     className: string;
     handleLogout: () => void;
+    userAuth: User;
 }
 
 export default function TaskBarHeader(props: ITaskBarHeaderProps) {
-    const { className, handleLogout } = props;
+    const { className, userAuth, handleLogout } = props;
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
 
@@ -43,7 +45,7 @@ export default function TaskBarHeader(props: ITaskBarHeaderProps) {
                 <HeartIcon ariaLabel='Activity Feed'/>
             </Link>
             <div onClick={handleShowModal} className="user-current-box item-taskbar">
-                <Avatar className='image-user' size='small' thicknessBorder={1} border={showModal ? 'normal' : 'none'} url='https://ecdn.game4v.com/g4v-content/uploads/2021/03/Luffy.jpg'/>
+                <Avatar className='image-user' size='small' thicknessBorder={1} border={showModal ? 'normal' : 'none'} url={userAuth.avatar}/>
                 {showModal ? (
                     <SettingUser
                         className="setting-user"

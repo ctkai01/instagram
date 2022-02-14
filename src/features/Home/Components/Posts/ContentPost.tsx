@@ -1,35 +1,50 @@
-import { convertTime } from '@utils/index';
-import moment from 'moment';
+import { convertISOTime, convertTime } from '@utils/index';
 import * as React from 'react';
 import Moment from 'react-moment';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import InputPost from './InputPost';
 
-export interface IContentPostProps {}
+export interface IContentPostProps {
+    content?: string;
+    author: string;
+    time: string;
+}
 
 export function ContentPost(props: IContentPostProps) {
     const [showMoreButton, setShowMoreButton] = React.useState<boolean>(true);
-    const content = 'Nguyễn Thúc Thuỳ Tiên em nghe nỗi lòng chị không<br>CỐ LÊN 🇻🇳🇻🇳🇻🇳💪🏽💪🏽💪🏽💪🏽';
-    const time = '2022-01-18 09:37:19';
+    const { content, time, author } = props;
+    // const content = 'Nguyễn Thúc Thuỳ Tiên em nghe nỗi lòng chị không<br>CỐ LÊN 🇻🇳🇻🇳🇻🇳💪🏽💪🏽💪🏽💪🏽';
+    // const content = '';
+    // const time = '2022-01-18 09:37:19';
+    const timeCreated = convertISOTime(time);
+    console.log(timeCreated, time);
+    let contentArr;
+    let contentAuthor;
+    let allContent;
+    if (content) {
+        contentArr = content.split('<br>');
 
-    const contentArr = content.split('<br>');
-    let contentAuthor = contentArr[0];
-    const allContent: any = contentArr.map((lineContent, index) => {
-        if (index === contentArr.length - 1) {
-            return lineContent;
-        } else {
-            return (
-                <>
-                    {lineContent}
-                    <br></br>
-                </>
-            );
-        }
-    });
+        contentAuthor = contentArr[0];
+        allContent = contentArr.map((lineContent, index) => {
+            if (index === contentArr.length - 1) {
+                return lineContent;
+            } else {
+                return (
+                    <>
+                        {lineContent}
+                        <br></br>
+                    </>
+                );
+            }
+        });
+    }
+
     React.useEffect(() => {
-        if (contentArr.length < 2) {
-            setShowMoreButton(false);
+        if (content) {
+            if (contentArr.length < 2) {
+                setShowMoreButton(false);
+            }
         }
     }, []);
 
@@ -45,24 +60,26 @@ export function ContentPost(props: IContentPostProps) {
 
     return (
         <Container>
-            <div className='content-wrapper'>
+            <div className="content-wrapper">
                 <div className="count-like">38, 467 likes</div>
                 <div className="title-wrapper">
                     <span className="author-username">
-                        <Link to="username">ngokienhuy_bap</Link>
+                        <Link to="username">{content && author}</Link>
                     </span>
                     &nbsp;
-                    <span className="title-author-wrapper">
-                        <span className="title-author">{contentAuthor}</span>
-                        {showMoreButton && (
-                            <span>
-                                ...&nbsp;
-                                <button className="more-title" onClick={handleMoreContent}>
-                                    more
-                                </button>
-                            </span>
-                        )}
-                    </span>
+                    {content && (
+                        <span className="title-author-wrapper">
+                            <span className="title-author">{contentAuthor}</span>
+                            {showMoreButton && (
+                                <span>
+                                    ...&nbsp;
+                                    <button className="more-title" onClick={handleMoreContent}>
+                                        more
+                                    </button>
+                                </span>
+                            )}
+                        </span>
+                    )}
                 </div>
                 <div className="comment-wrapper">
                     <span>View all 216 comments</span>
@@ -70,24 +87,23 @@ export function ContentPost(props: IContentPostProps) {
                 <div className="time-publish-wrapper">
                     <Link to="time" className="time-text">
                         <Moment format={format} fromNow={fromNow}>
-                            {time}
+                            {timeCreated}
                         </Moment>
                     </Link>
                 </div>
             </div>
-            <InputPost/>
-        
+            <InputPost />
         </Container>
     );
 }
 
 const Container = styled.div`
-    border: 1px solid rgba(219,219,219,1);
+    border: 1px solid rgba(219, 219, 219, 1);
     border-top: none;
     .content-wrapper {
         padding: 0 16px 16px;
     }
-    
+
     .count-like {
         color: rgba(38, 38, 38, 1);
         font-weight: 600;

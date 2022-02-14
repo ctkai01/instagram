@@ -3,8 +3,11 @@ import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { Navigation, Pagination } from 'swiper';
 import 'swiper/css/pagination';
+import { Media } from '@models/Media';
 
-export interface IPhotoListProps {}
+export interface IPhotoListProps {
+    media: Media[];
+}
 SwiperCore.use([Navigation, Pagination]);
 
 interface StyledPhotosProps {
@@ -12,44 +15,46 @@ interface StyledPhotosProps {
     showButton?: boolean;
 }
 export default function PhotoList(props: IPhotoListProps) {
-    const listPhoto = [
-        {
-            url: 'https://picsum.photos/700/700?random=1',
-            tag: [
-                {
-                    userName: 'ctkaino1',
-                    location: '1',
-                },
-            ],
-        },
-        {
-            url: 'https://picsum.photos/700/700?random=2',
-            tag: [
-                {
-                    userName: 'king.a',
-                    location: '1',
-                },
-            ],
-        },
-        {
-            url: 'https://picsum.photos/700/700?random=3',
-            tag: [
-                {
-                    userName: 'nope.ke',
-                    location: '1',
-                },
-            ],
-        },
-    ];
+    const { media } = props;
+    // const listPhoto = [
+    //     {
+    //         url: 'https://picsum.photos/700/700?random=1',
+    //         tag: [
+    //             {
+    //                 userName: 'ctkaino1',
+    //                 location: '1',
+    //             },
+    //         ],
+    //     },
+    //     {
+    //         url: 'https://picsum.photos/700/700?random=2',
+    //         tag: [
+    //             {
+    //                 userName: 'king.a',
+    //                 location: '1',
+    //             },
+    //         ],
+    //     },
+    //     {
+    //         url: 'https://picsum.photos/700/700?random=3',
+    //         tag: [
+    //             {
+    //                 userName: 'nope.ke',
+    //                 location: '1',
+    //             },
+    //         ],
+    //     },
+    // ];
+
     const urlReact = process.env.REACT_APP_URL;
-    const showButton = !(listPhoto.length === 1);
+    const showButton = !(media.length === 1);
 
     return (
         <Container urlReact={urlReact} showButton={showButton}>
             <Swiper pagination={true} slidesPerView={1} navigation={true} allowTouchMove={false}>
-                {listPhoto.map((photo) => (
-                    <SwiperSlide>
-                        <img src={photo.url} alt="photoPost" />
+                {media.map((mediaItem) => (
+                    <SwiperSlide className="slider-item">
+                        <img src={mediaItem.name} alt="photoPost" />
                     </SwiperSlide>
                 ))}
             </Swiper>
@@ -58,6 +63,21 @@ export default function PhotoList(props: IPhotoListProps) {
 }
 
 const Container = styled.div<StyledPhotosProps>`
+    .slider-item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        img {
+            width: 100%;
+        }
+    }
+
+    .swiper-wrapper {
+        display: flex;
+        align-items: center;
+    }
+
     .swiper-button-next {
         background-image: ${(props) => `url(${props.urlReact}/images/bgIcon.png)`};
         height: 45px;
@@ -97,8 +117,8 @@ const Container = styled.div<StyledPhotosProps>`
     }
     .swiper-pagination {
         bottom: -4px;
-        border-left: 1px solid rgba(219,219,219,1);
-        border-right: 1px solid rgba(219,219,219,1);
+        border-left: 1px solid rgba(219, 219, 219, 1);
+        border-right: 1px solid rgba(219, 219, 219, 1);
         padding-top: 10px;
     }
 `;

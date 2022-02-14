@@ -27,3 +27,24 @@ export const convertTime = (time: string, numberAgo: number, datePrefix: datePre
         fromNow: fromNow
     }
 }
+
+function padTo2Digits(num: any) {
+    return num.toString().padStart(2, '0');
+  }
+
+export const convertISOTime = (timeISO: string) => {
+    const time = new Date(timeISO);
+    return (
+        [
+          time.getFullYear(),
+          padTo2Digits(time.getMonth() + 1),
+          padTo2Digits(time.getDate()),
+        ].join('-') +
+        ' ' +
+        [
+          padTo2Digits(time.getHours()),
+          padTo2Digits(time.getMinutes()),
+          padTo2Digits(time.getSeconds()),
+        ].join(':')
+      );
+}

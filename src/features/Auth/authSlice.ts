@@ -76,6 +76,7 @@ export const authActions = authSlice.actions;
 export const selectIsLoading = (state: RootState) => state.auth.loading;
 export const selectError = (state: RootState) => state.auth.error;
 export const selectIsLoggedIn = (state: RootState) => state.auth.isLoggedIn;
+export const selectUserAuth = (state: RootState): User => state.auth.currentUser;
 
 const authReducer = authSlice.reducer;
 

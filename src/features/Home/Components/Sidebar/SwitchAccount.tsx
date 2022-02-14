@@ -1,4 +1,6 @@
 import { Avatar } from '@components/common';
+import { selectUserAuth } from '@features/Auth/authSlice';
+import { useAppSelector } from '@redux/hooks';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -6,6 +8,8 @@ import styled from 'styled-components';
 export interface ISwitchAccountProps {}
 
 export function SwitchAccount(props: ISwitchAccountProps) {
+    const userAuth = useAppSelector(selectUserAuth);
+
     return (
         <Container>
             <div className="current-account-wrapper">
@@ -13,15 +17,15 @@ export function SwitchAccount(props: ISwitchAccountProps) {
                     <Avatar
                         className="avatar-account"
                         border="none"
-                        url="https://ecdn.game4v.com/g4v-content/uploads/2021/03/Luffy.jpg"
+                        url={userAuth.avatar}
                     />
                 </Link>
 
                 <div className="name-account-wrapper">
                     <Link to="usename" className="username">
-                        ctkaino1
+                        {userAuth.user_name}
                     </Link>
-                    <div className="full-name">Lại Quang Nam</div>
+                    <div className="full-name">{userAuth.name}</div>
                 </div>
             </div>
             <div className="switch-button">Switch</div>

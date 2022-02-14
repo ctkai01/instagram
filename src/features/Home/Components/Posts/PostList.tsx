@@ -1,18 +1,20 @@
+import { Post } from '@models/Post';
 import * as React from 'react';
 import styled from 'styled-components';
 import PostItem from './PostItem';
 
-export interface IPostListProps {}
+export interface IPostListProps {
+    posts: Post[]
+}
 
 export function PostList(props: IPostListProps) {
-    const postList = ['1', '2'];
+    const { posts } = props;
     return (
         <Container>
-            {postList.map((post, index) => (
+            {posts.map((post, index) => (
                 <PostItem
                     key={index}
-                    userName={post}
-                    urlImage={`https://picsum.photos/200/300?random=${post}`}
+                    post={post}
                 />
             ))}
         </Container>

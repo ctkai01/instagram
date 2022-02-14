@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 export interface IAvatarProps {
-    url: string;
+    url?: string;
     border?: 'none' | 'watch' | 'watched' | 'normal';
     className?: string;
     size?: 'large' | 'large-medium' | 'medium' | 'small-medium' | 'small';
