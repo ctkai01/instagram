@@ -1,10 +1,11 @@
-import { Avatar } from '@components/common';
+import { Avatar, Modal } from '@components/common';
 import { User } from '@models/User';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { CompassIcon, HeartIcon, HomeIcon, PlaneIcon, PlusSquareIcon } from '../Icons';
 import { SettingUser } from './SettingUser';
+import UploadImagePost from './UploadImagePost';
 
 export interface ITaskBarHeaderProps {
     className: string;
@@ -16,9 +17,20 @@ export default function TaskBarHeader(props: ITaskBarHeaderProps) {
     const { className, userAuth, handleLogout } = props;
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
+    const [showModalCreatePost, setShowModalCreatePost] = React.useState<boolean>(false);
 
     const handleCloseModal = () => {
         setShowModal(false);
+    };
+
+    const handleCloseModalCreatePost = () => {
+        setShowModalCreatePost(false);
+    };
+
+    const handleShowModalCreatePost = () => {
+        if (!showModalCreatePost) {
+            setShowModalCreatePost(true);
+        }
     };
 
     const handleShowModal = () => {
@@ -35,9 +47,10 @@ export default function TaskBarHeader(props: ITaskBarHeaderProps) {
             <Link to="/box" className='item-taskbar'>
                 <PlaneIcon ariaLabel='Direct'/>
             </Link>
-            <Link to="/new-post" className='item-taskbar'>
+            <div className='item-taskbar' onClick={handleShowModalCreatePost}>
                 <PlusSquareIcon ariaLabel='New Post'/>
-            </Link>
+                <Modal content={<UploadImagePost/>} color='#000000d9' showModal={showModalCreatePost} onCloseModal={handleCloseModalCreatePost}/>
+            </div>
             <Link to="/find-people" className='item-taskbar'>
                 <CompassIcon ariaLabel='Find People'/>
             </Link>
@@ -65,6 +78,10 @@ const Container = styled.div`
     display: flex;
     padding-left: 20px;
     justify-content: flex-end;
+
+    .item-taskbar {
+        cursor: pointer;
+    }
 
     .item-taskbar:not(:first-child) {
         margin-left: 30px;

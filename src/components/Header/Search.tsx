@@ -97,7 +97,7 @@ const Container = styled.div`
     background-color: #efefef;
     border-radius: 8px;
     position: relative;
-    z-index: 99;
+    /* z-index: 99; */
 
     .iconSearch {
         margin-right: 10px;
