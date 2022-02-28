@@ -3,9 +3,9 @@ import { User } from '@models/User';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { CompassIcon, HeartIcon, HomeIcon, PlaneIcon, PlusSquareIcon } from '../Icons';
+import { CompassIcon, HeartIcon, HomeIcon, PlaneIcon, PlusSquareIcon } from '@components/Icons';
 import { SettingUser } from './SettingUser';
-import UploadImagePost from './UploadImagePost';
+import { ModalPost } from '@features/UploadPost/Components';
 
 export interface ITaskBarHeaderProps {
     className: string;
@@ -49,7 +49,7 @@ export default function TaskBarHeader(props: ITaskBarHeaderProps) {
             </Link>
             <div className='item-taskbar' onClick={handleShowModalCreatePost}>
                 <PlusSquareIcon ariaLabel='New Post'/>
-                <Modal content={<UploadImagePost/>} color='#000000d9' showModal={showModalCreatePost} onCloseModal={handleCloseModalCreatePost}/>
+                <ModalPost showModalCreatePost={showModalCreatePost} handleCloseModalCreatePost={handleCloseModalCreatePost}/>
             </div>
             <Link to="/find-people" className='item-taskbar'>
                 <CompassIcon ariaLabel='Find People'/>
