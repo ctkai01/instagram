@@ -51,7 +51,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                 />
             )}
             <form>
-                <input onChange={handleOnChangeFile} ref={ref} multiple type="file" />
+                <input className='input_upload' onChange={handleOnChangeFile} ref={ref} multiple type="file" accept="image/*"/>
             </form>
         </Container>
     );
@@ -73,7 +73,7 @@ const Container = styled.div`
             font-weight: 600;
         }
     }
-    input {
+    .input_upload {
         visibility: hidden;
     }
 

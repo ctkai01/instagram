@@ -1,4 +1,4 @@
-import { BackIcon } from '@components/Icons';
+import { BackIcon, ZoomIcon } from '@components/Icons';
 import { useGesture } from '@use-gesture/react';
 import * as React from 'react';
 import { animated, useSpring } from 'react-spring';
@@ -20,7 +20,8 @@ interface ContainerStyledProps {
 
 export function CropImage(props: ICropImageProps) {
     const { imageGallery, handleShowModalDiscard, setIsClickBackFirst } = props;
-
+    const [isZoom, setIsZoom] = React.useState<boolean>(false);
+    const [scaleA, setScale] = React.useState<number>(1);
     const [isDragging, setIsDragging] = React.useState<boolean>(false);
     const [style, api] = useSpring(() => ({
         x: 0,
@@ -33,6 +34,8 @@ export function CropImage(props: ICropImageProps) {
     useGesture(
         {
             onDrag: ({ down, movement: [mx, my], pinching, cancel, offset: [x, y], ...rest }) => {
+                setIsZoom(false);
+                setScale(1);
                 if (!isDragging) {
                     setIsDragging(true);
                 }
@@ -63,12 +66,19 @@ export function CropImage(props: ICropImageProps) {
             pinch: { scaleBounds: { min: 0.5, max: 2 }, rubberband: true },
         }
     );
-
+    const styleBgImage = {...style, transform: `scale(${scaleA})`};
     const handleBackChoseImage = () => {
         setIsClickBackFirst(true);
         handleShowModalDiscard();
-    }
+    };
 
+    const handleClickZoomButton = () => {
+        setIsZoom((stateZoom) => !stateZoom);
+    };
+
+    const handleChangeRange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setScale(+e.target.value);
+    };
 
     return (
         <Container imageUrl={imageGallery[0]} isDragging={isDragging}>
@@ -80,7 +90,12 @@ export function CropImage(props: ICropImageProps) {
                 <div className="next-button">Next</div>
             </div>
             <div className="content-main">
-                <animated.div style={style} ref={ref} className="image-container"></animated.div>
+                <animated.div
+                    style={styleBgImage}
+                    ref={ref}
+                    // style={{ transform: `scale(${scaleA})` }}
+                    className="image-container"
+                ></animated.div>
                 {isDragging && (
                     <animated.div className="grid-container">
                         <div className="cell-y first"></div>
@@ -89,6 +104,32 @@ export function CropImage(props: ICropImageProps) {
                         <div className="cell-x last"></div>
                     </animated.div>
                 )}
+                <div className="tools-bar">
+                    <div
+                        style={{
+                            opacity: `${isZoom ? '0.7' : '1'}`,
+                            background: `${isZoom ? '#fff' : 'rgba(26, 26, 26, 0.8)'}`,
+                        }}
+                        className="btn-zoom"
+                        onClick={handleClickZoomButton}
+                    >
+                        {isZoom ? (
+                            <>
+                                <ZoomIcon ariaLabel="Zoom" color="black" />
+                                <input
+                                    onChange={handleChangeRange}
+                                    type="range"
+                                    value={scaleA}
+                                    min="1"
+                                    max="2"
+                                    step="0.01"
+                                />
+                            </>
+                        ) : (
+                            <ZoomIcon ariaLabel="Zoom" />
+                        )}
+                    </div>
+                </div>
             </div>
         </Container>
     );
@@ -184,6 +225,36 @@ const Container = styled.div<ContainerStyledProps>`
         width: 550px;
         cursor: grab;
         position: relative;
+
+        .tools-bar {
+            padding: 0 20px;
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-zoom {
+            padding: 8px;
+            background: rgba(26, 26, 26, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            position: relative;
+
+            input {
+                position: absolute;
+                top: -26px;
+                left: 0;
+            }
+        }
+
+        .btn-zoom:hover {
+            opacity: 0.7;
+        }
     }
 
     .image-container {
