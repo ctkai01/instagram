@@ -11,6 +11,7 @@ export interface IModalPostProps {
 export interface FileUrl {
     file: File;
     url: string;
+    type: 1 | 2;
 }
 
 export function ModalPost(props: IModalPostProps) {

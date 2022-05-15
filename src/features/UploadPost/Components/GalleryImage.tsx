@@ -1,13 +1,22 @@
-import { PlusIcon } from '@components/Icons';
+import { CloseIcon, PlusIcon } from '@components/Icons';
 import * as React from 'react';
 import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { Navigation, Pagination } from 'swiper';
 import 'swiper/css/pagination';
+import { FileUrl } from './ModalPost';
+import { MediaType } from '@models/commom';
 
 export interface IGalleryImageProps {
     className?: string;
-    imageGallery: string[];
+    fileGallery: FileUrl[];
+    activeSliderSmall: number;
+    handleClickSelectImage: (e: React.MouseEvent<HTMLElement>) => void;
+    handleCloseItemGallery: (e: number) => void;
+    handleClickSliderGallery: (
+        swiper: SwiperCore,
+        event: MouseEvent | TouchEvent | PointerEvent
+    ) => void;
 }
 
 SwiperCore.use([Navigation, Pagination]);
@@ -16,41 +25,91 @@ interface StyledPhotosProps {
     urlReact?: string;
     showButton?: boolean;
 }
+
 export default function GalleryImage(props: IGalleryImageProps) {
-    const { className, imageGallery } = props;
+    const {
+        className,
+        fileGallery,
+        activeSliderSmall,
+        handleClickSelectImage,
+        handleCloseItemGallery,
+        handleClickSliderGallery,
+    } = props;
     const urlReact = process.env.REACT_APP_URL;
-    const showButton = !(imageGallery.length === 1);
+
+    const showButton = !(fileGallery.length === 1);
+    const revertGallery = [...fileGallery].reverse();
+
+    const widthGalleryImg =
+        revertGallery.length <= 6 ? revertGallery.length * 106 + 6 * 2 : 6 * 106 + 6 * 2;
+
     return (
         <Container className={className} urlReact={urlReact} showButton={showButton}>
-            <div className="gallery-list">
+            <div className="gallery-list" style={{ width: widthGalleryImg }}>
                 <Swiper
-                    pagination={true}
-                    slidesPerView={2}
+                    pagination={false}
+                    slidesPerView={revertGallery.length <= 6 ? revertGallery.length : 6}
                     navigation={true}
                     allowTouchMove={false}
+                    spaceBetween={8}
+                    onClick={handleClickSliderGallery}
                 >
-                    {imageGallery.map((image) => (
-                        <>
-                            <SwiperSlide className="slider-item">
-                                <img className="img" src={image} />
-                            </SwiperSlide>
-                            <SwiperSlide className="slider-item">
-                                <img className="img" src={image} />
-                            </SwiperSlide>
-                            <SwiperSlide className="slider-item">
-                                <img className="img" src={image} />
-                            </SwiperSlide>
-                            <SwiperSlide className="slider-item">
-                                <img className="img" src={image} />
-                            </SwiperSlide>
-                        </>
+                    {revertGallery.map((file, index) => (
+                        <SwiperSlide key={index} className="slider-item">
+                            {/* <div className='shadow-slider'> */}
+                            <div className="slider-item-container">
+                                {activeSliderSmall === index && file.type === MediaType.image && (
+                                    <>
+                                        <div
+                                            style={{
+                                                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url('${file.url}')`,
+                                            }}
+                                            className="img"
+                                        />
+                                        <div
+                                            className="btn-delete"
+                                            onClick={() => handleCloseItemGallery(index)}
+                                        >
+                                            <CloseIcon ariaLabel="Delete" />
+                                        </div>
+                                    </>
+                                )}
+
+                                {activeSliderSmall !== index && file.type === MediaType.image && (
+                                    <div
+                                        style={{
+                                            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${file.url}')`,
+                                        }}
+                                        className="img"
+                                    />
+                                )}
+                                {activeSliderSmall === index && file.type === MediaType.video && (
+                                    <>
+                                        {/* <div
+                                            style={{
+                                                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url('${file.url}')`,
+                                            }}
+                                            className="img"
+                                        /> */}
+                                        <video src={file.url} className="video"/>
+                                        <div
+                                            className="btn-delete"
+                                            onClick={() => handleCloseItemGallery(index)}
+                                        >
+                                            <CloseIcon ariaLabel="Delete" />
+                                        </div>
+                                    </>
+                                )}
+
+                                {activeSliderSmall !== index && file.type === MediaType.video && (
+                                    <div>dsd</div>
+                                )}
+                            </div>
+                        </SwiperSlide>
                     ))}
                 </Swiper>
-                {/* <div style={{ backgroundImage: `url(${imageGallery[0]})`}}></div>
-        <div style={{ backgroundImage: `url(${imageGallery[0]})`}}></div>
-        <div style={{ backgroundImage: `url(${imageGallery[0]})`}}></div> */}
             </div>
-            <div className="button-add-img">
+            <div className="button-add-img" onClick={handleClickSelectImage}>
                 <div className="icon-add-container">
                     <PlusIcon />
                 </div>
@@ -66,20 +125,48 @@ const Container = styled.div<StyledPhotosProps>`
     .gallery-list {
         height: 94px;
         /* width: 94px; */
-        width: 500px;
+        /* width: 500px; */
         display: flex;
+        margin-right: 8px;
 
         .slider-item {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0 10px;
+            /* margin: 0 8px; */
+            /* width: 94px; */
+            .slider-item-container {
+                position: relative;
+                height: 100%;
+                width: 100%;
+            }
+
+            .btn-delete {
+                position: absolute;
+                top: 4px;
+                right: 10px;
+                padding: 4px;
+                background: black;
+                border-radius: 50%;
+                line-height: 0;
+            }
+
             .img {
                 /* height: 94px; */
                 /* width: 94px; */
+                height: 100%;
                 width: 100%;
-                margin: 0 6px;
-                object-fit: cover;
+                /* margin: 0 6px; */
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: center center;
+                /* object-fit: cover; */
+                /* filter: brightness(0.7); */
+            }
+
+            .video {
+                height: 100%;
+                width: 100%;
             }
         }
 

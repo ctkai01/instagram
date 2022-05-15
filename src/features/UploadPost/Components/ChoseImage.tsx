@@ -3,16 +3,23 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { FileUrl } from '.';
 import { CropImage } from './CropImage';
+import EditImage from './EditImage';
+
 
 export interface IChoseImagePostProps {
     handleClickSelectImage: (e: React.MouseEvent<HTMLElement>) => void;
     handleOnChangeFile: (e: React.FormEvent<HTMLInputElement>) => void;
+    handleChangeImageGallery: (indexActive: number) => void;
+    handleCloseItemGallery: (index: number) => void;
     handleShowModalDiscard: () => void;
+    handleBackStep: () => void;
+    handleNextStep: () => void;
     setStep: React.Dispatch<React.SetStateAction<number>>;
     setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
     setIsClickBackFirst: React.Dispatch<React.SetStateAction<boolean>>;
     step: number;
-    imageGallery: string[];
+    activeSliderSmall: number;
+    fileGallery: FileUrl[];
 }
 
 export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: any) => {
@@ -20,17 +27,22 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
         handleClickSelectImage,
         handleOnChangeFile,
         handleShowModalDiscard,
+        handleChangeImageGallery,
         setIsClickBackFirst,
+        handleCloseItemGallery,
+        handleBackStep,
+        handleNextStep,
         setStep,
         setFiles,
         step,
-        imageGallery,
+        fileGallery,
+        activeSliderSmall
     } = props;
 
     return (
         <Container>
             {step === 1 && (
-                <>
+                <div className='input-choose'>
                     <div className="header">
                         <div className="main-header">Create new post</div>
                     </div>
@@ -39,26 +51,60 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                         <div className="text-upload">Drag photos and videos here</div>
                         <button onClick={handleClickSelectImage}>Select from computer</button>
                     </div>
-                </>
+                </div>
             )}
             {step === 2 && (
                 <CropImage
-                    imageGallery={imageGallery}
+                    handleCloseItemGallery={handleCloseItemGallery}
+                    handleClickSelectImage={handleClickSelectImage}
+                    handleChangeImageGallery={handleChangeImageGallery}
+                    fileGallery={fileGallery}
+                    activeSliderSmall={activeSliderSmall}
                     setStep={setStep}
                     setFiles={setFiles}
                     setIsClickBackFirst={setIsClickBackFirst}
                     handleShowModalDiscard={handleShowModalDiscard}
+                    handleBackStep={handleBackStep}
+                    handleNextStep={handleNextStep}
+                />
+            )}
+            {step === 3 && (
+                <EditImage
+                    fileGallery={fileGallery}
+
+                    // handleCloseItemGallery={handleCloseItemGallery}
+                    // handleClickSelectImage={handleClickSelectImage}
+                    // handleChangeImageGallery={handleChangeImageGallery}
+                    // fileGallery={fileGallery}
+                    // activeSliderSmall={activeSliderSmall}
+                    // setStep={setStep}
+                    // setFiles={setFiles}
+                    // setIsClickBackFirst={setIsClickBackFirst}
+                    // handleShowModalDiscard={handleShowModalDiscard}
                 />
             )}
             <form>
-                <input className='input_upload' onChange={handleOnChangeFile} ref={ref} multiple type="file" accept="image/*"/>
+                <input
+                    className="input_upload"
+                    onChange={handleOnChangeFile}
+                    ref={ref}
+                    multiple
+                    type="file"
+                />
             </form>
         </Container>
     );
 });
 
 const Container = styled.div`
-    position: relative;
+    
+    .input-choose {
+        position: relative;
+        max-width: 751px;
+        min-width: 550px;
+        min-height: 575px;
+    }
+    
     .header {
         display: flex;
         border-bottom: 1px solid rgb(219, 219, 219);

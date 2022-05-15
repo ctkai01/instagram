@@ -15,6 +15,7 @@ export interface IUploadImagePostProps {
 export function UploadImagePost(props: IUploadImagePostProps) {
     const { step, files, setStep, handleShowModalDiscard, setIsClickBackFirst, setFiles } = props;
     const [isBumpContent, setIsBumpContent] = React.useState<boolean>(false);
+    const [activeSliderSmall, setActiveSliderSmall] = React.useState<number>(0);
 
     const refInput = React.createRef();
 
@@ -33,7 +34,6 @@ export function UploadImagePost(props: IUploadImagePostProps) {
 
         
     }, []);
-    console.log('IS', isBumpContent)
     const handleClickSelectImage = () => {
         if (refInput && refInput.current) {
             // @ts-ignore: Object is possibly 'null'.
@@ -49,35 +49,66 @@ export function UploadImagePost(props: IUploadImagePostProps) {
 
         // @ts-ignore: Object is possibly 'null'.
         const blogUrl = window.URL.createObjectURL(refInput.current.files[0]);
-
+        
         // @ts-ignore: Object is possibly 'null'.
-        setFiles((files: File[]) => [
+        setFiles((files: FileUrl[]) => [
             ...files,
             {
                 // @ts-ignore: Object is possibly 'null'.
                 file: refInput.current.files[0],
                 url: blogUrl,
+                // @ts-ignore: Object is possibly 'null'.
+                type: refInput.current.files[0].type === "video/mp4" ? 2 : 1
             },
         ]);
+        if (step !== 2) {
+            setStep((stepPrev: number) => stepPrev + 1);
 
-        setStep((stepPrev: number) => stepPrev + 1);
+        } else {
+            setActiveSliderSmall(activeSliderSmall + 1)
+        }
         // @ts-ignore: Object is possibly 'null'.
         e.target.value = null;
     };
 
+    const handleChangeImageGallery = (indexActive: number) => {
+        setActiveSliderSmall(indexActive)
+    }
+    // let imageGallery = files.map((file) => file.url);
+
+    const handleCloseItemGallery = (indexClose: number) => {
+        const indexCloseFile = files.length - 1 - indexClose;
+        // imageGallery = imageGallery.filter((img, index) => index !== indexClose)
+        setFiles(filesPrev => filesPrev.filter((img, index) => index !== indexCloseFile))
+        // console.log(`CLose ${}`)
+        // console.log(imageGallery)
+    }
+    
     console.log(files);
-    const imageGallery = files.map((file) => file.url);
+    const handleNextStep = () => {
+        setStep((stepPrev: number) => stepPrev + 1);
+    }
+
+    const handleBackStep = () => {
+        setStep((stepPrev: number) => stepPrev - 1);
+    }
+    
     return (
         <Container className={isBumpContent ? "bump" : ''}>
-            {(step === 1 || step === 2) && (
+            {(step === 1 || step === 2 || step == 3) && (
                 <ChoseImage
                     handleClickSelectImage={handleClickSelectImage}
                     handleOnChangeFile={handleOnChangeFile}
                     handleShowModalDiscard={handleShowModalDiscard}
                     setIsClickBackFirst={setIsClickBackFirst}
+                    handleChangeImageGallery={handleChangeImageGallery}
+                    handleCloseItemGallery={handleCloseItemGallery}
+                    handleNextStep={handleNextStep}
+                    handleBackStep={handleBackStep}
+                    activeSliderSmall={activeSliderSmall}
                     step={step}
                     ref={refInput}
-                    imageGallery={imageGallery}
+                    fileGallery={files}
                     setStep={setStep}
                     setFiles={setFiles}
                 />
@@ -89,9 +120,7 @@ export function UploadImagePost(props: IUploadImagePostProps) {
 const Container = styled.div`
     position: relative;
     background-color: #fff;
-    max-width: 751px;
-    min-width: 550px;
-    min-height: 575px;
+   
     border-radius: 15px;
     overflow: hidden;
 
