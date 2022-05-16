@@ -7,6 +7,8 @@ import SwiperCore, { Navigation, Pagination, EffectFade } from 'swiper';
 import 'swiper/css/pagination';
 import { env } from 'process';
 import FilterImageList from './FilterImageList';
+import CanvasImage from './CanvasImage';
+import { FilterImage } from '@constants/filter-image';
 
 export interface IEditImageProps {
     fileGallery: FileUrl[];
@@ -15,8 +17,66 @@ interface ContainerStyledProps {
     baseUrl: string;
 }
 
+interface statusFilter {
+    value?: number,
+    active: boolean,
+    notValue: boolean
+}
+// export interface FiltersImage {
+//     saturationHSV: statusFilter;
+//     levelsPosterize: statusFilter;
+//     grayscale: statusFilter;
+//     invert: statusFilter;
+//     alphaRGBA: statusFilter;
+//     sepia: statusFilter;
+//     solarize: statusFilter;
+//     blurRadius: statusFilter;
+//     redRGB: statusFilter;
+//     blueRGB: statusFilter;
+//     greenRGB: statusFilter;
+//     original: statusFilter
+// }
+
+export interface FiltersImage {
+    indexActive: number,
+    value?: number,
+}
+
 export default function EditImage(props: IEditImageProps) {
     const { fileGallery } = props;
+
+    const [filters, setFilters] = React.useState<FiltersImage>({
+        indexActive: FilterImage.ORIGINAL
+    })
+    const [activeFilter, setActiveFilter] = React.useState(0);
+    // console.log(filters)
+    const handleClickFilter = (index: number) => {
+        if (index === FilterImage.ORIGINAL || index === FilterImage.SOLARIZE || index === FilterImage.SEPIA || index === FilterImage.INVERT || index === FilterImage.GRAY_SCALE) {
+            setFilters({
+                indexActive: index,
+            })
+        } else if (index === FilterImage.GREEN_RGB || index === FilterImage.BLUE_RGB || index === FilterImage.RED_RGB) {
+            setFilters({
+                indexActive: index,
+                value: 140
+            })
+        } else {
+            setFilters({
+                indexActive: index,
+                value: 0
+            })
+        }
+
+        setActiveFilter(index); 
+    };
+    const handleChangeRangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value =  +e.target.value
+        setFilters({
+            ...filters,
+            value
+        })
+    }
+    console.log(filters)
     return (
         <Container baseUrl={window.location.origin}>
         {/* <Container> */}
@@ -39,18 +99,21 @@ export default function EditImage(props: IEditImageProps) {
                     >
                         {fileGallery.map((file, index) => (
                             <SwiperSlide key={index} className="slider-item">
-                                <div
+                                {/* <div
                                     style={{
                                         backgroundImage: `url('${file.url}')`,
                                     }}
                                     className="img"
-                                />
+                                    
+                                /> */}
+                                <CanvasImage imgUrl={file.url} filters={filters}/>    
+                                {/* <CanvasImage imgUrl="https://konvajs.org/assets/yoda.jpg"/> */}
                             </SwiperSlide>
                         ))}
                     </Swiper>
                 </div>
                 <div className="filter-list">
-                    <FilterImageList/>
+                    <FilterImageList filters={filters} handleChangeRangeValue={handleChangeRangeValue} activeFilter={activeFilter} handleClickFilter={handleClickFilter}/>
                 </div>
             </div>
         </Container>
@@ -117,14 +180,14 @@ const Container = styled.div<ContainerStyledProps>`
             justify-content: center;
             align-items: center;
 
-            .img {
+            /* .img {
                 height: 100%;
                 width: 100%;
                 background-repeat: no-repeat;
                 background-size: cover;
                 background-position: center center;
             
-            }
+            } */
 
         }
 

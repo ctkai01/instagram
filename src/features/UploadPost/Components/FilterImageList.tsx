@@ -1,15 +1,43 @@
+import { FilterImage } from '@constants/filter-image';
 import * as React from 'react';
 import styled from 'styled-components';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import { Stage, Layer, Image } from "react-konva";
-import useImage from "use-image";
-export interface IFillerImageListProps {}
+import { FiltersImage } from './EditImage';
+
+export interface IFillerImageListProps {
+    activeFilter: number;
+    filters: FiltersImage;
+    handleChangeRangeValue: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleClickFilter: (index: number) => void;
+}
 
 export default function FilterImageList(props: IFillerImageListProps) {
     const [active, setActive] = React.useState(1);
-    const [activeFilter, setActiveFilter] = React.useState(1);
-    const [image] = useImage("https://konvajs.org/assets/lion.png");
+
+    const { activeFilter, filters, handleChangeRangeValue, handleClickFilter } = props;
+
+    let min = 0;
+    let max = 1;
+    let step = 0.01;
+
+    if (activeFilter === FilterImage.SATURATION_HSV) {
+        min = -1;
+        max = 1;
+    } else if (activeFilter === FilterImage.LEVELS_POSTERIZE)  {
+        min = 0;
+        max = 1;
+    } else if (activeFilter === FilterImage.ALPHA_RGBA)  {
+        min = 0;
+        max = 1;
+    } else if (activeFilter === FilterImage.BLUR_RADIUS)  {
+        min = 0;
+        max = 40;
+        step = 1;
+    } else if (activeFilter === FilterImage.GREEN_RGB || activeFilter === FilterImage.BLUE_RGB || activeFilter === FilterImage.RED_RGB)  {
+        min = 0;
+        max = 255;
+        step = 1;
+    }
+    console.log(`value: ${filters.value}, min: ${min} , max: ${max}`)
     const filterList = [
         {
             name: 'Original',
@@ -61,9 +89,6 @@ export default function FilterImageList(props: IFillerImageListProps) {
         },
     ];
 
-    const handleClickFilter = (index: number) => {
-        setActiveFilter(index + 1);
-    };
     return (
         <Container>
             <div className="tabs">
@@ -91,8 +116,8 @@ export default function FilterImageList(props: IFillerImageListProps) {
                 >
                     <div className="filters-list">
                         {filterList.map((filterItem, index) => (
-                            <div    
-                            key={index}
+                            <div
+                                key={index}
                                 className="filter-item"
                                 onClick={() => {
                                     handleClickFilter(index);
@@ -103,7 +128,7 @@ export default function FilterImageList(props: IFillerImageListProps) {
                                         <img
                                             style={{
                                                 border: `${
-                                                    activeFilter === index + 1
+                                                    activeFilter === index
                                                         ? '2px solid #0095f6'
                                                         : 'none'
                                                 }`,
@@ -115,7 +140,7 @@ export default function FilterImageList(props: IFillerImageListProps) {
                                         className="name-filter"
                                         style={{
                                             color: `${
-                                                activeFilter === index + 1 ? '#0095f6' : '#8e8e8e'
+                                                activeFilter === index ? '#0095f6' : '#8e8e8e'
                                             }`,
                                         }}
                                     >
@@ -124,48 +149,22 @@ export default function FilterImageList(props: IFillerImageListProps) {
                                 </div>
                             </div>
                         ))}
-
-                        {/* <div className="filter-item">
-                            <div className="filter-item-wrapper">
-                                <div className="img-wrapper">
-                                    <img
-                                        alt="Filter: Normal"
-                                        src="https://www.instagram.com/static/images/filters/Normal.jpg/645b11fc5c52.jpg"
-                                    />
-                                </div>
-                                <div className="name-filter">Original</div>
-                            </div>
-                        </div>
-                        <div className="filter-item">
-                            <div className="filter-item-wrapper">
-                                <div className="img-wrapper">
-                                    <img
-                                        alt="Filter: Normal"
-                                        src="https://www.instagram.com/static/images/filters/Normal.jpg/645b11fc5c52.jpg"
-                                    />
-                                </div>
-                                <div className="name-filter">Original</div>
-                            </div>
-                        </div> */}
                     </div>
-                    <div className="filter-tool">
-                        {/* <input
-                            className='input-range'
-                            // onChange={handleChangeRange}
+                    {filters.indexActive === FilterImage.ORIGINAL || filters.indexActive === FilterImage.SOLARIZE || filters.indexActive === FilterImage.SEPIA || filters.indexActive === FilterImage.INVERT || filters.indexActive === FilterImage.GRAY_SCALE ? '' : (
+                        <div className="filter-tool">
+                        <input
+                            className="input-range"
+                            onChange={handleChangeRangeValue}
                             type="range"
-                            // value={scaleA}
-                            min="0"
-                            max="1"
-                            step="0.01"
-                        /> */}
-                        <Stage width={200} height={100}>
-                            <Layer>
-                                <Image image={image} />
-                            </Layer>
-                        </Stage>
-                        
+                            value={filters.value}
+                            min={min}
+                            max={max}
+                            step={step}
+                        />
                         100
                     </div>
+                    )}
+                    
                 </div>
             )}
 
