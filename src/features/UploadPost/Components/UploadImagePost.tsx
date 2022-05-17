@@ -1,3 +1,4 @@
+import { MediaType } from '@constants/media-type';
 import * as React from 'react';
 import styled from 'styled-components';
 import { FileUrl } from '.';
@@ -58,7 +59,7 @@ export function UploadImagePost(props: IUploadImagePostProps) {
                 file: refInput.current.files[0],
                 url: blogUrl,
                 // @ts-ignore: Object is possibly 'null'.
-                type: refInput.current.files[0].type === "video/mp4" ? 2 : 1
+                type: refInput.current.files[0]?.type === "video/mp4" ? MediaType.video : MediaType.image
             },
         ]);
         if (step !== 2) {

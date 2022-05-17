@@ -12,4 +12,13 @@ export enum FilterImage {
     GREEN_RGB,
     BLUE_RGB
 }
+
+export enum AdjustmentImage {
+    SATURATION,
+    BRIGHTNESS,
+    CONTRAST,
+    THRESHOLD,
+    HUE,
+    NOISE,
+}
   

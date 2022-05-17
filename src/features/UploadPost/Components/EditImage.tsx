@@ -18,68 +18,179 @@ interface ContainerStyledProps {
 }
 
 interface statusFilter {
-    value?: number,
-    active: boolean,
-    notValue: boolean
+    value?: number;
+    active: boolean;
+    notValue: boolean;
 }
-// export interface FiltersImage {
-//     saturationHSV: statusFilter;
-//     levelsPosterize: statusFilter;
-//     grayscale: statusFilter;
-//     invert: statusFilter;
-//     alphaRGBA: statusFilter;
-//     sepia: statusFilter;
-//     solarize: statusFilter;
-//     blurRadius: statusFilter;
-//     redRGB: statusFilter;
-//     blueRGB: statusFilter;
-//     greenRGB: statusFilter;
-//     original: statusFilter
+
+// interface statusFilter {
+//     value?: number,
+//     active: boolean,
+//     notValue: boolean
 // }
 
+export interface AdjustmentValueImage {
+    saturation: number;
+    brightness: number;
+    contrast: number;
+    threshold: number;
+    hue: number;
+    noise: number;
+}
+
 export interface FiltersImage {
-    indexActive: number,
-    value?: number,
+    indexActive: number;
+    value?: number;
 }
 
 export default function EditImage(props: IEditImageProps) {
     const { fileGallery } = props;
 
     const [filters, setFilters] = React.useState<FiltersImage>({
-        indexActive: FilterImage.ORIGINAL
-    })
+        indexActive: FilterImage.ORIGINAL,
+    });
+
+    const [adjustments, setAdjustments] = React.useState<AdjustmentValueImage>({
+        saturation: 0,
+        brightness: 0,
+        contrast: 0,
+        threshold: 0,
+        hue: 0,
+        noise: 0,
+    });
+
     const [activeFilter, setActiveFilter] = React.useState(0);
-    // console.log(filters)
+    console.log(adjustments)
     const handleClickFilter = (index: number) => {
-        if (index === FilterImage.ORIGINAL || index === FilterImage.SOLARIZE || index === FilterImage.SEPIA || index === FilterImage.INVERT || index === FilterImage.GRAY_SCALE) {
+        if (
+            index === FilterImage.ORIGINAL ||
+            index === FilterImage.SOLARIZE ||
+            index === FilterImage.SEPIA ||
+            index === FilterImage.INVERT ||
+            index === FilterImage.GRAY_SCALE
+        ) {
             setFilters({
                 indexActive: index,
-            })
-        } else if (index === FilterImage.GREEN_RGB || index === FilterImage.BLUE_RGB || index === FilterImage.RED_RGB) {
+            });
+        } else if (
+            index === FilterImage.GREEN_RGB ||
+            index === FilterImage.BLUE_RGB ||
+            index === FilterImage.RED_RGB
+        ) {
             setFilters({
                 indexActive: index,
-                value: 140
-            })
+                value: 140,
+            });
         } else {
             setFilters({
                 indexActive: index,
-                value: 0
-            })
+                value: 0,
+            });
         }
-
-        setActiveFilter(index); 
+        setActiveFilter(index);
     };
+
+    const handleChangeAdjustmentSaturation = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = +e.target.value;
+        setAdjustments({
+            ...adjustments,
+            saturation: value,
+        });
+    };
+
+    const handleResetAdjustmentSaturation = () => {
+        setAdjustments({
+            ...adjustments,
+            saturation: 0,
+        });
+    };
+
+    const handleChangeAdjustmentBrightness = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = +e.target.value;
+        setAdjustments({
+            ...adjustments,
+            brightness: value,
+        });
+    };
+
+    const handleResetAdjustmentBrightness = () => {
+        setAdjustments({
+            ...adjustments,
+            brightness: 0,
+        });
+    };
+
+    const handleChangeAdjustmentContrast = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = +e.target.value;
+        setAdjustments({
+            ...adjustments,
+            contrast: value,
+        });
+    };
+
+    const handleResetAdjustmentContrast  = () => {
+        setAdjustments({
+            ...adjustments,
+            contrast: 0,
+        });
+    };
+
+    const handleChangeAdjustmentThreshold = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = +e.target.value;
+        setAdjustments({
+            ...adjustments,
+            threshold: value,
+        });
+    };
+
+    const handleResetAdjustmentThreshold  = () => {
+        setAdjustments({
+            ...adjustments,
+            threshold: 0,
+        });
+    };
+
+    const handleChangeAdjustmentHue = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = +e.target.value;
+        setAdjustments({
+            ...adjustments,
+            hue: value,
+        });
+    };
+
+    const handleResetAdjustmentHue  = () => {
+        setAdjustments({
+            ...adjustments,
+            hue: 0,
+        });
+    };
+
+    const handleChangeAdjustmentNoise= (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = +e.target.value;
+        setAdjustments({
+            ...adjustments,
+            noise: value,
+        });
+    };
+
+    const handleResetAdjustmentNoise  = () => {
+        setAdjustments({
+            ...adjustments,
+            noise: 0,
+        });
+    };
+
     const handleChangeRangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value =  +e.target.value
+        const value = +e.target.value;
         setFilters({
             ...filters,
-            value
-        })
-    }
-    console.log(filters)
+            value,
+        });
+    };
+
     return (
         <Container baseUrl={window.location.origin}>
-        {/* <Container> */}
+            {/* <Container> */}
             <div className="header">
                 {/* <div className="back-button" onClick={handleBackChoseImage}> */}
                 <div className="back-button">
@@ -88,7 +199,7 @@ export default function EditImage(props: IEditImageProps) {
                 <div className="main-header">Edit</div>
                 <div className="next-button">Next</div>
             </div>
-            <div className="content-main" style={{flexDirection: 'row', height: '80vh'}}>
+            <div className="content-main" style={{ flexDirection: 'row', height: '80vh' }}>
                 <div className="img-list">
                     <Swiper
                         pagination={true}
@@ -106,14 +217,33 @@ export default function EditImage(props: IEditImageProps) {
                                     className="img"
                                     
                                 /> */}
-                                <CanvasImage imgUrl={file.url} filters={filters}/>    
+                                <CanvasImage adjustments={adjustments} imgUrl={file.url} filters={filters} />
                                 {/* <CanvasImage imgUrl="https://konvajs.org/assets/yoda.jpg"/> */}
                             </SwiperSlide>
                         ))}
                     </Swiper>
                 </div>
                 <div className="filter-list">
-                    <FilterImageList filters={filters} handleChangeRangeValue={handleChangeRangeValue} activeFilter={activeFilter} handleClickFilter={handleClickFilter}/>
+                    <FilterImageList
+                        handleChangeAdjustmentSaturation={handleChangeAdjustmentSaturation}
+                        handleChangeAdjustmentBrightness={handleChangeAdjustmentBrightness}
+                        handleChangeAdjustmentContrast={handleChangeAdjustmentContrast}
+                        handleChangeAdjustmentThreshold={handleChangeAdjustmentThreshold}
+                        handleChangeAdjustmentHue={handleChangeAdjustmentHue}
+                        handleChangeAdjustmentNoise={handleChangeAdjustmentNoise}
+
+                        handleResetAdjustmentSaturation={handleResetAdjustmentSaturation}
+                        handleResetAdjustmentBrightness={handleResetAdjustmentBrightness}
+                        handleResetAdjustmentContrast={handleResetAdjustmentContrast}
+                        handleResetAdjustmentThreshold={handleResetAdjustmentThreshold}
+                        handleResetAdjustmentHue={handleResetAdjustmentHue}
+                        handleResetAdjustmentNoise={handleResetAdjustmentNoise}
+                        adjustments={adjustments}
+                        filters={filters}
+                        handleChangeRangeValue={handleChangeRangeValue}
+                        activeFilter={activeFilter}
+                        handleClickFilter={handleClickFilter}
+                    />
                 </div>
             </div>
         </Container>
@@ -163,24 +293,25 @@ const Container = styled.div<ContainerStyledProps>`
 
     .content-main {
         display: flex;
-   
+
         .img-list {
-            width: 65%;
+            width: 68%;
             height: 100%;
+            cursor: pointer;
         }
 
         .filter-list {
-            width: 35%;
+            width: 32%;
             height: 100%;
         }
     }
 
     .slider-item {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-            /* .img {
+        /* .img {
                 height: 100%;
                 width: 100%;
                 background-repeat: no-repeat;
@@ -188,8 +319,7 @@ const Container = styled.div<ContainerStyledProps>`
                 background-position: center center;
             
             } */
-
-        }
+    }
 
     .swiper {
         height: 100%;

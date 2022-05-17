@@ -2,15 +2,16 @@ import * as React from 'react';
 import { Stage, Layer, Image } from 'react-konva';
 import useImage from 'use-image';
 import Konva from 'konva';
-import { FiltersImage } from './EditImage';
+import { AdjustmentValueImage, FiltersImage } from './EditImage';
 import { FilterImage } from '@constants/filter-image';
 export interface ICanvasImageProps {
     imgUrl: string;
     filters: FiltersImage;
+    adjustments: AdjustmentValueImage;
 }
 
 export default function CanvasImage(props: ICanvasImageProps) {
-    const { imgUrl, filters } = props;
+    const { imgUrl, filters, adjustments } = props;
     // @ts-ignore: Object is possibly 'null'.
 
     const imageRef: React.RefObject<Konva.Image> = React.useRef();
@@ -53,7 +54,7 @@ export default function CanvasImage(props: ICanvasImageProps) {
     //       return undefined;
     //     }
     //     const el = document.createElement("canvas");
-    const modeFilter = []
+    let modeFilter = []
     let option = {}
     if (filters.indexActive === FilterImage.SATURATION_HSV) {
         modeFilter.push( Konva.Filters.HSV )
@@ -85,6 +86,40 @@ export default function CanvasImage(props: ICanvasImageProps) {
         modeFilter.push(Konva.Filters.RGB)
         option = {...option, blue: filters.value}
     }
+
+    if (adjustments.saturation) {
+        modeFilter.push(Konva.Filters.HSL)
+        option = {...option, saturation: adjustments.saturation}
+    }
+
+    if (adjustments.brightness) {
+        modeFilter.push(Konva.Filters.Brighten)
+        option = {...option, brightness: adjustments.brightness}
+    }
+
+    if (adjustments.contrast) {
+        modeFilter.push(Konva.Filters.Contrast)
+        option = {...option, contrast: adjustments.contrast}
+    }
+
+    if (adjustments.threshold) {
+        modeFilter.push(Konva.Filters.Threshold)
+        option = {...option, threshold: adjustments.threshold}
+    }
+
+    if (adjustments.hue) {
+        modeFilter.push(Konva.Filters.HSL)
+        option = {...option, hue: adjustments.hue}
+    }
+
+    if (adjustments.noise) {
+        modeFilter.push(Konva.Filters.Noise)
+        option = {...option, noise: adjustments.noise}
+    }
+
+    modeFilter = modeFilter.filter(function (value, index, array) { 
+        return array.indexOf(value) === index;
+    });
     //     el.width = image.width;
     //     el.height = image.height;
     //     const ctx = el.getContext("2d");
