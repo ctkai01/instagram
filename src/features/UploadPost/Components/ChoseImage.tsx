@@ -39,6 +39,9 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
         activeSliderSmall
     } = props;
 
+    const handleNextEditImage = (files: FileUrl[]) => {
+        console.log(files)
+    }
     return (
         <Container>
             {step === 1 && (
@@ -71,7 +74,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
             {step === 3 && (
                 <EditImage
                     fileGallery={fileGallery}
-
+                    handleNextEditImage={handleNextEditImage}
                     // handleCloseItemGallery={handleCloseItemGallery}
                     // handleClickSelectImage={handleClickSelectImage}
                     // handleChangeImageGallery={handleChangeImageGallery}

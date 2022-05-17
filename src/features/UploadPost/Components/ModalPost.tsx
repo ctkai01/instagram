@@ -1,4 +1,5 @@
 import { Modal } from '@components/common';
+import { MediaType } from '@constants/media-type';
 import * as React from 'react';
 import { DiscardPost } from './DiscardPost';
 import {UploadImagePost } from './UploadImagePost';
@@ -11,7 +12,7 @@ export interface IModalPostProps {
 export interface FileUrl {
     file: File;
     url: string;
-    type: 1 | 2;
+    type: MediaType.image | MediaType.video;
 }
 
 export function ModalPost(props: IModalPostProps) {

@@ -1,17 +1,18 @@
 import { BackIcon } from '@components/Icons';
+import { FilterImage } from '@constants/filter-image';
 import * as React from 'react';
 import styled from 'styled-components';
-import { FileUrl } from './ModalPost';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore, { Navigation, Pagination, EffectFade } from 'swiper';
 import 'swiper/css/pagination';
-import { env } from 'process';
-import FilterImageList from './FilterImageList';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import SwiperCore from 'swiper';
 import CanvasImage from './CanvasImage';
-import { FilterImage } from '@constants/filter-image';
+import FilterImageList from './FilterImageList';
+import { FileUrl } from './ModalPost';
 
 export interface IEditImageProps {
     fileGallery: FileUrl[];
+    handleNextEditImage: (files: FileUrl[]) => void;
+    // setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
 }
 interface ContainerStyledProps {
     baseUrl: string;
@@ -36,32 +37,61 @@ export interface AdjustmentValueImage {
     threshold: number;
     hue: number;
     noise: number;
+    indexImage?: number;
 }
 
 export interface FiltersImage {
     indexActive: number;
     value?: number;
+    indexImage?: number;
 }
 
 export default function EditImage(props: IEditImageProps) {
-    const { fileGallery } = props;
+    const { fileGallery, handleNextEditImage } = props;
 
-    const [filters, setFilters] = React.useState<FiltersImage>({
+    const initialFilters: FiltersImage[] = fileGallery.map((file, index) => ({
         indexActive: FilterImage.ORIGINAL,
-    });
+        indexImage: index,
+    }));
 
-    const [adjustments, setAdjustments] = React.useState<AdjustmentValueImage>({
+    const initialAdjustments: AdjustmentValueImage[] = fileGallery.map((file, index) => ({
         saturation: 0,
         brightness: 0,
         contrast: 0,
         threshold: 0,
         hue: 0,
         noise: 0,
-    });
+        indexImage: index,
+    }));
+
+    const [filters, setFilters] = React.useState<FiltersImage[]>(initialFilters);
+    const [currentIndexSlider, setCurrentIndexSlider] = React.useState<number>(0);
+
+    const [filesCanvas, setFilesCanvas] = React.useState<FileUrl[]>([]);
+    const [swiper, setSwiper] = React.useState<SwiperCore>();
+
+    const handleAddFileCanvas = (file: FileUrl) => {
+        // if (filesCanvas.length >= 2) {
+        //     setFilesCanvas((filesCanvasPre) => [...filesCanvasPre, file].slice(-2));
+        // } else {
+        //     setFilesCanvas((filesCanvasPre) => [...filesCanvasPre, file]);
+        // }
+        setFilesCanvas((filesCanvasPre) => [...filesCanvasPre, file]);
+    };
+    console.log(filesCanvas);
+  
+    const [adjustments, setAdjustments] = React.useState<AdjustmentValueImage[]>(initialAdjustments);
 
     const [activeFilter, setActiveFilter] = React.useState(0);
-    console.log(adjustments)
+    console.log(adjustments);
+    // @ts-ignore: Object is possibly 'null'.
+    const swiperIndex = swiper?.activeIndex | 0;
+    const currentFilter = filters.find((filter) => filter.indexImage === swiperIndex) || filters[0];
+
     const handleClickFilter = (index: number) => {
+        // @ts-ignore: Object is possibly 'null'.
+        const swiperIndex = swiper?.activeIndex | 0;
+
         if (
             index === FilterImage.ORIGINAL ||
             index === FilterImage.SOLARIZE ||
@@ -69,125 +99,293 @@ export default function EditImage(props: IEditImageProps) {
             index === FilterImage.INVERT ||
             index === FilterImage.GRAY_SCALE
         ) {
-            setFilters({
-                indexActive: index,
+
+            setFilters((filterPre) => {
+                const newFilter = filterPre.map((filter) => {
+                    if (filter.indexImage === swiperIndex) {
+                        return {
+                            ...filter,
+                            indexActive: index,
+                        };
+                    } else {
+                        return filter;
+                    }
+                });
+                return newFilter;
             });
         } else if (
             index === FilterImage.GREEN_RGB ||
             index === FilterImage.BLUE_RGB ||
             index === FilterImage.RED_RGB
         ) {
-            setFilters({
-                indexActive: index,
-                value: 140,
+
+            setFilters((filterPre) => {
+                const newFilter = filterPre.map((filter) => {
+                    if (filter.indexImage === swiperIndex) {
+                        return {
+                            ...filter,
+                            indexActive: index,
+                            value: 140,
+                        };
+                    } else {
+                        return filter;
+                    }
+                });
+                return newFilter;
             });
         } else {
-            setFilters({
-                indexActive: index,
-                value: 0,
+            setFilters((filterPre) => {
+                const newFilter = filterPre.map((filter) => {
+                    if (filter.indexImage === swiperIndex) {
+                        return {
+                            ...filter,
+                            indexActive: index,
+                            value: 0,
+                        };
+                    } else {
+                        return filter;
+                    }
+                });
+                return newFilter;
             });
         }
+
         setActiveFilter(index);
     };
 
     const handleChangeAdjustmentSaturation = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = +e.target.value;
-        setAdjustments({
-            ...adjustments,
-            saturation: value,
+
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        saturation: value,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
     };
 
     const handleResetAdjustmentSaturation = () => {
-        setAdjustments({
-            ...adjustments,
-            saturation: 0,
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        saturation: 0,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
     };
 
     const handleChangeAdjustmentBrightness = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = +e.target.value;
-        setAdjustments({
-            ...adjustments,
-            brightness: value,
+
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        brightness: value,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
     };
 
     const handleResetAdjustmentBrightness = () => {
-        setAdjustments({
-            ...adjustments,
-            brightness: 0,
+      
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        brightness: 0,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
     };
 
     const handleChangeAdjustmentContrast = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = +e.target.value;
-        setAdjustments({
-            ...adjustments,
-            contrast: value,
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        contrast: value,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
+
     };
 
-    const handleResetAdjustmentContrast  = () => {
-        setAdjustments({
-            ...adjustments,
-            contrast: 0,
+    const handleResetAdjustmentContrast = () => {
+   
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        contrast: 0,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
     };
 
     const handleChangeAdjustmentThreshold = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = +e.target.value;
-        setAdjustments({
-            ...adjustments,
-            threshold: value,
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        threshold: value,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
+     
     };
 
-    const handleResetAdjustmentThreshold  = () => {
-        setAdjustments({
-            ...adjustments,
-            threshold: 0,
+    const handleResetAdjustmentThreshold = () => {
+       
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        threshold: 0,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
     };
 
     const handleChangeAdjustmentHue = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = +e.target.value;
-        setAdjustments({
-            ...adjustments,
-            hue: value,
+   
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        hue: value,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
     };
 
-    const handleResetAdjustmentHue  = () => {
-        setAdjustments({
-            ...adjustments,
-            hue: 0,
+    const handleResetAdjustmentHue = () => {
+     
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        hue: 0,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
     };
 
-    const handleChangeAdjustmentNoise= (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeAdjustmentNoise = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = +e.target.value;
-        setAdjustments({
-            ...adjustments,
-            noise: value,
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        noise: value,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
+    
     };
 
-    const handleResetAdjustmentNoise  = () => {
-        setAdjustments({
-            ...adjustments,
-            noise: 0,
+    const handleResetAdjustmentNoise = () => {
+       
+        setAdjustments((adjustmentsPre) => {
+            const newFilter = adjustmentsPre.map((adjustment) => {
+                if (adjustment.indexImage === swiperIndex) {
+                    return {
+                        ...adjustment,
+                        noise: 0,
+                    };
+                } else {
+                    return adjustment;
+                }
+            });
+            return newFilter;
         });
     };
 
     const handleChangeRangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // @ts-ignore: Object is possibly 'null'.
+        const swiperIndex = swiper?.activeIndex | 0;
         const value = +e.target.value;
-        setFilters({
-            ...filters,
-            value,
+        setFilters((filterPre) => {
+            const newFilter = filterPre.map((filter) => {
+                if (filter.indexImage === swiperIndex) {
+                    return {
+                        ...filter,
+                        value: value,
+                    };
+                } else {
+                    return filter;
+                }
+            });
+            return newFilter;
         });
+   
     };
 
+    const currentAdjustment = adjustments.find((adjustment) => adjustment.indexImage === swiperIndex) || adjustments[0];
+
+    console.log(filters);
+    console.log(currentAdjustment);
     return (
         <Container baseUrl={window.location.origin}>
             {/* <Container> */}
@@ -197,7 +395,12 @@ export default function EditImage(props: IEditImageProps) {
                     <BackIcon ariaLabel="Back" />
                 </div>
                 <div className="main-header">Edit</div>
-                <div className="next-button">Next</div>
+                <div
+                    className="next-button"
+                    onClick={() => handleNextEditImage(filesCanvas.slice(-2))}
+                >
+                    Next
+                </div>
             </div>
             <div className="content-main" style={{ flexDirection: 'row', height: '80vh' }}>
                 <div className="img-list">
@@ -205,20 +408,22 @@ export default function EditImage(props: IEditImageProps) {
                         pagination={true}
                         slidesPerView={1}
                         navigation={true}
+                        onSwiper={(swiper) => setSwiper(swiper)}
                         allowTouchMove={false}
                         effect={'fade'}
+                        onSlideChange={(swiper) => {
+                            setCurrentIndexSlider(swiper.activeIndex);
+                        }}
                     >
                         {fileGallery.map((file, index) => (
                             <SwiperSlide key={index} className="slider-item">
-                                {/* <div
-                                    style={{
-                                        backgroundImage: `url('${file.url}')`,
-                                    }}
-                                    className="img"
-                                    
-                                /> */}
-                                <CanvasImage adjustments={adjustments} imgUrl={file.url} filters={filters} />
-                                {/* <CanvasImage imgUrl="https://konvajs.org/assets/yoda.jpg"/> */}
+                                <CanvasImage
+                                    indexCanvas={index}
+                                    handleAddFileCanvas={handleAddFileCanvas}
+                                    currentAdjustment={currentAdjustment}
+                                    fileUpload={file}
+                                    currentFilter={currentFilter}
+                                />
                             </SwiperSlide>
                         ))}
                     </Swiper>
@@ -231,17 +436,16 @@ export default function EditImage(props: IEditImageProps) {
                         handleChangeAdjustmentThreshold={handleChangeAdjustmentThreshold}
                         handleChangeAdjustmentHue={handleChangeAdjustmentHue}
                         handleChangeAdjustmentNoise={handleChangeAdjustmentNoise}
-
                         handleResetAdjustmentSaturation={handleResetAdjustmentSaturation}
                         handleResetAdjustmentBrightness={handleResetAdjustmentBrightness}
                         handleResetAdjustmentContrast={handleResetAdjustmentContrast}
                         handleResetAdjustmentThreshold={handleResetAdjustmentThreshold}
                         handleResetAdjustmentHue={handleResetAdjustmentHue}
                         handleResetAdjustmentNoise={handleResetAdjustmentNoise}
-                        adjustments={adjustments}
-                        filters={filters}
+                        currentAdjustment={currentAdjustment}
                         handleChangeRangeValue={handleChangeRangeValue}
                         activeFilter={activeFilter}
+                        currentFilter={currentFilter}
                         handleClickFilter={handleClickFilter}
                     />
                 </div>

@@ -5,8 +5,9 @@ import { FiltersImage, AdjustmentValueImage } from './EditImage';
 
 export interface IFillerImageListProps {
     activeFilter: number;
-    filters: FiltersImage;
-    adjustments: AdjustmentValueImage;
+    // filters: FiltersImage[];
+    currentFilter: FiltersImage;
+    currentAdjustment: AdjustmentValueImage;
     handleChangeAdjustmentBrightness: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleChangeAdjustmentSaturation: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleChangeAdjustmentContrast: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -37,8 +38,8 @@ export default function FilterImageList(props: IFillerImageListProps) {
 
     const {
         activeFilter,
-        filters,
-        adjustments,
+        currentFilter,
+        currentAdjustment,
         handleChangeAdjustmentBrightness,
         handleChangeAdjustmentSaturation,
         handleChangeAdjustmentContrast,
@@ -81,56 +82,56 @@ export default function FilterImageList(props: IFillerImageListProps) {
         max = 255;
         step = 1;
     }
-
+    
     const optionInputAdjustment = (index: number): ConfigInputRange => {
         if (index === AdjustmentImage.SATURATION) {
             return {
                 min: -1,
                 max: 1,
                 step: 0.1,
-                value: adjustments.saturation,
+                value: currentAdjustment.saturation,
             };
         } else if (index === AdjustmentImage.BRIGHTNESS) {
             return {
                 min: -1,
                 max: 1,
                 step: 0.1,
-                value: adjustments.brightness,
+                value: currentAdjustment.brightness,
             };
         } else if (index === AdjustmentImage.CONTRAST) {
             return {
                 min: -100,
                 max: 100,
                 step: 1,
-                value: adjustments.contrast,
+                value: currentAdjustment.contrast,
             };
         } else if (index === AdjustmentImage.THRESHOLD) {
             return {
                 min: 0,
                 max: 1,
                 step: 0.01,
-                value: adjustments.threshold,
+                value: currentAdjustment.threshold,
             };
         } else if (index === AdjustmentImage.HUE) {
             return {
                 min: 0,
                 max: 359,
                 step: 1,
-                value: adjustments.hue,
+                value: currentAdjustment.hue,
             };
         } else if (index === AdjustmentImage.NOISE) {
             return {
                 min: 0,
                 max: 1,
                 step: 0.01,
-                value: adjustments.noise,
+                value: currentAdjustment.noise,
             };
         } else {
             return {
                 min: 1,
                 max: 2,
                 step: 1,
-                value: adjustments.saturation,
+                value: currentAdjustment.saturation,
             };
         }
     };
@@ -219,7 +220,7 @@ export default function FilterImageList(props: IFillerImageListProps) {
             return handleResetAdjustmentNoise();
         }
     };
-
+    console.log(currentFilter)
     return (
         <Container>
             <div className="tabs">
@@ -259,7 +260,7 @@ export default function FilterImageList(props: IFillerImageListProps) {
                                         <img
                                             style={{
                                                 border: `${
-                                                    activeFilter === index
+                                                    currentFilter.indexActive === index
                                                         ? '2px solid #0095f6'
                                                         : 'none'
                                                 }`,
@@ -271,7 +272,7 @@ export default function FilterImageList(props: IFillerImageListProps) {
                                         className="name-filter"
                                         style={{
                                             color: `${
-                                                activeFilter === index ? '#0095f6' : '#8e8e8e'
+                                                currentFilter.indexActive === index ? '#0095f6' : '#8e8e8e'
                                             }`,
                                         }}
                                     >
@@ -281,11 +282,11 @@ export default function FilterImageList(props: IFillerImageListProps) {
                             </div>
                         ))}
                     </div>
-                    {filters.indexActive === FilterImage.ORIGINAL ||
-                    filters.indexActive === FilterImage.SOLARIZE ||
-                    filters.indexActive === FilterImage.SEPIA ||
-                    filters.indexActive === FilterImage.INVERT ||
-                    filters.indexActive === FilterImage.GRAY_SCALE ? (
+                    {currentFilter.indexActive === FilterImage.ORIGINAL ||
+                    currentFilter.indexActive === FilterImage.SOLARIZE ||
+                    currentFilter.indexActive === FilterImage.SEPIA ||
+                    currentFilter.indexActive === FilterImage.INVERT ||
+                    currentFilter.indexActive === FilterImage.GRAY_SCALE ? (
                         ''
                     ) : (
                         <div className="filter-tool">
@@ -293,7 +294,7 @@ export default function FilterImageList(props: IFillerImageListProps) {
                                 className="input-range"
                                 onChange={handleChangeRangeValue}
                                 type="range"
-                                value={filters.value}
+                                value={currentFilter.value}
                                 min={min}
                                 max={max}
                                 step={step}
@@ -307,7 +308,7 @@ export default function FilterImageList(props: IFillerImageListProps) {
             {active === 2 && (
                 <div className="adjustment-container">
                     {adjustmentsList.map((adjustment, index) => (
-                        <div className="adjustment-item">
+                        <div key={index} className="adjustment-item">
                             <div className="adjustment-title">
                                 <div className="adjustment-text">{adjustment}</div>
                                 {
