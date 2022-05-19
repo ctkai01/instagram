@@ -8,6 +8,7 @@ import SwiperCore from 'swiper';
 import CanvasImage from './CanvasImage';
 import FilterImageList from './FilterImageList';
 import { FileUrl } from './ModalPost';
+import Konva from 'konva';
 
 export interface IEditImageProps {
     fileGallery: FileUrl[];
@@ -17,18 +18,6 @@ export interface IEditImageProps {
 interface ContainerStyledProps {
     baseUrl: string;
 }
-
-interface statusFilter {
-    value?: number;
-    active: boolean;
-    notValue: boolean;
-}
-
-// interface statusFilter {
-//     value?: number,
-//     active: boolean,
-//     notValue: boolean
-// }
 
 export interface AdjustmentValueImage {
     saturation: number;
@@ -48,6 +37,9 @@ export interface FiltersImage {
 
 export default function EditImage(props: IEditImageProps) {
     const { fileGallery, handleNextEditImage } = props;
+    const refStage = React.useRef([]);
+    // const [stageRef, setStageRef] = React.useState([])
+    refStage.current = [];
 
     const initialFilters: FiltersImage[] = fileGallery.map((file, index) => ({
         indexActive: FilterImage.ORIGINAL,
@@ -67,23 +59,19 @@ export default function EditImage(props: IEditImageProps) {
     const [filters, setFilters] = React.useState<FiltersImage[]>(initialFilters);
     const [currentIndexSlider, setCurrentIndexSlider] = React.useState<number>(0);
 
+    const [isSubmitEdit, setIsSubmitEdit] = React.useState<boolean>(false);
+
     const [filesCanvas, setFilesCanvas] = React.useState<FileUrl[]>([]);
     const [swiper, setSwiper] = React.useState<SwiperCore>();
 
     const handleAddFileCanvas = (file: FileUrl) => {
-        // if (filesCanvas.length >= 2) {
-        //     setFilesCanvas((filesCanvasPre) => [...filesCanvasPre, file].slice(-2));
-        // } else {
-        //     setFilesCanvas((filesCanvasPre) => [...filesCanvasPre, file]);
-        // }
         setFilesCanvas((filesCanvasPre) => [...filesCanvasPre, file]);
     };
-    console.log(filesCanvas);
-  
-    const [adjustments, setAdjustments] = React.useState<AdjustmentValueImage[]>(initialAdjustments);
+
+    const [adjustments, setAdjustments] =
+        React.useState<AdjustmentValueImage[]>(initialAdjustments);
 
     const [activeFilter, setActiveFilter] = React.useState(0);
-    console.log(adjustments);
     // @ts-ignore: Object is possibly 'null'.
     const swiperIndex = swiper?.activeIndex | 0;
     const currentFilter = filters.find((filter) => filter.indexImage === swiperIndex) || filters[0];
@@ -99,7 +87,6 @@ export default function EditImage(props: IEditImageProps) {
             index === FilterImage.INVERT ||
             index === FilterImage.GRAY_SCALE
         ) {
-
             setFilters((filterPre) => {
                 const newFilter = filterPre.map((filter) => {
                     if (filter.indexImage === swiperIndex) {
@@ -118,7 +105,6 @@ export default function EditImage(props: IEditImageProps) {
             index === FilterImage.BLUE_RGB ||
             index === FilterImage.RED_RGB
         ) {
-
             setFilters((filterPre) => {
                 const newFilter = filterPre.map((filter) => {
                     if (filter.indexImage === swiperIndex) {
@@ -152,7 +138,7 @@ export default function EditImage(props: IEditImageProps) {
 
         setActiveFilter(index);
     };
-
+    console.log(isSubmitEdit);
     const handleChangeAdjustmentSaturation = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = +e.target.value;
 
@@ -206,7 +192,6 @@ export default function EditImage(props: IEditImageProps) {
     };
 
     const handleResetAdjustmentBrightness = () => {
-      
         setAdjustments((adjustmentsPre) => {
             const newFilter = adjustmentsPre.map((adjustment) => {
                 if (adjustment.indexImage === swiperIndex) {
@@ -237,11 +222,9 @@ export default function EditImage(props: IEditImageProps) {
             });
             return newFilter;
         });
-
     };
 
     const handleResetAdjustmentContrast = () => {
-   
         setAdjustments((adjustmentsPre) => {
             const newFilter = adjustmentsPre.map((adjustment) => {
                 if (adjustment.indexImage === swiperIndex) {
@@ -272,11 +255,9 @@ export default function EditImage(props: IEditImageProps) {
             });
             return newFilter;
         });
-     
     };
 
     const handleResetAdjustmentThreshold = () => {
-       
         setAdjustments((adjustmentsPre) => {
             const newFilter = adjustmentsPre.map((adjustment) => {
                 if (adjustment.indexImage === swiperIndex) {
@@ -294,7 +275,7 @@ export default function EditImage(props: IEditImageProps) {
 
     const handleChangeAdjustmentHue = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = +e.target.value;
-   
+
         setAdjustments((adjustmentsPre) => {
             const newFilter = adjustmentsPre.map((adjustment) => {
                 if (adjustment.indexImage === swiperIndex) {
@@ -311,7 +292,6 @@ export default function EditImage(props: IEditImageProps) {
     };
 
     const handleResetAdjustmentHue = () => {
-     
         setAdjustments((adjustmentsPre) => {
             const newFilter = adjustmentsPre.map((adjustment) => {
                 if (adjustment.indexImage === swiperIndex) {
@@ -342,11 +322,9 @@ export default function EditImage(props: IEditImageProps) {
             });
             return newFilter;
         });
-    
     };
 
     const handleResetAdjustmentNoise = () => {
-       
         setAdjustments((adjustmentsPre) => {
             const newFilter = adjustmentsPre.map((adjustment) => {
                 if (adjustment.indexImage === swiperIndex) {
@@ -379,13 +357,15 @@ export default function EditImage(props: IEditImageProps) {
             });
             return newFilter;
         });
-   
     };
 
-    const currentAdjustment = adjustments.find((adjustment) => adjustment.indexImage === swiperIndex) || adjustments[0];
+    const currentAdjustment =
+        adjustments.find((adjustment) => adjustment.indexImage === swiperIndex) || adjustments[0];
 
-    console.log(filters);
-    console.log(currentAdjustment);
+    if (isSubmitEdit) {
+        handleNextEditImage(filesCanvas.slice(-2));
+    }
+
     return (
         <Container baseUrl={window.location.origin}>
             {/* <Container> */}
@@ -397,7 +377,9 @@ export default function EditImage(props: IEditImageProps) {
                 <div className="main-header">Edit</div>
                 <div
                     className="next-button"
-                    onClick={() => handleNextEditImage(filesCanvas.slice(-2))}
+                    onClick={() => {
+                        setIsSubmitEdit(isSubmitEdit);
+                    }}
                 >
                     Next
                 </div>
@@ -418,7 +400,9 @@ export default function EditImage(props: IEditImageProps) {
                         {fileGallery.map((file, index) => (
                             <SwiperSlide key={index} className="slider-item">
                                 <CanvasImage
+                                    filters={filters}
                                     indexCanvas={index}
+                                    isSubmitEdit={isSubmitEdit}
                                     handleAddFileCanvas={handleAddFileCanvas}
                                     currentAdjustment={currentAdjustment}
                                     fileUpload={file}

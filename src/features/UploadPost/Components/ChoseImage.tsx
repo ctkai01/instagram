@@ -41,6 +41,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
 
     const handleNextEditImage = (files: FileUrl[]) => {
         console.log(files)
+        
     }
     return (
         <Container>

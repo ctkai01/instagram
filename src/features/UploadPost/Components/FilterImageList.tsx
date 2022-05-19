@@ -23,7 +23,7 @@ export interface IFillerImageListProps {
     handleResetAdjustmentNoise: () => void;
 
     handleChangeRangeValue: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    handleClickFilter: (index: number) => void;
+    handleClickFilter: (index: number) => void; 
 }
 
 interface ConfigInputRange {
@@ -33,7 +33,7 @@ interface ConfigInputRange {
     value: number;
 }
 
-export default function FilterImageList(props: IFillerImageListProps) {
+const FilterImageList = React.memo((props: IFillerImageListProps) => {
     const [active, setActive] = React.useState(1);
 
     const {
@@ -332,8 +332,8 @@ export default function FilterImageList(props: IFillerImageListProps) {
             )}
         </Container>
     );
-}
-
+})
+export default FilterImageList;
 const Container = styled.div`
     width: 100%;
     height: calc(100% - 53px);
@@ -383,6 +383,8 @@ const Container = styled.div`
         display: flex;
         align-items: center;
         .input-range {
+            cursor: pointer;
+
             width: calc(100% - 40px);
         }
     }

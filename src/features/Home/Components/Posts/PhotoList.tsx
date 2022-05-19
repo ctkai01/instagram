@@ -52,8 +52,8 @@ export default function PhotoList(props: IPhotoListProps) {
     return (
         <Container urlReact={urlReact} showButton={showButton}>
             <Swiper pagination={true} slidesPerView={1} navigation={true} allowTouchMove={false}>
-                {media.map((mediaItem) => (
-                    <SwiperSlide className="slider-item">
+                {media.map((mediaItem, index) => (
+                    <SwiperSlide key={index} className="slider-item">
                         <img src={mediaItem.name} alt="photoPost" />
                     </SwiperSlide>
                 ))}
