@@ -1,9 +1,12 @@
 import { MediaIcon } from '@components/Icons';
+import { MediaType } from '@constants/media-type';
+import { StepCreatePost } from '@constants/step_create_post';
 import * as React from 'react';
 import styled from 'styled-components';
 import { FileUrl } from '.';
 import { CropImage } from './CropImage';
 import EditImage from './EditImage';
+import EditPost from './EditPost';
 
 
 export interface IChoseImagePostProps {
@@ -38,14 +41,26 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
         fileGallery,
         activeSliderSmall
     } = props;
+    const [indexSlideCurrentEditPost, setIndexSlideCurrentEditPost] = React.useState<number>(0);
 
-    const handleNextEditImage = (files: FileUrl[]) => {
-        console.log(files)
+    console.log('????')
+    const handleNextEditImage = (filesEdit: FileUrl[], indexSlideCurrent: number) => {
+        console.log(filesEdit)
+        setFiles((files) => files.map(file => {
+            if (file.type === MediaType.image) {
+                return filesEdit.find(fileEdit => fileEdit.file.name === file.file.name) || file
+            } else {
+                return file
+            }
+        }))
+        setIndexSlideCurrentEditPost(indexSlideCurrent)
+        handleNextStep()
         
     }
+    console.log(fileGallery)
     return (
         <Container>
-            {step === 1 && (
+            {step === StepCreatePost.CREATE_NEW_POST && (
                 <div className='input-choose'>
                     <div className="header">
                         <div className="main-header">Create new post</div>
@@ -57,7 +72,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                     </div>
                 </div>
             )}
-            {step === 2 && (
+            {step === StepCreatePost.CROP_GALLERY && (
                 <CropImage
                     handleCloseItemGallery={handleCloseItemGallery}
                     handleClickSelectImage={handleClickSelectImage}
@@ -72,7 +87,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                     handleNextStep={handleNextStep}
                 />
             )}
-            {step === 3 && (
+            {step === StepCreatePost.EDIT_GALLERY && (
                 <EditImage
                     fileGallery={fileGallery}
                     handleNextEditImage={handleNextEditImage}
@@ -86,6 +101,9 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                     // setIsClickBackFirst={setIsClickBackFirst}
                     // handleShowModalDiscard={handleShowModalDiscard}
                 />
+            )}
+            {step === StepCreatePost.EDIT_POST && (
+                <EditPost fileGallery={fileGallery} indexSlideCurrentEditPost={indexSlideCurrentEditPost}/>
             )}
             <form>
                 <input

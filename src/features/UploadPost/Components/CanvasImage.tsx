@@ -16,7 +16,7 @@ export interface ICanvasImageProps {
     handleAddFileCanvas: (file: FileUrl) => void;
 }
 
-const CanvasImage = (props: ICanvasImageProps) => {
+const CanvasImage = React.forwardRef((props: ICanvasImageProps, ref: any) => {
     const {
         filters,
         fileUpload,
@@ -55,27 +55,27 @@ const CanvasImage = (props: ICanvasImageProps) => {
         }
     }, [image, imageRef, currentFilter]);
 
-    const ref = React.useRef(null);
-    React.useEffect(() => {
-        const getFile = async () => {
-            if (ref) {
-                //@ts-ignore: Object is possibly 'null'.
-                const base64 = await ref.current.toDataURL();
+    // const ref = React.useRef(null);
+    // React.useEffect(() => {
+    //     const getFile = async () => {
+    //         if (ref) {
+    //             //@ts-ignore: Object is possibly 'null'.
+    //             const base64 = await ref.current.toDataURL();
 
-                const file = await dataUrlToFile(base64, fileUpload.file.name);
-                handleAddFileCanvas({
-                    file,
-                    url: URL.createObjectURL(file),
-                    type: MediaType.image,
-                });
-            }
-        };
-
-        if (isSubmitEdit) {
-            getFile();
-        }
-    }, [isSubmitEdit]);
-
+    //             const file = await dataUrlToFile(base64, fileUpload.file.name);
+    //             handleAddFileCanvas({
+    //                 file,
+    //                 url: URL.createObjectURL(file),
+    //                 type: MediaType.image,
+    //             });
+    //         }
+    //     };
+    //     console.log(isSubmitEdit)
+    //     if (isSubmitEdit) {
+    //         getFile();
+    //     }
+    // }, []);
+    // console.log('SUbmit', isSubmitEdit)
     let modeFilter = [];
     let option = {};
 
@@ -161,6 +161,6 @@ const CanvasImage = (props: ICanvasImageProps) => {
             </Layer>
         </Stage>
     );
-};
+});
 
 export default CanvasImage;

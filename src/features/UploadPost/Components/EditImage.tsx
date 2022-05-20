@@ -9,10 +9,11 @@ import CanvasImage from './CanvasImage';
 import FilterImageList from './FilterImageList';
 import { FileUrl } from './ModalPost';
 import Konva from 'konva';
+import { MediaType } from '@constants/media-type';
 
 export interface IEditImageProps {
     fileGallery: FileUrl[];
-    handleNextEditImage: (files: FileUrl[]) => void;
+    handleNextEditImage: (files: FileUrl[], indexSlideCurrent: number) => void;
     // setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
 }
 interface ContainerStyledProps {
@@ -37,9 +38,9 @@ export interface FiltersImage {
 
 export default function EditImage(props: IEditImageProps) {
     const { fileGallery, handleNextEditImage } = props;
-    const refStage = React.useRef([]);
+    // const refStage = React.useRef([]);
     // const [stageRef, setStageRef] = React.useState([])
-    refStage.current = [];
+    // refStage.current = [];
 
     const initialFilters: FiltersImage[] = fileGallery.map((file, index) => ({
         indexActive: FilterImage.ORIGINAL,
@@ -65,6 +66,7 @@ export default function EditImage(props: IEditImageProps) {
     const [swiper, setSwiper] = React.useState<SwiperCore>();
 
     const handleAddFileCanvas = (file: FileUrl) => {
+        console.log(file)
         setFilesCanvas((filesCanvasPre) => [...filesCanvasPre, file]);
     };
 
@@ -138,7 +140,7 @@ export default function EditImage(props: IEditImageProps) {
 
         setActiveFilter(index);
     };
-    console.log(isSubmitEdit);
+
     const handleChangeAdjustmentSaturation = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = +e.target.value;
 
@@ -361,10 +363,46 @@ export default function EditImage(props: IEditImageProps) {
 
     const currentAdjustment =
         adjustments.find((adjustment) => adjustment.indexImage === swiperIndex) || adjustments[0];
+    console.log(filesCanvas)
+    // if (isSubmitEdit) {
+    //     console.log(filesCanvas)
+    //     handleNextEditImage(filesCanvas.slice(-fileGallery.length));
+    //     setIsSubmitEdit(false)
+    // }
+    const getFile = async (ref: any, namePath: string) => {
+        // if (ref) {
+            //@ts-ignore: Object is possibly 'null'.
+            const base64 = await ref.current.toDataURL();
 
-    if (isSubmitEdit) {
-        handleNextEditImage(filesCanvas.slice(-2));
+            const file = await dataUrlToFile(base64, namePath);
+            handleAddFileCanvas({
+                file,
+                url: URL.createObjectURL(file),
+                type: MediaType.image,
+            });
+        // }
+    };
+    async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
+        const res: Response = await fetch(dataUrl);
+        const blob: Blob = await res.blob();
+        return new File([blob], fileName, { type: 'image/png' });
     }
+    React.useEffect(() => {
+        console.log(refs)
+        
+        if (isSubmitEdit && filesCanvas.length === 0) {
+            refs.forEach(async (ref, index) => {
+                await getFile(ref.ref, fileGallery[index].file.name)
+            })
+            
+        }
+        if (filesCanvas.length === fileGallery.length) {
+            handleNextEditImage(filesCanvas, currentIndexSlider);
+        }
+      
+        
+     }, [isSubmitEdit, filesCanvas]);
+    const refs = React.useMemo(() => fileGallery.map(item => ({ ref: React.createRef() })), []); // create refs only once
 
     return (
         <Container baseUrl={window.location.origin}>
@@ -378,7 +416,7 @@ export default function EditImage(props: IEditImageProps) {
                 <div
                     className="next-button"
                     onClick={() => {
-                        setIsSubmitEdit(isSubmitEdit);
+                        setIsSubmitEdit((isSubmit) => !isSubmit);
                     }}
                 >
                     Next
@@ -400,6 +438,8 @@ export default function EditImage(props: IEditImageProps) {
                         {fileGallery.map((file, index) => (
                             <SwiperSlide key={index} className="slider-item">
                                 <CanvasImage
+                                    // ref={refStage[index]}
+                                    ref={refs[index].ref}
                                     filters={filters}
                                     indexCanvas={index}
                                     isSubmitEdit={isSubmitEdit}

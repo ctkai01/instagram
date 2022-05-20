@@ -220,7 +220,6 @@ const FilterImageList = React.memo((props: IFillerImageListProps) => {
             return handleResetAdjustmentNoise();
         }
     };
-    console.log(currentFilter)
     return (
         <Container>
             <div className="tabs">
@@ -299,7 +298,7 @@ const FilterImageList = React.memo((props: IFillerImageListProps) => {
                                 max={max}
                                 step={step}
                             />
-                            100
+                            {currentFilter.value}
                         </div>
                     )}
                 </div>
@@ -369,11 +368,12 @@ const Container = styled.div`
             display: flex;
             justify-content: space-between;
             .input-range {
-                width: 93%;
+                width: 89%;
             }
 
             .adjustment-input-range-value {
-                width: 3%;
+                width: 9%;
+                text-align: end;
             }
         }
     }
