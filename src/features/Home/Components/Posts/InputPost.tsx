@@ -10,7 +10,7 @@ import { Modal } from '@components/common';
 
 export interface IInputPostProps {}
 
-export default function     InputPost(props: IInputPostProps) {
+export default function InputPost(props: IInputPostProps) {
     const [input, setInput] = React.useState('');
     const [showEmoji, setShowEmoji] = React.useState(false);
 

@@ -1,15 +1,19 @@
-import { BackIcon } from '@components/Icons';
-import { FilterImage } from '@constants/filter-image';
+import { Avatar, Modal } from '@components/common';
+import { ArrowTopIcon, BackIcon, SmileFaceIcon } from '@components/Icons';
+import { selectUserAuth } from '@features/Auth/authSlice';
+import { TextareaAutosize } from '@material-ui/core';
+import { useAppSelector } from '@redux/hooks';
 import * as React from 'react';
-import styled from 'styled-components';
+import { EmojiObject, EmojiPicker } from 'react-twemoji-picker';
+import 'react-twemoji-picker/dist/EmojiPicker.css';
+import styled, { createGlobalStyle } from 'styled-components';
+import SwiperCore from 'swiper';
 import 'swiper/css/pagination';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore from 'swiper';
-import CanvasImage from './CanvasImage';
-import FilterImageList from './FilterImageList';
+import EmojiData from 'react-twemoji-picker/data/twemoji.json';
 import { FileUrl } from './ModalPost';
-import Konva from 'konva';
-import { MediaType } from '@constants/media-type';
+import SwitchButton from './SwitchButton';
+import { TextField } from '@mui/material';
 
 export interface IEditPostProps {
     fileGallery: FileUrl[];
@@ -22,58 +26,209 @@ interface ContainerStyledProps {
     baseUrl: string;
 }
 
+const LIMIT_TEXT_CAPTION = 2200;
+
 export default function EditPost(props: IEditPostProps) {
     const { fileGallery, indexSlideCurrentEditPost } = props;
     const [swiper, setSwiper] = React.useState<SwiperCore>();
-    console.log(fileGallery)
-    
+    const userAuth = useAppSelector(selectUserAuth);
+    const [inputCaption, setInput] = React.useState('');
+    const [activeOption, setActiveOption] = React.useState(false);
+    const [showEmoji, setShowEmoji] = React.useState(false);
+    console.log(fileGallery);
+
+    const handleChangeInput = (e: any) => {
+        if (e.target.value.length <= LIMIT_TEXT_CAPTION) {
+            setInput(e.target.value);
+        }
+    };
+
+    const emojiData = Object.freeze(EmojiData);
+    const handleEmojiSelect = (emoji: EmojiObject) => {
+        setInput((value: string) => {
+            const characterEmoji = String.fromCodePoint(parseInt(emoji.unicode, 16));
+            return value + characterEmoji;
+        });
+    };
+
+    const handleClickShowEmoji = () => {
+        setShowEmoji(true);
+    };
+
+    const handleClickHideEmoji = () => {
+        setShowEmoji(false);
+    };
     return (
-        <Container baseUrl={window.location.origin}>
-            {/* <Container> */}
-            <div className="header">
-                {/* <div className="back-button" onClick={handleBackChoseImage}> */}
-                <div className="back-button">
-                    <BackIcon ariaLabel="Back" />
-                </div>
-                <div className="main-header">Edit</div>
-                <div
-                    className="next-button"
-                    // onClick={() => {
-                    //     setIsSubmitEdit((isSubmit) => !isSubmit);
-                    // }}
-                >
-                    Next
-                </div>
-            </div>
-            
-            <div className="content-main" style={{ flexDirection: 'row', height: '80vh' }}>
-                <div className="img-list">
-                    <Swiper
-                        initialSlide={indexSlideCurrentEditPost}                  
-                        pagination={true}
-                        slidesPerView={1}
-                        navigation={true}
-                        onSwiper={(swiper) => setSwiper(swiper)}
-                        allowTouchMove={false}
-                        effect={'fade'}
-                        onSlideChange={(swiper) => {
-                            // setCurrentIndexSlider(swiper.activeIndex);
-                        }}
+        <>
+            <Container baseUrl={window.location.origin}>
+                {/* <Container> */}
+                <div className="header">
+                    {/* <div className="back-button" onClick={handleBackChoseImage}> */}
+                    <div className="back-button">
+                        <BackIcon ariaLabel="Back" />
+                    </div>
+                    <div className="main-header">Create new post</div>
+                    <div
+                        className="next-button"
+                        // onClick={() => {
+                        //     setIsSubmitEdit((isSubmit) => !isSubmit);
+                        // }}
                     >
-                        {fileGallery.map((file, index) => (
-                            <SwiperSlide key={index} className="slider-item">
-                                <img src={file.url}/>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
+                        Share
+                    </div>
                 </div>
-                <div className="filter-list">
-                    
+
+                <div className="content-main" style={{ flexDirection: 'row', height: '80vh' }}>
+                    <div className="img-list">
+                        <Swiper
+                            initialSlide={indexSlideCurrentEditPost}
+                            pagination={true}
+                            slidesPerView={1}
+                            navigation={true}
+                            onSwiper={(swiper) => setSwiper(swiper)}
+                            allowTouchMove={false}
+                            effect={'fade'}
+                            onSlideChange={(swiper) => {
+                                // setCurrentIndexSlider(swiper.activeIndex);
+                            }}
+                        >
+                            {fileGallery.map((file, index) => (
+                                <SwiperSlide key={index} className="slider-item">
+                                    <img src={file.url} />
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                    </div>
+                    <div className="option-create-post">
+                        <div className="avatar-container">
+                            <Avatar className="avatar-img" url={userAuth.avatar} size="small" />
+                            <div className="user-name">{userAuth.user_name}</div>
+                        </div>
+                        <div className="caption-container">
+                            <TextareaAutosize
+                                maxRows={7}
+                                placeholder="Write a caption..."
+                                className="text-input"
+                                value={inputCaption}
+                                style={{ lineHeight: '24px', fontSize: '16px' }}
+                                onChange={handleChangeInput}
+                            />
+                        </div>
+                        <div className="icon-container">
+                            <button className="button-emoji" onClick={handleClickShowEmoji}>
+                                <SmileFaceIcon color="gray" size="small" ariaLabel="Emoji" />
+                            </button>
+                            <div className="limit-text">
+                                {inputCaption.length}/{LIMIT_TEXT_CAPTION}
+                            </div>
+                            {showEmoji && (
+                                <>
+                                    <div className="emoji-wrapper">
+                                        <EmojiPicker
+                                            theme="light"
+                                            emojiData={emojiData}
+                                            onEmojiSelect={handleEmojiSelect}
+                                        />
+                                    </div>
+                                    <Modal
+                                        showModal={showEmoji}
+                                        onCloseModal={handleClickHideEmoji}
+                                    />
+                                </>
+                            )}
+                        </div>
+                        <div className="option-tools">
+                            <div className="tool-item location">
+                            <TextField fullWidth/>
+                            </div>
+                            <div
+                                className="tool-item"
+                            >
+                                <div className="tool-item-header" onClick={() => setActiveOption((actionOption) => !actionOption)}>
+                                    <div
+                                        style={{
+                                            fontWeight: `${
+                                                activeOption
+                                                    ? '600'
+                                                    : '400'
+                                            }`,
+                                        }}
+                                        className="text"
+                                    >
+                                        Advanced settings
+                                    </div>
+                                    <div
+                                        className="icon"
+                                        style={{
+                                            transform: `${
+                                                activeOption
+                                                    ? 'rotate(180deg)'
+                                                    : 'none'
+                                            }`,
+                                        }}
+                                    >
+                                        <ArrowTopIcon />
+                                    </div>
+                                </div>
+                                {activeOption && (
+                                    <div className="tool-item-content-adv-settings">
+                                        <div className="option-item">
+                                            <div className="option-item-header">
+                                                <div className="option-item-text">
+                                                    Hide like and view counts on this post
+                                                </div>
+                                                <div className="option-item-status">
+                                                    <SwitchButton />
+                                                </div>
+                                            </div>
+                                            <div className="option-item-content">
+                                                Only you will see the total number of likes and
+                                                views on this post. You can change this later by
+                                                going to the ··· menu at the top of the post. To
+                                                hide like counts on other people's posts, go to your
+                                                account settings.{' '}
+                                                <a
+                                                    href="#"
+                                                    style={{
+                                                        color: '#00376b',
+                                                        textDecoration: 'none',
+                                                    }}
+                                                >
+                                                    Learn more
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div className="option-item">
+                                            <div className="option-item-header">
+                                                <div className="option-item-text">
+                                                    Turn off commenting
+                                                </div>
+                                                <div className="option-item-status">
+                                                    <SwitchButton />
+                                                </div>
+                                            </div>
+                                            <div className="option-item-content">
+                                                You can change this later by going to the ··· menu
+                                                at the top of your post.
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </Container>
+            </Container>
+            <GlobalStyle />
+        </>
     );
 }
+// transform: rotate(180deg)
+const GlobalStyle = createGlobalStyle`
+  body {
+      overflow: hidden !important;
+  }
+`;
 
 const Container = styled.div<ContainerStyledProps>`
     width: 1101px;
@@ -81,7 +236,9 @@ const Container = styled.div<ContainerStyledProps>`
     min-width: 688px;
     min-height: 391px;
     max-height: 898px;
-
+    body::-webkit-scrollbar {
+        display: none; /* for Chrome, Safari, and Opera */
+    }
     .header {
         display: flex;
         border-bottom: 1px solid rgb(219, 219, 219);
@@ -125,9 +282,126 @@ const Container = styled.div<ContainerStyledProps>`
             cursor: pointer;
         }
 
-        .filter-list {
+        .option-create-post {
             width: 32%;
             height: 100%;
+        }
+
+        .avatar-container {
+            display: flex;
+            padding: 18px 16px 14px;
+
+            .user-name {
+                color: #262626;
+                display: flex;
+                align-items: center;
+                font-weight: 600;
+                font-size: 16px;
+            }
+        }
+
+        .icon-container {
+            position: relative;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+
+            .button-emoji {
+                padding: 8px;
+                border: none;
+                background: none;
+                cursor: pointer;
+            }
+
+            .limit-text {
+                color: #c7c7c7;
+                font-size: 12px;
+            }
+
+            .limit-text:hover {
+                cursor: pointer;
+                color: #000;
+            }
+        }
+
+        .caption-container {
+            min-height: 172px;
+            max-height: 172px;
+            padding: 0 16px;
+            .text-input {
+                border: none;
+                outline: none;
+                resize: none;
+                overflow-y: scroll;
+                background: 0 0;
+                font-size: 14px;
+                width: 100%;
+            }
+
+            .text-input::placeholder {
+                font-size: 14px;
+            }
+        }
+
+        .avatar-img {
+            margin-right: 12px;
+        }
+
+        .emoji-wrapper {
+            position: absolute;
+            top: 100%;
+            /* transform: translateY(-100%); */
+            left: 2px;
+            z-index: 3;
+
+            & .emoji-picker-scroll > div {
+                height: 255px !important;
+            }
+        }
+
+        .option-tools .tool-item.location {
+            padding: 0 8px;
+        }
+
+        .option-tools .tool-item {
+            border-top: 1px solid #dbdbdb;
+            .tool-item-header {
+                display: flex;
+                justify-content: space-between;
+                padding: 14px 16px;
+                cursor: pointer;
+
+                .text {
+                    color: #262626;
+                    font-size: 16px;
+                }
+            }
+
+            .tool-item-content-adv-settings {
+                padding: 4px 16px;
+
+                .option-item {
+                    margin-bottom: 8px;
+                }
+
+                .option-item-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .option-item-content {
+                    font-size: 12px;
+                    color: #8e8e8e;
+                }
+
+                .option-item-header .option-item-text {
+                    font-size: 16px;
+                }
+                .option-item-content {
+                    padding: 12px 0;
+                }
+            }
         }
     }
 

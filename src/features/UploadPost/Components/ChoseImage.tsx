@@ -68,7 +68,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                     <div className="content-main">
                         <MediaIcon ariaLabel="Icon to represent media such as images or videos" />
                         <div className="text-upload">Drag photos and videos here</div>
-                        <button onClick={handleClickSelectImage}>Select from computer</button>
+                        <button className='btn-select-file' onClick={handleClickSelectImage}>Select from computer</button>
                     </div>
                 </div>
             )}
@@ -162,7 +162,7 @@ const Container = styled.div`
             margin: 10px 0 15px 0;
         }
 
-        button {
+        button.btn-select-file {
             background-color: #0095f6;
             color: #fff;
             border: none;
