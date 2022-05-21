@@ -1,19 +1,24 @@
 import { Avatar, Modal } from '@components/common';
-import { ArrowTopIcon, BackIcon, SmileFaceIcon } from '@components/Icons';
+import { ArrowTopIcon, BackIcon, CloseIcon, SiteIcon, SmileFaceIcon } from '@components/Icons';
 import { selectUserAuth } from '@features/Auth/authSlice';
-import { TextareaAutosize } from '@material-ui/core';
+import { InputAdornment, TextareaAutosize } from '@material-ui/core';
 import { useAppSelector } from '@redux/hooks';
 import * as React from 'react';
 import { EmojiObject, EmojiPicker } from 'react-twemoji-picker';
 import 'react-twemoji-picker/dist/EmojiPicker.css';
 import styled, { createGlobalStyle } from 'styled-components';
 import SwiperCore from 'swiper';
+import { useDrag } from '@use-gesture/react';
+import { animated, useSpring } from 'react-spring';
+
 import 'swiper/css/pagination';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import EmojiData from 'react-twemoji-picker/data/twemoji.json';
 import { FileUrl } from './ModalPost';
 import SwitchButton from './SwitchButton';
 import { TextField } from '@mui/material';
+import address, { Address } from './address';
+import SearchItemLocation from './SearchItemLocation';
 
 export interface IEditPostProps {
     fileGallery: FileUrl[];
@@ -32,20 +37,68 @@ export default function EditPost(props: IEditPostProps) {
     const { fileGallery, indexSlideCurrentEditPost } = props;
     const [swiper, setSwiper] = React.useState<SwiperCore>();
     const userAuth = useAppSelector(selectUserAuth);
-    const [inputCaption, setInput] = React.useState('');
+    const [inputCaption, setInputCaption] = React.useState('');
+    const [inputLocation, setInputLocation] = React.useState('');
     const [activeOption, setActiveOption] = React.useState(false);
     const [showEmoji, setShowEmoji] = React.useState(false);
+    const [isFillLocation, setIsFillLocation] = React.useState(false);
+    const [showSearchLocation, setShowSearchLocation] = React.useState(false);
+    const [searchLocation, setSearchLocation] = React.useState<Address[]>([]);
     console.log(fileGallery);
+    // const [addressList, set] = React.useState(address)
 
-    const handleChangeInput = (e: any) => {
+    const logoPos = useSpring({ x: 0, y: 0 });
+    const bindLogoPos = useDrag((params) => {
+        console.log(params.offset[0]);
+        console.log(params.offset[1]);
+        // console.log(params.offset[])
+        if (params.offset[0]<= 0) {
+            logoPos.x.set(0)
+        } else {
+            logoPos.x.set(params.offset[0] >= 719 ? 719 : params.offset[0]);
+        }
+
+        if (params.offset[1]<= 0) {
+            logoPos.y.set(0)
+        } else {
+            // logoPos.x.set(params.offset[0] >= 719 ? 719 : params.offset[0]);
+            logoPos.y.set(params.offset[1] >= 754 ? 754 : params.offset[1]);
+        }
+       
+        // logoPos.x.set(params.offset[0]);
+       
+        // logoPos.y.set(params.offset[1]);
+    });
+
+    const handleChangeInputCaption = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         if (e.target.value.length <= LIMIT_TEXT_CAPTION) {
-            setInput(e.target.value);
+            setInputCaption(e.target.value);
+        }
+    };
+
+    const handleChangeInputLocation = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInputLocation(e.target.value);
+        const valueSearch = e.target.value;
+        const searchAddress = address.filter((item) => {
+            return (
+                item.address.toUpperCase().startsWith(valueSearch.toUpperCase()) ||
+                item.name.toUpperCase().startsWith(valueSearch.toUpperCase())
+            );
+        });
+        if (!valueSearch) {
+            setShowSearchLocation(false);
+        } else {
+            setShowSearchLocation(true);
+        }
+        setSearchLocation(searchAddress);
+        if (isFillLocation) {
+            setIsFillLocation(false);
         }
     };
 
     const emojiData = Object.freeze(EmojiData);
     const handleEmojiSelect = (emoji: EmojiObject) => {
-        setInput((value: string) => {
+        setInputCaption((value: string) => {
             const characterEmoji = String.fromCodePoint(parseInt(emoji.unicode, 16));
             return value + characterEmoji;
         });
@@ -58,6 +111,29 @@ export default function EditPost(props: IEditPostProps) {
     const handleClickHideEmoji = () => {
         setShowEmoji(false);
     };
+
+    const handleClickLocation = () => {
+        if (!isFillLocation) {
+            setInputLocation('');
+        }
+        // if (isFillLocation) {
+        //     console.log('hihi')
+        //     setIsFillLocation(false)
+        // }
+    };
+
+    const handleClickLocationItem = (nameLocation: string) => {
+        setInputLocation(nameLocation);
+        setShowSearchLocation(false);
+        setIsFillLocation(true);
+    };
+
+    const handleCloseLocation = () => {
+        setShowSearchLocation(false);
+        setInputLocation('');
+        setIsFillLocation(false);
+    };
+    console.log();
     return (
         <>
             <Container baseUrl={window.location.origin}>
@@ -94,7 +170,23 @@ export default function EditPost(props: IEditPostProps) {
                         >
                             {fileGallery.map((file, index) => (
                                 <SwiperSlide key={index} className="slider-item">
-                                    <img src={file.url} />
+                                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                        <img draggable={false} src={file.url} style={{ width: '100%', height: '100%'}} />
+                                        <animated.div
+                                            {...bindLogoPos()}
+
+                                            style={{
+                                                background: 'red',
+                                                height: '30px',
+                                                width: '30px',
+                                                position: 'absolute',
+                                                top: logoPos.y,
+                                                // top: `0px`,
+                                                left: logoPos.x,
+                                                // left: `0px`,
+                                            }}
+                                        ></animated.div>
+                                    </div>
                                 </SwiperSlide>
                             ))}
                         </Swiper>
@@ -110,8 +202,12 @@ export default function EditPost(props: IEditPostProps) {
                                 placeholder="Write a caption..."
                                 className="text-input"
                                 value={inputCaption}
-                                style={{ lineHeight: '24px', fontSize: '16px' }}
-                                onChange={handleChangeInput}
+                                style={{
+                                    lineHeight: '24px',
+                                    fontSize: '16px',
+                                    fontFamily: 'inherit',
+                                }}
+                                onChange={handleChangeInputCaption}
                             />
                         </div>
                         <div className="icon-container">
@@ -139,19 +235,72 @@ export default function EditPost(props: IEditPostProps) {
                         </div>
                         <div className="option-tools">
                             <div className="tool-item location">
-                            <TextField fullWidth/>
+                                <TextField
+                                    disabled={isFillLocation}
+                                    onClick={handleClickLocation}
+                                    fullWidth
+                                    className="input-location"
+                                    placeholder="Add location"
+                                    value={inputLocation}
+                                    onChange={handleChangeInputLocation}
+                                    style={{ height: '100%', border: 'none' }}
+                                    InputProps={{
+                                        style: {
+                                            height: '100%',
+                                        },
+                                        disableUnderline: true,
+                                        endAdornment: (
+                                            <InputAdornment
+                                                position="end"
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                {inputLocation ? (
+                                                    <CloseIcon
+                                                        handleClickClose={handleCloseLocation}
+                                                        color="black"
+                                                    />
+                                                ) : (
+                                                    <SiteIcon />
+                                                )}
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    variant="standard"
+                                />
+                                {showSearchLocation && (
+                                    <>
+                                        <div className="search-location">
+                                            {searchLocation.map((location, index) => (
+                                                <SearchItemLocation
+                                                    key={index}
+                                                    address={location.address}
+                                                    name={location.name}
+                                                    handleClickLocationItem={
+                                                        handleClickLocationItem
+                                                    }
+                                                />
+                                            ))}
+                                        </div>
+                                        <Modal
+                                            showModal={showSearchLocation}
+                                            onCloseModal={handleCloseLocation}
+                                        />
+                                    </>
+                                )}
                             </div>
                             <div
                                 className="tool-item"
+                                style={{
+                                    borderBottom: `${activeOption ? 'none' : '1px solid #dbdbdb'}`,
+                                }}
                             >
-                                <div className="tool-item-header" onClick={() => setActiveOption((actionOption) => !actionOption)}>
+                                <div
+                                    className="tool-item-header"
+                                    onClick={() => setActiveOption((actionOption) => !actionOption)}
+                                >
                                     <div
                                         style={{
-                                            fontWeight: `${
-                                                activeOption
-                                                    ? '600'
-                                                    : '400'
-                                            }`,
+                                            fontWeight: `${activeOption ? '600' : '400'}`,
                                         }}
                                         className="text"
                                     >
@@ -161,9 +310,7 @@ export default function EditPost(props: IEditPostProps) {
                                         className="icon"
                                         style={{
                                             transform: `${
-                                                activeOption
-                                                    ? 'rotate(180deg)'
-                                                    : 'none'
+                                                activeOption ? 'none' : 'rotate(180deg)'
                                             }`,
                                         }}
                                     >
@@ -339,7 +486,8 @@ const Container = styled.div<ContainerStyledProps>`
             }
 
             .text-input::placeholder {
-                font-size: 14px;
+                font-size: 15px;
+                font-family: Arial, Helvetica, sans-serif;
             }
         }
 
@@ -350,7 +498,6 @@ const Container = styled.div<ContainerStyledProps>`
         .emoji-wrapper {
             position: absolute;
             top: 100%;
-            /* transform: translateY(-100%); */
             left: 2px;
             z-index: 3;
 
@@ -360,7 +507,24 @@ const Container = styled.div<ContainerStyledProps>`
         }
 
         .option-tools .tool-item.location {
-            padding: 0 8px;
+            height: 45px;
+            position: relative;
+
+            .input-location {
+                padding: 0 16px;
+            }
+
+            .search-location {
+                height: 180px;
+                overflow-y: scroll;
+                border-radius: 8px;
+                z-index: 9999;
+                position: absolute;
+                width: 100%;
+                top: 100%;
+                left: 0;
+                background-color: #fff;
+            }
         }
 
         .option-tools .tool-item {
