@@ -19,12 +19,26 @@ import SwitchButton from './SwitchButton';
 import { TextField } from '@mui/material';
 import address, { Address } from './address';
 import SearchItemLocation from './SearchItemLocation';
+import TagItem from './TagItem';
+import TagSearch from './TagSearch';
 
 export interface IEditPostProps {
     fileGallery: FileUrl[];
     indexSlideCurrentEditPost: number;
     // handleNextEditImage: (files: FileUrl[]) => void;
     // setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
+}
+
+export interface ActiveSearchUser {
+    x: number,
+    y: number,
+    active: boolean;
+}
+
+export interface TagUserPost {
+    x: number,
+    y: number,
+    user_name: string;
 }
 
 interface ContainerStyledProps {
@@ -40,35 +54,17 @@ export default function EditPost(props: IEditPostProps) {
     const [inputCaption, setInputCaption] = React.useState('');
     const [inputLocation, setInputLocation] = React.useState('');
     const [activeOption, setActiveOption] = React.useState(false);
+    const [usersTagPost, setUsersTagPost] = React.useState<TagUserPost[]>([]);
+    const [activeSearchUser, setActiveSearchUser] = React.useState<ActiveSearchUser>({
+        active: false,
+        x: 0,
+        y: 0
+    });
     const [showEmoji, setShowEmoji] = React.useState(false);
     const [isFillLocation, setIsFillLocation] = React.useState(false);
     const [showSearchLocation, setShowSearchLocation] = React.useState(false);
     const [searchLocation, setSearchLocation] = React.useState<Address[]>([]);
     console.log(fileGallery);
-    // const [addressList, set] = React.useState(address)
-
-    const logoPos = useSpring({ x: 0, y: 0 });
-    const bindLogoPos = useDrag((params) => {
-        console.log(params.offset[0]);
-        console.log(params.offset[1]);
-        // console.log(params.offset[])
-        if (params.offset[0]<= 0) {
-            logoPos.x.set(0)
-        } else {
-            logoPos.x.set(params.offset[0] >= 719 ? 719 : params.offset[0]);
-        }
-
-        if (params.offset[1]<= 0) {
-            logoPos.y.set(0)
-        } else {
-            // logoPos.x.set(params.offset[0] >= 719 ? 719 : params.offset[0]);
-            logoPos.y.set(params.offset[1] >= 754 ? 754 : params.offset[1]);
-        }
-       
-        // logoPos.x.set(params.offset[0]);
-       
-        // logoPos.y.set(params.offset[1]);
-    });
 
     const handleChangeInputCaption = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         if (e.target.value.length <= LIMIT_TEXT_CAPTION) {
@@ -133,7 +129,35 @@ export default function EditPost(props: IEditPostProps) {
         setInputLocation('');
         setIsFillLocation(false);
     };
-    console.log();
+
+    const handleClickImage = (e: React.MouseEvent<HTMLImageElement>) => {
+        setActiveSearchUser({
+            active: true,
+            x: e.nativeEvent.offsetX,
+            y: e.nativeEvent.offsetY,
+        })
+    }
+
+    const handleClickUserSearch = (tagUserPost: TagUserPost) => {
+        setUsersTagPost(usersTagPost => {
+            const checkExistUSerTag = usersTagPost.find(userTag => userTag.user_name === tagUserPost.user_name)
+            if (checkExistUSerTag) {
+                const index = usersTagPost.indexOf(checkExistUSerTag)
+                usersTagPost[index] = tagUserPost
+                return usersTagPost
+
+            } else {
+               return [...usersTagPost, tagUserPost]
+            }
+        })
+        setActiveSearchUser({
+            active: false,
+            x: 0,
+            y: 0
+        })
+    }
+
+    console.log(usersTagPost)
     return (
         <>
             <Container baseUrl={window.location.origin}>
@@ -171,21 +195,13 @@ export default function EditPost(props: IEditPostProps) {
                             {fileGallery.map((file, index) => (
                                 <SwiperSlide key={index} className="slider-item">
                                     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                                        <img draggable={false} src={file.url} style={{ width: '100%', height: '100%'}} />
-                                        <animated.div
-                                            {...bindLogoPos()}
-
-                                            style={{
-                                                background: 'red',
-                                                height: '30px',
-                                                width: '30px',
-                                                position: 'absolute',
-                                                top: logoPos.y,
-                                                // top: `0px`,
-                                                left: logoPos.x,
-                                                // left: `0px`,
-                                            }}
-                                        ></animated.div>
+                                        <img onClick={handleClickImage}  draggable={false} src={file.url} style={{ width: '100%', height: '100%', cursor: `${activeSearchUser.active ? 'initial' : 'move'}`}} />
+                                        {usersTagPost.map((userTag, index) => <TagItem key={index} userTag={userTag}/>)}
+                                        
+                                        {/* <TagItem/>
+                                        <TagItem/>
+                                        <TagItem/> */}
+                                        {activeSearchUser.active && <TagSearch activeSearchUser={activeSearchUser} handleClickUserSearch={handleClickUserSearch}/>}
                                     </div>
                                 </SwiperSlide>
                             ))}

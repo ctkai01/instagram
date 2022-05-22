@@ -2,10 +2,10 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 export interface IAvatarProps {
-    url?: string;
+    url: string;
     border?: 'none' | 'watch' | 'watched' | 'normal';
     className?: string;
-    size?: 'large' | 'large-medium' | 'medium' | 'small-medium' | 'small';
+    size?: 'large' | 'large-medium' | 'medium' | 'medium_center' | 'small-medium' | 'small';
     thicknessBorder?: number
 }
 
@@ -37,6 +37,8 @@ const Container = styled.div<Partial<IAvatarProps>>`
             return props.theme.sizeAvatar.small_medium + 4 + 'px';
         } else if (props.size === 'small') {
             return props.theme.sizeAvatar.small + 4 + 'px';
+        } else if (props.size === 'medium_center') {
+            return props.theme.sizeAvatar.medium_center + 4 + 'px';
         }
     }};
     width: ${(props) => {
@@ -50,6 +52,8 @@ const Container = styled.div<Partial<IAvatarProps>>`
             return props.theme.sizeAvatar.small_medium + 4 + 'px';
         } else if (props.size === 'small') {
             return props.theme.sizeAvatar.small + 4 + 'px';
+        } else if (props.size === 'medium_center') {
+            return props.theme.sizeAvatar.medium_center + 4 + 'px';
         }
     }};
     border-radius: 50%;
@@ -100,6 +104,8 @@ const Container = styled.div<Partial<IAvatarProps>>`
                 return props.theme.sizeAvatar.small_medium + 'px';
             } else if (props.size === 'small') {
                 return props.theme.sizeAvatar.small + 'px';
+            } else if (props.size === 'medium_center') {
+                return props.theme.sizeAvatar.medium_center + 'px';
             }
         }};
         width: ${(props) => {
@@ -113,6 +119,8 @@ const Container = styled.div<Partial<IAvatarProps>>`
                 return props.theme.sizeAvatar.small_medium + 'px';
             } else if (props.size === 'small') {
                 return props.theme.sizeAvatar.small + 'px';
+            } else if (props.size === 'medium_center') {
+                return props.theme.sizeAvatar.medium_center + 'px';
             }
         }};
         border-radius: 50%;
