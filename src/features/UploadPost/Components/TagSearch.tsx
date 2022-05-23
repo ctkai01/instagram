@@ -5,7 +5,8 @@ import { ActiveSearchUser, TagUserPost } from './EditPost';
 
 export interface ITagSearchProps {
     activeSearchUser: ActiveSearchUser;
-    handleClickUserSearch: (tagUser: TagUserPost) => void
+    currentIndexSlider: number;
+    handleClickUserSearch: (tagUser: TagUserPost, indexSlider: number) => void
 }
 
 export interface Position {
@@ -17,7 +18,7 @@ interface TagSearchContainer {
     activeSearchUser: ActiveSearchUser;
 }
 export default function TagSearch(props: ITagSearchProps) {
-    const { activeSearchUser, handleClickUserSearch } = props;
+    const { activeSearchUser, currentIndexSlider, handleClickUserSearch } = props;
     const [textSearchTag, setTextSearchTag] = React.useState('');
 
     const handleCLoseTextSearch = () => {
@@ -52,12 +53,15 @@ export default function TagSearch(props: ITagSearchProps) {
                     handleClickUserSearch={handleClickUserSearch}
                     full_name="Lai Quang Nam"
                     user_name="ctkaino1"
+                    currentIndexSlider={currentIndexSlider}
                     activeSearchUser={activeSearchUser}
                     url="http://localhost:3000/images/bgIcon.png"
                 />
                 <SearchItem
                     handleClickUserSearch={handleClickUserSearch}
                     activeSearchUser={activeSearchUser}
+                    currentIndexSlider={currentIndexSlider}
+
                     full_name="Lai Quang Nam"
                     user_name="ctkaino2"
                     url="http://localhost:3000/images/bgIcon.png"
@@ -65,6 +69,8 @@ export default function TagSearch(props: ITagSearchProps) {
                 <SearchItem
                     handleClickUserSearch={handleClickUserSearch}
                     activeSearchUser={activeSearchUser}
+                    currentIndexSlider={currentIndexSlider}
+
                     full_name="Lai Quang Nam"
                     user_name="ctkaino3"
                     url="http://localhost:3000/images/bgIcon.png"
@@ -72,6 +78,7 @@ export default function TagSearch(props: ITagSearchProps) {
                 <SearchItem
                     handleClickUserSearch={handleClickUserSearch}
                     activeSearchUser={activeSearchUser}
+                    currentIndexSlider={currentIndexSlider}
                     full_name="Lai Quang Nam"
                     user_name="ctkaino4"
                     url="http://localhost:3000/images/bgIcon.png"
@@ -89,6 +96,8 @@ const Container = styled.div<TagSearchContainer>`
     height: 226px;
     width: 338px;
     border-radius: 8px;
+    z-index: 999999;
+    box-shadow: 0 0 5px 1px rgb(0 0 0 / 10%);
     transform-style: preserve-3d;
     cursor: initial;
     .arrow-top {
@@ -99,7 +108,7 @@ const Container = styled.div<TagSearchContainer>`
         -webkit-transform: rotate(45deg);
         transform: translateZ(-1px) rotate(45deg);
         width: 14px;
-        background-color: #fff;
+        background-color: #fff; 
         left: 18px;
         top: -6px;
     }

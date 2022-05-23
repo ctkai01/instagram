@@ -8,8 +8,9 @@ export interface ISearchItemProps {
     user_name: string;
     full_name: string;
     is_tick?: boolean;
+    currentIndexSlider: number;
     activeSearchUser: ActiveSearchUser;
-    handleClickUserSearch: (tagUserPost: TagUserPost) => void;
+    handleClickUserSearch: (tagUserPost: TagUserPost, indexSlider: number) => void;
 }
 
 const defaultProps: Partial<ISearchItemProps> = {
@@ -18,7 +19,7 @@ const defaultProps: Partial<ISearchItemProps> = {
 
 export default function SearchItem(props: ISearchItemProps) {
     props = { ...defaultProps, ...props };
-    const { full_name, url, user_name, is_tick, activeSearchUser, handleClickUserSearch } = props;
+    const { full_name, url, user_name, currentIndexSlider, is_tick, activeSearchUser, handleClickUserSearch } = props;
     return (
         <Container
             onClick={() =>
@@ -26,7 +27,7 @@ export default function SearchItem(props: ISearchItemProps) {
                     user_name,
                     x: activeSearchUser.x,
                     y: activeSearchUser.y,
-                })
+                }, currentIndexSlider)
             }
         >
             <Avatar

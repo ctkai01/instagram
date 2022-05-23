@@ -1,5 +1,12 @@
 import { Avatar, Modal } from '@components/common';
-import { ArrowTopIcon, BackIcon, CloseIcon, SiteIcon, SmileFaceIcon } from '@components/Icons';
+import {
+    ArrowTopIcon,
+    BackIcon,
+    CloseIcon,
+    SiteIcon,
+    SmileFaceIcon,
+    TagShowIcon,
+} from '@components/Icons';
 import { selectUserAuth } from '@features/Auth/authSlice';
 import { InputAdornment, TextareaAutosize } from '@material-ui/core';
 import { useAppSelector } from '@redux/hooks';
@@ -20,7 +27,8 @@ import { TextField } from '@mui/material';
 import address, { Address } from './address';
 import SearchItemLocation from './SearchItemLocation';
 import TagItem from './TagItem';
-import TagSearch from './TagSearch';
+import TagSearch, { Position } from './TagSearch';
+import { MediaType } from '@models/commom';
 
 export interface IEditPostProps {
     fileGallery: FileUrl[];
@@ -30,15 +38,21 @@ export interface IEditPostProps {
 }
 
 export interface ActiveSearchUser {
-    x: number,
-    y: number,
+    x: number;
+    y: number;
     active: boolean;
 }
 
 export interface TagUserPost {
-    x: number,
-    y: number,
+    x?: number;
+    y?: number;
     user_name: string;
+}
+
+export interface TagUsersPost {
+    tagsUser: TagUserPost[];
+    show: boolean;
+    indexSlide: number;
 }
 
 interface ContainerStyledProps {
@@ -50,21 +64,36 @@ const LIMIT_TEXT_CAPTION = 2200;
 export default function EditPost(props: IEditPostProps) {
     const { fileGallery, indexSlideCurrentEditPost } = props;
     const [swiper, setSwiper] = React.useState<SwiperCore>();
+    const [currentIndexSlider, setCurrentIndexSlider] = React.useState(indexSlideCurrentEditPost);
+
+    const [imageArea, setImageArea] = React.useState<Position>({
+        x: 0,
+        y: 0,
+    });
     const userAuth = useAppSelector(selectUserAuth);
+    const refImage = React.useRef<HTMLDivElement>(null);
     const [inputCaption, setInputCaption] = React.useState('');
     const [inputLocation, setInputLocation] = React.useState('');
     const [activeOption, setActiveOption] = React.useState(false);
-    const [usersTagPost, setUsersTagPost] = React.useState<TagUserPost[]>([]);
+    const [usersTagPost, setUsersTagPost] = React.useState<TagUsersPost[]>([]);
     const [activeSearchUser, setActiveSearchUser] = React.useState<ActiveSearchUser>({
         active: false,
         x: 0,
-        y: 0
+        y: 0,
     });
     const [showEmoji, setShowEmoji] = React.useState(false);
     const [isFillLocation, setIsFillLocation] = React.useState(false);
     const [showSearchLocation, setShowSearchLocation] = React.useState(false);
     const [searchLocation, setSearchLocation] = React.useState<Address[]>([]);
-    console.log(fileGallery);
+
+    React.useEffect(() => {
+        if (refImage.current) {
+            setImageArea({
+                x: refImage.current.clientWidth,
+                y: refImage.current.clientHeight,
+            });
+        }
+    }, []);
 
     const handleChangeInputCaption = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         if (e.target.value.length <= LIMIT_TEXT_CAPTION) {
@@ -112,10 +141,6 @@ export default function EditPost(props: IEditPostProps) {
         if (!isFillLocation) {
             setInputLocation('');
         }
-        // if (isFillLocation) {
-        //     console.log('hihi')
-        //     setIsFillLocation(false)
-        // }
     };
 
     const handleClickLocationItem = (nameLocation: string) => {
@@ -131,33 +156,163 @@ export default function EditPost(props: IEditPostProps) {
     };
 
     const handleClickImage = (e: React.MouseEvent<HTMLImageElement>) => {
-        setActiveSearchUser({
-            active: true,
-            x: e.nativeEvent.offsetX,
-            y: e.nativeEvent.offsetY,
-        })
-    }
+        if (!activeSearchUser.active) {
+            setActiveSearchUser({
+                active: true,
+                x: e.nativeEvent.offsetX,
+                y: e.nativeEvent.offsetY,
+            });
+        } else {
+            setActiveSearchUser({
+                active: false,
+                x: 0,
+                y: 0,
+            });
+        }
+    };
 
-    const handleClickUserSearch = (tagUserPost: TagUserPost) => {
-        setUsersTagPost(usersTagPost => {
-            const checkExistUSerTag = usersTagPost.find(userTag => userTag.user_name === tagUserPost.user_name)
-            if (checkExistUSerTag) {
-                const index = usersTagPost.indexOf(checkExistUSerTag)
-                usersTagPost[index] = tagUserPost
-                return usersTagPost
+    const handleClickUserSearch = (tagUserPost: TagUserPost, indexSlide: number) => {
+        console.log(tagUserPost);
+        console.log(indexSlide);
+        setUsersTagPost((usersTagPostSlide) => {
+            const checkIndexSlide = usersTagPostSlide.find(
+                (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
+            );
 
+            if (checkIndexSlide) {
+                const checkExistUSerTag = checkIndexSlide.tagsUser.find(
+                    (userTag) => userTag.user_name === tagUserPost.user_name
+                );
+                console.log('Exist SLider');
+                if (checkExistUSerTag) {
+                    console.log('Exist user tag');
+
+                    const index = checkIndexSlide.tagsUser.indexOf(checkExistUSerTag);
+                    checkIndexSlide.tagsUser[index] = { ...checkExistUSerTag, ...tagUserPost };
+                    checkIndexSlide.show = true;
+                    console.log(checkIndexSlide);
+
+                    usersTagPostSlide[usersTagPostSlide.indexOf(checkIndexSlide)] = checkIndexSlide;
+                    return usersTagPostSlide;
+                } else {
+                    usersTagPostSlide[usersTagPostSlide.indexOf(checkIndexSlide)] = {
+                        ...checkIndexSlide,
+                        tagsUser: [...checkIndexSlide.tagsUser, tagUserPost],
+                        show: true,
+                    };
+                    return usersTagPostSlide;
+                }
             } else {
-               return [...usersTagPost, tagUserPost]
+                return [...usersTagPostSlide, { tagsUser: [tagUserPost], show: true, indexSlide }];
             }
-        })
+        });
+
+        // setUsersTagPost(({ tagsUser, show }) => {
+        //     const checkExistUSerTag = tagsUser.find(
+        //         (userTag) => userTag.user_name === tagUserPost.user_name
+        //     );
+        //     if (checkExistUSerTag) {
+        //         const index = tagsUser.indexOf(checkExistUSerTag);
+        //         tagsUser[index] = tagUserPost;
+        //         return { tagsUser, show: true };
+        //     } else {
+        //         return { tagsUser: [...tagsUser, tagUserPost], show: true };
+        //     }
+        // });
         setActiveSearchUser({
             active: false,
             x: 0,
-            y: 0
-        })
-    }
+            y: 0,
+        });
+    };
 
-    console.log(usersTagPost)
+    const handleChangePostUser = (position: Position, indexTag: number, indexSlide: number) => {
+        setUsersTagPost((usersTagPostSlide) => {
+            const userTagPostSlide = usersTagPostSlide.find(
+                (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
+            );
+            // const tagsUser =
+            if (userTagPostSlide) {
+                userTagPostSlide.tagsUser[indexTag] = {
+                    ...userTagPostSlide.tagsUser[indexTag],
+                    ...position,
+                };
+                usersTagPostSlide[
+                    usersTagPostSlide.findIndex(
+                        (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
+                    )
+                ] = userTagPostSlide;
+                return usersTagPostSlide;
+            } else {
+                return usersTagPostSlide;
+            }
+
+            // tagsUser[indexTag] = { ...tagsUser[indexTag], ...position };
+            // return { tagsUser, show };
+        });
+    };
+
+    const handleDeleteUseTag = (userName: string, indexSlide: number) => {
+        setUsersTagPost((usersTagPostSlide) => {
+            const userTagPostSlide = usersTagPostSlide.find(
+                (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
+            );
+
+            if (userTagPostSlide) {
+                const tagsUserAfterDelete = userTagPostSlide.tagsUser.filter(
+                    (userTagPost) => userTagPost.user_name !== userName
+                );
+
+                userTagPostSlide.tagsUser = tagsUserAfterDelete;
+                userTagPostSlide.show = tagsUserAfterDelete.length ? true : false;
+                usersTagPostSlide[
+                    usersTagPostSlide.findIndex(
+                        (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
+                    )
+                ] = userTagPostSlide;
+                return usersTagPostSlide;
+            } else {
+                return usersTagPostSlide;
+            }
+        });
+
+        // setUsersTagPost(({ tagsUser, show }) => {
+        //     const tagsUserAfterDelete = tagsUser.filter(
+        //         (userTagPost) => userTagPost.user_name !== userName
+        //     );
+
+        //     return {
+        //         tagsUser: tagsUserAfterDelete,
+        //         show: tagsUserAfterDelete.length ? true : false,
+        //     };
+        // });
+    };
+
+    const handleHideTag = (indexSlide: number) => {
+        console.log(11);
+        setUsersTagPost((usersTagPostSlide) => {
+            const userTagPostSlide = usersTagPostSlide.find(
+                (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
+            );
+            if (userTagPostSlide) {
+                userTagPostSlide.show = !userTagPostSlide.show;
+                usersTagPostSlide[
+                    usersTagPostSlide.findIndex(
+                        (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
+                    )
+                ] = userTagPostSlide;
+
+                return usersTagPostSlide;
+            } else {
+                return usersTagPostSlide;
+            }
+        });
+
+        // setUsersTagPost((usersTagPost) => ({
+        //     ...usersTagPost,
+        //     show: !usersTagPost.show,
+        // }));
+    };
     return (
         <>
             <Container baseUrl={window.location.origin}>
@@ -179,7 +334,7 @@ export default function EditPost(props: IEditPostProps) {
                 </div>
 
                 <div className="content-main" style={{ flexDirection: 'row', height: '80vh' }}>
-                    <div className="img-list">
+                    <div className="img-list" ref={refImage}>
                         <Swiper
                             initialSlide={indexSlideCurrentEditPost}
                             pagination={true}
@@ -189,23 +344,65 @@ export default function EditPost(props: IEditPostProps) {
                             allowTouchMove={false}
                             effect={'fade'}
                             onSlideChange={(swiper) => {
-                                // setCurrentIndexSlider(swiper.activeIndex);
+                                setCurrentIndexSlider(swiper.activeIndex);
                             }}
                         >
-                            {fileGallery.map((file, index) => (
-                                <SwiperSlide key={index} className="slider-item">
-                                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                                        <img onClick={handleClickImage}  draggable={false} src={file.url} style={{ width: '100%', height: '100%', cursor: `${activeSearchUser.active ? 'initial' : 'move'}`}} />
-                                        {usersTagPost.map((userTag, index) => <TagItem key={index} userTag={userTag}/>)}
-                                        
-                                        {/* <TagItem/>
-                                        <TagItem/>
-                                        <TagItem/> */}
-                                        {activeSearchUser.active && <TagSearch activeSearchUser={activeSearchUser} handleClickUserSearch={handleClickUserSearch}/>}
+                            {fileGallery.map((file, indexGallery) => (
+                                <SwiperSlide key={indexGallery} className="slider-item">
+                                    <div
+                                        style={{
+                                            position: 'relative',
+                                            width: '100%',
+                                            height: '100%',
+                                        }}
+                                    >
+                                        <img
+                                            onClick={handleClickImage}
+                                            draggable={false}
+                                            src={file.url}
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                cursor: `${
+                                                    activeSearchUser.active ? 'initial' : 'move'
+                                                }`,
+                                                userSelect: 'none',
+                                            }}
+                                        />
+                                        {usersTagPost[indexGallery]?.show &&
+                                            usersTagPost[indexGallery].tagsUser.map(
+                                                (userTag, index) => (
+                                                    <TagItem
+                                                        indexGallery={indexGallery}
+                                                        handleDeleteUseTag={handleDeleteUseTag}
+                                                        areaListImage={imageArea}
+                                                        indexTag={index}
+                                                        handleChangePostUser={handleChangePostUser}
+                                                        key={index}
+                                                        userTag={userTag}
+                                                    />
+                                                )
+                                            )}
+
+                                        {usersTagPost[indexGallery]?.tagsUser.length && (
+                                            <div
+                                                className="btn-show-tag"
+                                                onClick={() => handleHideTag(indexGallery)}
+                                            >
+                                                <TagShowIcon />
+                                            </div>
+                                        )}
                                     </div>
                                 </SwiperSlide>
                             ))}
                         </Swiper>
+                        {activeSearchUser.active && (
+                            <TagSearch
+                                activeSearchUser={activeSearchUser}
+                                currentIndexSlider={currentIndexSlider}
+                                handleClickUserSearch={handleClickUserSearch}
+                            />
+                        )}
                     </div>
                     <div className="option-create-post">
                         <div className="avatar-container">
@@ -590,6 +787,23 @@ const Container = styled.div<ContainerStyledProps>`
         justify-content: center;
         align-items: center;
 
+        .btn-show-tag {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            bottom: 25px;
+            left: 25px;
+            padding: 8px;
+            background-color: rgba(26, 26, 26, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
+            cursor: pointer;
+
+            &:hover {
+                opacity: 0.7;
+            }
+        }
         /* .img {
                 height: 100%;
                 width: 100%;
