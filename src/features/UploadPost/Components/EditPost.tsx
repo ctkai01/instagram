@@ -207,18 +207,6 @@ export default function EditPost(props: IEditPostProps) {
             }
         });
 
-        // setUsersTagPost(({ tagsUser, show }) => {
-        //     const checkExistUSerTag = tagsUser.find(
-        //         (userTag) => userTag.user_name === tagUserPost.user_name
-        //     );
-        //     if (checkExistUSerTag) {
-        //         const index = tagsUser.indexOf(checkExistUSerTag);
-        //         tagsUser[index] = tagUserPost;
-        //         return { tagsUser, show: true };
-        //     } else {
-        //         return { tagsUser: [...tagsUser, tagUserPost], show: true };
-        //     }
-        // });
         setActiveSearchUser({
             active: false,
             x: 0,
@@ -231,7 +219,7 @@ export default function EditPost(props: IEditPostProps) {
             const userTagPostSlide = usersTagPostSlide.find(
                 (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
             );
-            // const tagsUser =
+
             if (userTagPostSlide) {
                 userTagPostSlide.tagsUser[indexTag] = {
                     ...userTagPostSlide.tagsUser[indexTag],
@@ -246,18 +234,16 @@ export default function EditPost(props: IEditPostProps) {
             } else {
                 return usersTagPostSlide;
             }
-
-            // tagsUser[indexTag] = { ...tagsUser[indexTag], ...position };
-            // return { tagsUser, show };
         });
     };
 
     const handleDeleteUseTag = (userName: string, indexSlide: number) => {
+        console.log(usersTagPost);
         setUsersTagPost((usersTagPostSlide) => {
-            const userTagPostSlide = usersTagPostSlide.find(
+            const usersTagPostSlideClone = [...usersTagPostSlide];
+            const userTagPostSlide = usersTagPostSlideClone.find(
                 (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
             );
-
             if (userTagPostSlide) {
                 const tagsUserAfterDelete = userTagPostSlide.tagsUser.filter(
                     (userTagPost) => userTagPost.user_name !== userName
@@ -265,54 +251,40 @@ export default function EditPost(props: IEditPostProps) {
 
                 userTagPostSlide.tagsUser = tagsUserAfterDelete;
                 userTagPostSlide.show = tagsUserAfterDelete.length ? true : false;
-                usersTagPostSlide[
-                    usersTagPostSlide.findIndex(
+                usersTagPostSlideClone[
+                    usersTagPostSlideClone.findIndex(
                         (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
                     )
                 ] = userTagPostSlide;
-                return usersTagPostSlide;
+                return usersTagPostSlideClone;
             } else {
-                return usersTagPostSlide;
+                return usersTagPostSlideClone;
             }
         });
-
-        // setUsersTagPost(({ tagsUser, show }) => {
-        //     const tagsUserAfterDelete = tagsUser.filter(
-        //         (userTagPost) => userTagPost.user_name !== userName
-        //     );
-
-        //     return {
-        //         tagsUser: tagsUserAfterDelete,
-        //         show: tagsUserAfterDelete.length ? true : false,
-        //     };
-        // });
     };
 
     const handleHideTag = (indexSlide: number) => {
-        console.log(11);
         setUsersTagPost((usersTagPostSlide) => {
-            const userTagPostSlide = usersTagPostSlide.find(
+            const usersTagPostSlideClone = [...usersTagPostSlide]
+            const userTagPostSlide = usersTagPostSlideClone.find(
                 (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
             );
             if (userTagPostSlide) {
-                userTagPostSlide.show = !userTagPostSlide.show;
-                usersTagPostSlide[
-                    usersTagPostSlide.findIndex(
+                const userTagPostSlideClone = {...userTagPostSlide }
+                userTagPostSlideClone.show = !userTagPostSlideClone.show;
+       
+                usersTagPostSlideClone[
+                    usersTagPostSlideClone.findIndex(
                         (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
                     )
-                ] = userTagPostSlide;
-
-                return usersTagPostSlide;
+                ] = userTagPostSlideClone;
+                return usersTagPostSlideClone;
             } else {
-                return usersTagPostSlide;
+                return usersTagPostSlideClone;
             }
         });
-
-        // setUsersTagPost((usersTagPost) => ({
-        //     ...usersTagPost,
-        //     show: !usersTagPost.show,
-        // }));
     };
+    console.log(usersTagPost);
     return (
         <>
             <Container baseUrl={window.location.origin}>
@@ -369,32 +341,29 @@ export default function EditPost(props: IEditPostProps) {
                                                 userSelect: 'none',
                                             }}
                                         />
-                                        {usersTagPost[indexGallery]?.show &&
-                                            usersTagPost[indexGallery].tagsUser.map(
-                                                (userTag, index) => (
-                                                    <TagItem
-                                                        indexGallery={indexGallery}
-                                                        handleDeleteUseTag={handleDeleteUseTag}
-                                                        areaListImage={imageArea}
-                                                        indexTag={index}
-                                                        handleChangePostUser={handleChangePostUser}
-                                                        key={index}
-                                                        userTag={userTag}
-                                                    />
-                                                )
-                                            )}
-
-                                        {usersTagPost[indexGallery]?.tagsUser.length && (
-                                            <div
-                                                className="btn-show-tag"
-                                                onClick={() => handleHideTag(indexGallery)}
-                                            >
-                                                <TagShowIcon />
-                                            </div>
-                                        )}
                                     </div>
                                 </SwiperSlide>
                             ))}
+                            {usersTagPost[currentIndexSlider]?.tagsUser.length && (
+                                <div
+                                    className="btn-show-tag"
+                                    onClick={() => handleHideTag(currentIndexSlider)}
+                                >
+                                    <TagShowIcon />
+                                </div>
+                            )}
+                            {usersTagPost[currentIndexSlider]?.show &&
+                                (usersTagPost[currentIndexSlider].tagsUser.map((userTag, index) => (
+                                    <TagItem
+                                        indexGallery={currentIndexSlider}
+                                        handleDeleteUseTag={handleDeleteUseTag}
+                                        areaListImage={imageArea}
+                                        indexTag={index}
+                                        handleChangePostUser={handleChangePostUser}
+                                        key={index}
+                                        userTag={userTag}
+                                    />
+                                )))}
                         </Swiper>
                         {activeSearchUser.active && (
                             <TagSearch
@@ -640,6 +609,25 @@ const Container = styled.div<ContainerStyledProps>`
             width: 68%;
             height: 100%;
             cursor: pointer;
+
+            .btn-show-tag {
+            position: absolute;
+            display: flex;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            bottom: 25px;
+            left: 25px;
+            padding: 8px;
+            background-color: rgba(26, 26, 26, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
+            cursor: pointer;
+
+            &:hover {
+                opacity: 0.7;
+            }
+        }
         }
 
         .option-create-post {
@@ -787,23 +775,7 @@ const Container = styled.div<ContainerStyledProps>`
         justify-content: center;
         align-items: center;
 
-        .btn-show-tag {
-            position: absolute;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            bottom: 25px;
-            left: 25px;
-            padding: 8px;
-            background-color: rgba(26, 26, 26, 0.8);
-            border-radius: 50%;
-            box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
-            cursor: pointer;
-
-            &:hover {
-                opacity: 0.7;
-            }
-        }
+        
         /* .img {
                 height: 100%;
                 width: 100%;
