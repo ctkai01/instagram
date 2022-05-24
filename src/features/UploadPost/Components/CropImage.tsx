@@ -9,6 +9,8 @@ import GalleryImage from './GalleryImage';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { Navigation, Pagination, EffectFade } from 'swiper';
 import 'swiper/css/pagination';
+import { getThumbnails } from 'video-metadata-thumbnails';
+import { MediaType } from '@models/commom';
 
 export interface ICropImageProps {
     fileGallery: FileUrl[];
@@ -28,15 +30,33 @@ interface ContainerStyledProps {
     imageUrl: string;
     isDragging: boolean;
 }
+
+export interface ThumbnailVideoFile {
+    urlBlob: string;
+    urlThumb: string;
+}
 SwiperCore.use([Navigation, Pagination, EffectFade]);
 
 export function CropImage(props: ICropImageProps) {
-    const { fileGallery, activeSliderSmall, handleBackStep, handleNextStep, handleCloseItemGallery, handleShowModalDiscard, handleChangeImageGallery, setIsClickBackFirst, handleClickSelectImage } =
-        props;
+    const {
+        fileGallery,
+        activeSliderSmall,
+        handleBackStep,
+        handleNextStep,
+        handleCloseItemGallery,
+        handleShowModalDiscard,
+        handleChangeImageGallery,
+        setIsClickBackFirst,
+        handleClickSelectImage,
+    } = props;
     const [isZoom, setIsZoom] = React.useState<boolean>(false);
     const [isGallery, setIsGallery] = React.useState<boolean>(false);
     const [scaleA, setScale] = React.useState<number>(1);
     const [swiper, setSwiper] = React.useState<SwiperCore>();
+    // const [swiperSmall, setSwiperSmall] = React.useState<SwiperCore>();
+    const [thumbnails, setThumbnails] = React.useState<ThumbnailVideoFile[]>([]);
+
+    const [currentIndexBigSlider, setCurrentIndexBigSlider] = React.useState<number>(0);
     const [isDragging, setIsDragging] = React.useState<boolean>(false);
     const [style, api] = useSpring(() => ({
         x: 0,
@@ -45,7 +65,8 @@ export function CropImage(props: ICropImageProps) {
         rotateZ: 0,
     }));
     const ref = React.useRef(null);
-    
+    // const refVideo = React.useRef(null);
+    const refVideo = React.useRef<HTMLVideoElement[]>([]);
     useGesture(
         {
             onDrag: ({ down, movement: [mx, my], pinching, cancel, offset: [x, y], ...rest }) => {
@@ -99,19 +120,85 @@ export function CropImage(props: ICropImageProps) {
         setScale(+e.target.value);
     };
 
-    const handleClickSliderGallery = (
-        sw: SwiperCore,
-        event: MouseEvent | TouchEvent | PointerEvent
-    ) => {
+    // const handleClickSliderGallery = (
+    //     sw: SwiperCore,
+    //     event: MouseEvent | TouchEvent | PointerEvent
+    // ) => {
+    //     if (swiper) {
+    //         if (refVideo) {
+    //             console.log('Ref', refVideo);
+    //             console.log(activeSliderSmall)
+    //             // console.log(refVideo.current[sw.clickedIndex].load())
+    //             refVideo.current[activeSliderSmall].pause()
+    //             refVideo.current[sw.clickedIndex].load()
+    //         }
+    //         // swiper.slideTo(fileGallery.length - sw.clickedIndex - 1)
+    //         swiper.slideTo(sw.clickedIndex);
+    //         handleChangeImageGallery(sw.clickedIndex);
+    //     }
+    // };
+    const handleClickSliderGallery = (index: number, file: FileUrl) => {
         if (swiper) {
-            swiper.slideTo(fileGallery.length - sw.clickedIndex - 1)
-            handleChangeImageGallery(sw.clickedIndex)
+            if (refVideo && file.type === MediaType.video) {
+                refVideo.current.forEach(itemVideo => {
+                    if (itemVideo) {
+                        itemVideo.pause()
+                    }
+                })
+                refVideo.current[index].load();
+            } else if (file.type === MediaType.image) {
+                refVideo.current.forEach(itemVideo => {
+                    if (itemVideo) {
+                        itemVideo.pause()
+                    }
+                })
+            }
+           
+            swiper.slideTo(index);
+            setCurrentIndexBigSlider(index)
+            handleChangeImageGallery(index);
         }
-        
     };
-    console.log('Render');
+
+    React.useEffect(() => {
+        const getThumbnailVideos = async () => {
+            const fileThumbNails = fileGallery.filter((file) => file.type === MediaType.video);
+            const thumbNailsListPromise: Promise<ThumbnailVideoFile[]> = Promise.all(
+                fileThumbNails.map(async (fileThumb) => {
+                    const thumbnails = await getThumbnails(fileThumb.url, {
+                        start: 0,
+                        end: 0,
+                        interval: 1,
+                        scale: 0.7,
+                    });
+                    // @ts-ignore: Object is possibly 'null'.
+                    const blobThumb = URL.createObjectURL(thumbnails[0].blob);
+                    return {
+                        urlBlob: fileThumb.url,
+                        urlThumb: blobThumb,
+                    };
+                })
+            );
+            console.log('Render Thumb');
+            const thumbNailsList = await thumbNailsListPromise;
+            setThumbnails((thumbnails) => [...thumbnails, ...thumbNailsList]);
+        };
+        getThumbnailVideos();
+    }, [fileGallery]);
+
+    // const thumbnail = async () => {
+    //     const thumbnails = await getThumbnails(fileGallery[0].url, {
+    //         start: 0,
+    //         end: 0,
+    //         interval: 1,
+    //         scale: 0.7
+    //     });
+    //     console.log(URL.createObjectURL(thumbnails[0].?blob))
+    // }
+    // thumbnail()
+    console.log(activeSliderSmall);
     return (
-        <Main className="dsdsdsds">
+        <Main>
             <Swiper
                 pagination={true}
                 slidesPerView={1}
@@ -119,6 +206,11 @@ export function CropImage(props: ICropImageProps) {
                 allowTouchMove={false}
                 effect={'fade'}
                 onSwiper={(swiper) => setSwiper(swiper)}
+                onSlideChange={(swiper) => {
+                    setCurrentIndexBigSlider(swiper.activeIndex)
+                    // handleChangeImageGallery(fileGallery.length - swiper.activeIndex - 1)
+                    handleChangeImageGallery(swiper.activeIndex);
+                }}
             >
                 {fileGallery.map((file, index) => (
                     <SwiperSlide key={index} className="slider-item">
@@ -128,15 +220,64 @@ export function CropImage(props: ICropImageProps) {
                                     <BackIcon ariaLabel="Back" />
                                 </div>
                                 <div className="main-header">Crop</div>
-                                <div className="next-button" onClick={handleNextStep}>Next</div>
+                                <div className="next-button" onClick={handleNextStep}>
+                                    Next
+                                </div>
                             </div>
                             <div className="content-main">
-                                <animated.div
-                                    style={styleBgImage}
-                                    ref={ref}
-                                    // style={{ transform: `scale(${scaleA})` }}
-                                    className="image-container"
-                                ></animated.div>
+                                {file.type === MediaType.video ? (
+                                    <animated.div
+                                        style={styleBgImage}
+                                        ref={ref}
+                                        // style={{ transform: `scale(${scaleA})` }}
+                                        className="image-container"
+                                    >
+                                        {
+                                        currentIndexBigSlider === index ? (
+                                            <animated.video
+                                                ref={(el) => {
+                                                    // @ts-ignore: Object is possibly 'null'.
+                                                    refVideo.current[index] = el;
+                                                }}
+                                                className={`image-container-${index}`}
+                                                style={{
+                                                    ...styleBgImage,
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                }}
+                                                src={file.url}
+                                                autoPlay
+                                            ></animated.video>
+                                        ) : (
+                                            (
+                                                <animated.video
+                                                    ref={(el) => {
+                                                        // @ts-ignore: Object is possibly 'null'.
+                                                        refVideo.current[index] = el;
+                                                    }}
+                                                    className={`image-container-${index}`}
+                                                    style={{
+                                                        ...styleBgImage,
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        objectFit: 'cover',
+                                                    }}
+                                                    src={file.url}
+                                                ></animated.video>
+                                            )
+                                        )
+                                    }
+                                    </animated.div>
+                                ) : (
+                                    <animated.div
+                                        style={styleBgImage}
+                                        ref={ref}
+                                        // style={{ transform: `scale(${scaleA})` }}
+                                        className="image-container"
+                                    ></animated.div>
+                                )}
+
                                 {isDragging && (
                                     <animated.div className="grid-container">
                                         <div className="cell-y first"></div>
@@ -193,6 +334,8 @@ export function CropImage(props: ICropImageProps) {
                     {isGallery && (
                         <GalleryImage
                             className="gallery-container"
+                            thumbnails={thumbnails}
+                            // handleClickChangeBigSlider={handleClickChangeBigSlider}
                             fileGallery={fileGallery}
                             activeSliderSmall={activeSliderSmall}
                             handleClickSelectImage={handleClickSelectImage}

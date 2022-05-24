@@ -14,6 +14,7 @@ import { MediaType } from '@constants/media-type';
 export interface IEditImageProps {
     fileGallery: FileUrl[];
     handleNextEditImage: (files: FileUrl[], indexSlideCurrent: number) => void;
+    handleBackStep: () => void
     // setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
 }
 interface ContainerStyledProps {
@@ -37,7 +38,7 @@ export interface FiltersImage {
 }
 
 export default function EditImage(props: IEditImageProps) {
-    const { fileGallery, handleNextEditImage } = props;
+    const { fileGallery, handleNextEditImage, handleBackStep } = props;
     // const refStage = React.useRef([]);
     // const [stageRef, setStageRef] = React.useState([])
     // refStage.current = [];
@@ -409,7 +410,7 @@ export default function EditImage(props: IEditImageProps) {
             {/* <Container> */}
             <div className="header">
                 {/* <div className="back-button" onClick={handleBackChoseImage}> */}
-                <div className="back-button">
+                <div className="back-button" onClick={handleBackStep}>
                     <BackIcon ariaLabel="Back" />
                 </div>
                 <div className="main-header">Edit</div>

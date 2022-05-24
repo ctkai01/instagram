@@ -43,7 +43,6 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
     } = props;
     const [indexSlideCurrentEditPost, setIndexSlideCurrentEditPost] = React.useState<number>(0);
 
-    console.log('????')
     const handleNextEditImage = (filesEdit: FileUrl[], indexSlideCurrent: number) => {
         console.log(filesEdit)
         setFiles((files) => files.map(file => {
@@ -57,7 +56,6 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
         handleNextStep()
         
     }
-    console.log(fileGallery)
     return (
         <Container>
             {step === StepCreatePost.CREATE_NEW_POST && (
@@ -91,6 +89,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                 <EditImage
                     fileGallery={fileGallery}
                     handleNextEditImage={handleNextEditImage}
+                    handleBackStep={handleBackStep}
                     // handleCloseItemGallery={handleCloseItemGallery}
                     // handleClickSelectImage={handleClickSelectImage}
                     // handleChangeImageGallery={handleChangeImageGallery}
@@ -103,7 +102,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                 />
             )}
             {step === StepCreatePost.EDIT_POST && (
-                <EditPost fileGallery={fileGallery} indexSlideCurrentEditPost={indexSlideCurrentEditPost}/>
+                <EditPost fileGallery={fileGallery} handleBackStep={handleBackStep} indexSlideCurrentEditPost={indexSlideCurrentEditPost}/>
             )}
             <form>
                 <input

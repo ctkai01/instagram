@@ -33,6 +33,7 @@ import { MediaType } from '@models/commom';
 export interface IEditPostProps {
     fileGallery: FileUrl[];
     indexSlideCurrentEditPost: number;
+    handleBackStep: () => void;
     // handleNextEditImage: (files: FileUrl[]) => void;
     // setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
 }
@@ -62,7 +63,7 @@ interface ContainerStyledProps {
 const LIMIT_TEXT_CAPTION = 2200;
 
 export default function EditPost(props: IEditPostProps) {
-    const { fileGallery, indexSlideCurrentEditPost } = props;
+    const { fileGallery, indexSlideCurrentEditPost, handleBackStep } = props;
     const [swiper, setSwiper] = React.useState<SwiperCore>();
     const [currentIndexSlider, setCurrentIndexSlider] = React.useState(indexSlideCurrentEditPost);
 
@@ -291,7 +292,7 @@ export default function EditPost(props: IEditPostProps) {
                 {/* <Container> */}
                 <div className="header">
                     {/* <div className="back-button" onClick={handleBackChoseImage}> */}
-                    <div className="back-button">
+                    <div className="back-button" onClick={handleBackStep}>
                         <BackIcon ariaLabel="Back" />
                     </div>
                     <div className="main-header">Create new post</div>

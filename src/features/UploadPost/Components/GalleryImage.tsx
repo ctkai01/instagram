@@ -6,16 +6,24 @@ import SwiperCore, { Navigation, Pagination } from 'swiper';
 import 'swiper/css/pagination';
 import { FileUrl } from './ModalPost';
 import { MediaType } from '@models/commom';
+import { ThumbnailVideoFile } from './CropImage';
 
 export interface IGalleryImageProps {
     className?: string;
     fileGallery: FileUrl[];
+    thumbnails: ThumbnailVideoFile[];
     activeSliderSmall: number;
     handleClickSelectImage: (e: React.MouseEvent<HTMLElement>) => void;
     handleCloseItemGallery: (e: number) => void;
+    // setSwiperSmall: React.Dispatch<React.SetStateAction<SwiperCore | undefined>>;
+    // handleClickChangeBigSlider: (swiper: SwiperCore) => void;
+    // handleClickSliderGallery: (
+    //     swiper: SwiperCore,
+    //     event: MouseEvent | TouchEvent | PointerEvent
+    // ) => void;
     handleClickSliderGallery: (
-        swiper: SwiperCore,
-        event: MouseEvent | TouchEvent | PointerEvent
+        index: number,
+        file: FileUrl
     ) => void;
 }
 
@@ -30,32 +38,38 @@ export default function GalleryImage(props: IGalleryImageProps) {
     const {
         className,
         fileGallery,
+        thumbnails,
         activeSliderSmall,
         handleClickSelectImage,
         handleCloseItemGallery,
         handleClickSliderGallery,
     } = props;
     const urlReact = process.env.REACT_APP_URL;
-
     const showButton = !(fileGallery.length === 1);
-    const revertGallery = [...fileGallery].reverse();
+    
+
 
     const widthGalleryImg =
-        revertGallery.length <= 6 ? revertGallery.length * 106 + 6 * 2 : 6 * 106 + 6 * 2;
+        fileGallery.length <= 6 ? fileGallery.length * 106 + 6 * 2 : 6 * 106 + 6 * 2;
 
     return (
         <Container className={className} urlReact={urlReact} showButton={showButton}>
             <div className="gallery-list" style={{ width: widthGalleryImg }}>
                 <Swiper
-                    pagination={false}
-                    slidesPerView={revertGallery.length <= 6 ? revertGallery.length : 6}
+                    pagination={true}
+                    slidesPerView={fileGallery.length <= 6 ? fileGallery.length : 6}
                     navigation={true}
+                    allowSlideNext={true}
+                    allowSlidePrev={true}
                     allowTouchMove={false}
                     spaceBetween={8}
-                    onClick={handleClickSliderGallery}
+                    onSlideChange={(swiper) => {
+                        console.log('Hello')
+                    }}
+                    // onClick={handleClickSliderGallery}
                 >
-                    {revertGallery.map((file, index) => (
-                        <SwiperSlide key={index} className="slider-item">
+                    {fileGallery.map((file, index) => (
+                        <SwiperSlide onClick={() => handleClickSliderGallery(index, file)} key={index} className="slider-item">
                             {/* <div className='shadow-slider'> */}
                             <div className="slider-item-container">
                                 {activeSliderSmall === index && file.type === MediaType.image && (
@@ -85,24 +99,35 @@ export default function GalleryImage(props: IGalleryImageProps) {
                                 )}
                                 {activeSliderSmall === index && file.type === MediaType.video && (
                                     <>
-                                        {/* <div
+                                        <div
                                             style={{
-                                                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url('${file.url}')`,
+                                                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)), url('${
+                                                   thumbnails.find(thumb => thumb.urlBlob === file.url)?.urlThumb
+
+                                                }')`,
                                             }}
                                             className="img"
-                                        /> */}
-                                        <video src={file.url} className="video"/>
-                                        <div
+                                        />
+                                          <div
                                             className="btn-delete"
                                             onClick={() => handleCloseItemGallery(index)}
                                         >
                                             <CloseIcon ariaLabel="Delete" />
                                         </div>
                                     </>
+                                    
                                 )}
 
                                 {activeSliderSmall !== index && file.type === MediaType.video && (
-                                    <div>dsd</div>
+                                     <div
+                                     style={{
+                                         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${
+                                            thumbnails.find(thumb => thumb.urlBlob === file.url)?.urlThumb
+
+                                         }')`,
+                                     }}
+                                     className="img"
+                                 />
                                 )}
                             </div>
                         </SwiperSlide>
@@ -185,7 +210,7 @@ const Container = styled.div<StyledPhotosProps>`
         }
 
         .swiper-button-next::after {
-            display: none;
+            /* display: none; */
         }
 
         .swiper-button-prev {
@@ -197,7 +222,7 @@ const Container = styled.div<StyledPhotosProps>`
         }
 
         .swiper-button-prev::after {
-            display: none;
+            /* display: none; */
         }
 
         .swiper-button-next,

@@ -69,7 +69,7 @@ const Container = styled(animated.div)`
     position: absolute;
 
     .arrow-top {
-        z-index: 0;
+        z-index: 1;
         box-shadow: 0 0 5px 1px rgb(0 0 0 / 10%);
         height: 14px;
         position: absolute;
