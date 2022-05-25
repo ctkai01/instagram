@@ -65,6 +65,14 @@ const CropImage = React.forwardRef((props: ICropImageProps, refVideoElement: any
         rotateZ: 0,
     }));
     const ref = React.useRef(null);
+
+    // React.useEffect(() => {
+    //     if (refVideo.current) {
+    //     console.log('SEND')
+
+    //         handleSetInstancesVideo(refVideo.current)
+    //     }
+    // }, [fileGallery])
     // const refVideo = React.useRef(null);
     useGesture(
         {
@@ -185,7 +193,6 @@ const CropImage = React.forwardRef((props: ICropImageProps, refVideoElement: any
         getThumbnailVideos();
     }, [fileGallery]);
 
-    console.log(activeSliderSmall);
     return (
         <Main>
             <Swiper

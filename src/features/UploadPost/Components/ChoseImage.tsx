@@ -43,7 +43,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
     } = props;
     const [indexSlideCurrentEditPost, setIndexSlideCurrentEditPost] = React.useState<number>(0);
     const refVideo = React.useRef<HTMLVideoElement[]>([]);
-    const [instanceVideos, setInstanceVideos] = React.useState<React.RefObject<HTMLVideoElement>[]>([]);
+
     const handleNextEditImage = (filesEdit: FileUrl[], indexSlideCurrent: number) => {
         console.log(filesEdit)
         setFiles((files) => files.map(file => {
@@ -57,7 +57,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
         handleNextStep()
         
     }
-
+    console.log(refVideo.current)
     
     return (
         <Container>
@@ -92,7 +92,6 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
             {step === StepCreatePost.EDIT_GALLERY && (
                 <EditImage
                     fileGallery={fileGallery}
-                    refVideo={refVideo}
                     handleNextEditImage={handleNextEditImage}
                     handleBackStep={handleBackStep}
                     // handleCloseItemGallery={handleCloseItemGallery}

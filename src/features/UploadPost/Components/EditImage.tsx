@@ -10,10 +10,10 @@ import FilterImageList from './FilterImageList';
 import { FileUrl } from './ModalPost';
 import Konva from 'konva';
 import { MediaType } from '@constants/media-type';
+import VideoSetting from './VideoSetting';
 
 export interface IEditImageProps {
     fileGallery: FileUrl[];
-    refVideo: React.RefObject<HTMLVideoElement[]>;
     handleNextEditImage: (files: FileUrl[], indexSlideCurrent: number) => void;
     handleBackStep: () => void
     // setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
@@ -39,7 +39,7 @@ export interface FiltersImage {
 }
 
 export default function EditImage(props: IEditImageProps) {
-    const { fileGallery, refVideo, handleNextEditImage, handleBackStep } = props;
+    const { fileGallery, handleNextEditImage, handleBackStep } = props;
     // const refStage = React.useRef([]);
     // const [stageRef, setStageRef] = React.useState([])
     // refStage.current = [];
@@ -61,7 +61,7 @@ export default function EditImage(props: IEditImageProps) {
     const [filters, setFilters] = React.useState<FiltersImage[]>(initialFilters);
     const [currentIndexSlider, setCurrentIndexSlider] = React.useState<number>(0);
     const [showSettingVideo, setShowSettingVideo] = React.useState<boolean>(false)
-
+    const currentRefVideo = React.useRef<HTMLVideoElement>(null)
     const [isSubmitEdit, setIsSubmitEdit] = React.useState<boolean>(false);
 
     const [filesCanvas, setFilesCanvas] = React.useState<FileUrl[]>([]);
@@ -390,8 +390,6 @@ export default function EditImage(props: IEditImageProps) {
         return new File([blob], fileName, { type: 'image/png' });
     }
     React.useEffect(() => {
-        console.log(refs)
-        
         if (isSubmitEdit && filesCanvas.length === 0) {
             refs.forEach(async (ref, index) => {
                 await getFile(ref.ref, fileGallery[index].file.name)
@@ -435,28 +433,33 @@ export default function EditImage(props: IEditImageProps) {
                         effect={'fade'}
                         onSlideChange={(swiper) => {
                             setCurrentIndexSlider(swiper.activeIndex);
-                            console.log(refVideo.current)
-
-                            if (refVideo.current) {
-                                // refVideo.current.forEach(itemVideo => {
-                                //     if (itemVideo) {
-                                //         itemVideo.pause()
-                                //     }
-                                // })
-                                if (typeof refVideo.current[swiper.activeIndex] !== 'undefined') {
-                                    if (refVideo.current[swiper.activeIndex]) {
-                                       
-                                        setShowSettingVideo(true)
-            
-                                    } else {
-                                        setShowSettingVideo(false)
-
-                                    }
-                                } else {
-                                    setShowSettingVideo(false)
-
-                                }
+                            console.log(swiper.activeIndex)
+                            if (fileGallery[swiper.activeIndex].type === MediaType.video) {
+                                setShowSettingVideo(true)
+                            } else {
+                                setShowSettingVideo(false)
                             }
+                            console.log(fileGallery)
+                            // if (instanceVideos) {
+                            //     // refVideo.current.forEach(itemVideo => {
+                            //     //     if (itemVideo) {
+                            //     //         itemVideo.pause()
+                            //     //     }
+                            //     // })
+                            //     if (typeof instanceVideos[swiper.activeIndex] !== 'undefined') {
+                            //         if (instanceVideos[swiper.activeIndex]) {
+                                       
+                            //             setShowSettingVideo(true)
+            
+                            //         } else {
+                            //             setShowSettingVideo(false)
+
+                            //         }
+                            //     } else {
+                            //         setShowSettingVideo(false)
+
+                            //     }
+                            // }
                         }}
                     >
                         {fileGallery.map((file, index) => (
@@ -477,7 +480,7 @@ export default function EditImage(props: IEditImageProps) {
 
                                 ) : (
                                     <div style={{width: '100%', height: '100%'}}>
-                                        <video style={{width: '100%', height: '100%', objectFit: 'cover'}} src={file.url}></video>
+                                        <video ref={currentRefVideo} style={{width: '100%', height: '100%', objectFit: 'cover'}} src={file.url}></video>
                                     </div>
                                 )}
                                
@@ -486,7 +489,7 @@ export default function EditImage(props: IEditImageProps) {
                     </Swiper>
                 </div>
                 <div className="filter-list">
-                    {showSettingVideo ? <div>VIDEO</div> : (
+                    {showSettingVideo ? <VideoSetting fileGallery={fileGallery} currentRefVideo={currentRefVideo} currentIndexSlider={currentIndexSlider}/> : (
                         <FilterImageList
                         handleChangeAdjustmentSaturation={handleChangeAdjustmentSaturation}
                         handleChangeAdjustmentBrightness={handleChangeAdjustmentBrightness}
