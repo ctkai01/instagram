@@ -15,11 +15,11 @@ import { MediaType } from '@models/commom';
 export interface ICropImageProps {
     fileGallery: FileUrl[];
     activeSliderSmall: number;
+    refVideo: React.RefObject<HTMLVideoElement[]>;
     setStep: React.Dispatch<React.SetStateAction<number>>;
     setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
     setIsClickBackFirst: React.Dispatch<React.SetStateAction<boolean>>;
     handleShowModalDiscard: () => void;
-    handleBackStep: () => void;
     handleNextStep: () => void;
     handleCloseItemGallery: (e: number) => void;
     handleChangeImageGallery: (indexActive: number) => void;
@@ -37,11 +37,11 @@ export interface ThumbnailVideoFile {
 }
 SwiperCore.use([Navigation, Pagination, EffectFade]);
 
-export function CropImage(props: ICropImageProps) {
+const CropImage = React.forwardRef((props: ICropImageProps, refVideoElement: any) => {
     const {
         fileGallery,
         activeSliderSmall,
-        handleBackStep,
+        refVideo,
         handleNextStep,
         handleCloseItemGallery,
         handleShowModalDiscard,
@@ -66,7 +66,6 @@ export function CropImage(props: ICropImageProps) {
     }));
     const ref = React.useRef(null);
     // const refVideo = React.useRef(null);
-    const refVideo = React.useRef<HTMLVideoElement[]>([]);
     useGesture(
         {
             onDrag: ({ down, movement: [mx, my], pinching, cancel, offset: [x, y], ...rest }) => {
@@ -139,14 +138,14 @@ export function CropImage(props: ICropImageProps) {
     // };
     const handleClickSliderGallery = (index: number, file: FileUrl) => {
         if (swiper) {
-            if (refVideo && file.type === MediaType.video) {
+            if (refVideo.current && file.type === MediaType.video) {
                 refVideo.current.forEach(itemVideo => {
                     if (itemVideo) {
                         itemVideo.pause()
                     }
                 })
                 refVideo.current[index].load();
-            } else if (file.type === MediaType.image) {
+            } else if (file.type === MediaType.image && refVideo.current) {
                 refVideo.current.forEach(itemVideo => {
                     if (itemVideo) {
                         itemVideo.pause()
@@ -186,16 +185,6 @@ export function CropImage(props: ICropImageProps) {
         getThumbnailVideos();
     }, [fileGallery]);
 
-    // const thumbnail = async () => {
-    //     const thumbnails = await getThumbnails(fileGallery[0].url, {
-    //         start: 0,
-    //         end: 0,
-    //         interval: 1,
-    //         scale: 0.7
-    //     });
-    //     console.log(URL.createObjectURL(thumbnails[0].?blob))
-    // }
-    // thumbnail()
     console.log(activeSliderSmall);
     return (
         <Main>
@@ -208,8 +197,22 @@ export function CropImage(props: ICropImageProps) {
                 onSwiper={(swiper) => setSwiper(swiper)}
                 onSlideChange={(swiper) => {
                     setCurrentIndexBigSlider(swiper.activeIndex)
-                    // handleChangeImageGallery(fileGallery.length - swiper.activeIndex - 1)
                     handleChangeImageGallery(swiper.activeIndex);
+                    if (refVideo.current) {
+                        refVideo.current.forEach(itemVideo => {
+                            if (itemVideo) {
+                                itemVideo.pause()
+                            }
+                        })
+                        if (typeof refVideo.current[swiper.activeIndex] !== 'undefined') {
+                            if (refVideo.current[swiper.activeIndex]) {
+                               
+                                refVideo.current[swiper.activeIndex].load();
+    
+                            }
+                        }
+                    }
+                  
                 }}
             >
                 {fileGallery.map((file, index) => (
@@ -237,7 +240,7 @@ export function CropImage(props: ICropImageProps) {
                                             <animated.video
                                                 ref={(el) => {
                                                     // @ts-ignore: Object is possibly 'null'.
-                                                    refVideo.current[index] = el;
+                                                    refVideoElement.current[index] = el;
                                                 }}
                                                 className={`image-container-${index}`}
                                                 style={{
@@ -347,7 +350,8 @@ export function CropImage(props: ICropImageProps) {
             </div>
         </Main>
     );
-}
+})
+export default CropImage
 // Open Media Gallery
 const Main = styled.div`
     position: relative;

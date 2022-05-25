@@ -1,4 +1,4 @@
-import { CloseIcon, PlusIcon } from '@components/Icons';
+import { CloseIcon, PlayIcon, PlusIcon } from '@components/Icons';
 import * as React from 'react';
 import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -127,7 +127,9 @@ export default function GalleryImage(props: IGalleryImageProps) {
                                          }')`,
                                      }}
                                      className="img"
-                                 />
+                                 >  
+                                     <PlayIcon/>
+                                 </div>
                                 )}
                             </div>
                         </SwiperSlide>
@@ -187,6 +189,9 @@ const Container = styled.div<StyledPhotosProps>`
                 background-position: center center;
                 /* object-fit: cover; */
                 /* filter: brightness(0.7); */
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
 
             .video {

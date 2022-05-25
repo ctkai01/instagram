@@ -4,7 +4,7 @@ import { StepCreatePost } from '@constants/step_create_post';
 import * as React from 'react';
 import styled from 'styled-components';
 import { FileUrl } from '.';
-import { CropImage } from './CropImage';
+import CropImage  from './CropImage';
 import EditImage from './EditImage';
 import EditPost from './EditPost';
 
@@ -42,7 +42,8 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
         activeSliderSmall
     } = props;
     const [indexSlideCurrentEditPost, setIndexSlideCurrentEditPost] = React.useState<number>(0);
-
+    const refVideo = React.useRef<HTMLVideoElement[]>([]);
+    const [instanceVideos, setInstanceVideos] = React.useState<React.RefObject<HTMLVideoElement>[]>([]);
     const handleNextEditImage = (filesEdit: FileUrl[], indexSlideCurrent: number) => {
         console.log(filesEdit)
         setFiles((files) => files.map(file => {
@@ -56,6 +57,8 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
         handleNextStep()
         
     }
+
+    
     return (
         <Container>
             {step === StepCreatePost.CREATE_NEW_POST && (
@@ -72,6 +75,8 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
             )}
             {step === StepCreatePost.CROP_GALLERY && (
                 <CropImage
+                    refVideo={refVideo}
+                    ref={refVideo}
                     handleCloseItemGallery={handleCloseItemGallery}
                     handleClickSelectImage={handleClickSelectImage}
                     handleChangeImageGallery={handleChangeImageGallery}
@@ -81,13 +86,13 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                     setFiles={setFiles}
                     setIsClickBackFirst={setIsClickBackFirst}
                     handleShowModalDiscard={handleShowModalDiscard}
-                    handleBackStep={handleBackStep}
                     handleNextStep={handleNextStep}
                 />
             )}
             {step === StepCreatePost.EDIT_GALLERY && (
                 <EditImage
                     fileGallery={fileGallery}
+                    refVideo={refVideo}
                     handleNextEditImage={handleNextEditImage}
                     handleBackStep={handleBackStep}
                     // handleCloseItemGallery={handleCloseItemGallery}

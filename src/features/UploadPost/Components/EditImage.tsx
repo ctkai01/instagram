@@ -13,6 +13,7 @@ import { MediaType } from '@constants/media-type';
 
 export interface IEditImageProps {
     fileGallery: FileUrl[];
+    refVideo: React.RefObject<HTMLVideoElement[]>;
     handleNextEditImage: (files: FileUrl[], indexSlideCurrent: number) => void;
     handleBackStep: () => void
     // setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
@@ -38,11 +39,10 @@ export interface FiltersImage {
 }
 
 export default function EditImage(props: IEditImageProps) {
-    const { fileGallery, handleNextEditImage, handleBackStep } = props;
+    const { fileGallery, refVideo, handleNextEditImage, handleBackStep } = props;
     // const refStage = React.useRef([]);
     // const [stageRef, setStageRef] = React.useState([])
     // refStage.current = [];
-
     const initialFilters: FiltersImage[] = fileGallery.map((file, index) => ({
         indexActive: FilterImage.ORIGINAL,
         indexImage: index,
@@ -60,6 +60,7 @@ export default function EditImage(props: IEditImageProps) {
 
     const [filters, setFilters] = React.useState<FiltersImage[]>(initialFilters);
     const [currentIndexSlider, setCurrentIndexSlider] = React.useState<number>(0);
+    const [showSettingVideo, setShowSettingVideo] = React.useState<boolean>(false)
 
     const [isSubmitEdit, setIsSubmitEdit] = React.useState<boolean>(false);
 
@@ -364,7 +365,7 @@ export default function EditImage(props: IEditImageProps) {
 
     const currentAdjustment =
         adjustments.find((adjustment) => adjustment.indexImage === swiperIndex) || adjustments[0];
-    console.log(filesCanvas)
+    console.log(showSettingVideo)
     // if (isSubmitEdit) {
     //     console.log(filesCanvas)
     //     handleNextEditImage(filesCanvas.slice(-fileGallery.length));
@@ -434,27 +435,59 @@ export default function EditImage(props: IEditImageProps) {
                         effect={'fade'}
                         onSlideChange={(swiper) => {
                             setCurrentIndexSlider(swiper.activeIndex);
+                            console.log(refVideo.current)
+
+                            if (refVideo.current) {
+                                // refVideo.current.forEach(itemVideo => {
+                                //     if (itemVideo) {
+                                //         itemVideo.pause()
+                                //     }
+                                // })
+                                if (typeof refVideo.current[swiper.activeIndex] !== 'undefined') {
+                                    if (refVideo.current[swiper.activeIndex]) {
+                                       
+                                        setShowSettingVideo(true)
+            
+                                    } else {
+                                        setShowSettingVideo(false)
+
+                                    }
+                                } else {
+                                    setShowSettingVideo(false)
+
+                                }
+                            }
                         }}
                     >
                         {fileGallery.map((file, index) => (
                             <SwiperSlide key={index} className="slider-item">
-                                <CanvasImage
-                                    // ref={refStage[index]}
-                                    ref={refs[index].ref}
-                                    filters={filters}
-                                    indexCanvas={index}
-                                    isSubmitEdit={isSubmitEdit}
-                                    handleAddFileCanvas={handleAddFileCanvas}
-                                    currentAdjustment={currentAdjustment}
-                                    fileUpload={file}
-                                    currentFilter={currentFilter}
-                                />
+                                {file.type === MediaType.image ? (
+                                         <CanvasImage
+                                         // ref={refStage[index]}
+                                         ref={refs[index].ref}
+                                         filters={filters}
+                                         indexCanvas={index}
+                                         isSubmitEdit={isSubmitEdit}
+                                         handleAddFileCanvas={handleAddFileCanvas}
+                                         currentAdjustment={currentAdjustment}
+                                         fileUpload={file}
+                                         currentFilter={currentFilter}
+                                     />
+
+
+                                ) : (
+                                    <div style={{width: '100%', height: '100%'}}>
+                                        <video style={{width: '100%', height: '100%', objectFit: 'cover'}} src={file.url}></video>
+                                    </div>
+                                )}
+                               
                             </SwiperSlide>
                         ))}
                     </Swiper>
                 </div>
                 <div className="filter-list">
-                    <FilterImageList
+                    {showSettingVideo ? <div>VIDEO</div> : (
+                        <FilterImageList
                         handleChangeAdjustmentSaturation={handleChangeAdjustmentSaturation}
                         handleChangeAdjustmentBrightness={handleChangeAdjustmentBrightness}
                         handleChangeAdjustmentContrast={handleChangeAdjustmentContrast}
@@ -473,6 +506,8 @@ export default function EditImage(props: IEditImageProps) {
                         currentFilter={currentFilter}
                         handleClickFilter={handleClickFilter}
                     />
+                    )}
+                    
                 </div>
             </div>
         </Container>
