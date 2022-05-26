@@ -515,7 +515,7 @@ export default function EditImage(props: IEditImageProps) {
             </div>
         </Container>
     );
-}
+}           
 
 const Container = styled.div<ContainerStyledProps>`
     width: 1101px;
