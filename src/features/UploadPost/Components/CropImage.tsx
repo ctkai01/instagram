@@ -15,12 +15,14 @@ import { MediaType } from '@models/commom';
 export interface ICropImageProps {
     fileGallery: FileUrl[];
     activeSliderSmall: number;
+    currentIndexBigSlider: number;
     refVideo: React.RefObject<HTMLVideoElement[]>;
     setStep: React.Dispatch<React.SetStateAction<number>>;
     setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
     setIsClickBackFirst: React.Dispatch<React.SetStateAction<boolean>>;
     handleShowModalDiscard: () => void;
     handleNextStep: () => void;
+    handleChangeCurrentIndex: (index: number) => void
     handleCloseItemGallery: (e: number) => void;
     handleChangeImageGallery: (indexActive: number) => void;
     handleClickSelectImage: (e: React.MouseEvent<HTMLElement>) => void;
@@ -42,6 +44,8 @@ const CropImage = React.forwardRef((props: ICropImageProps, refVideoElement: any
         fileGallery,
         activeSliderSmall,
         refVideo,
+        currentIndexBigSlider,
+        handleChangeCurrentIndex,
         handleNextStep,
         handleCloseItemGallery,
         handleShowModalDiscard,
@@ -56,7 +60,7 @@ const CropImage = React.forwardRef((props: ICropImageProps, refVideoElement: any
     // const [swiperSmall, setSwiperSmall] = React.useState<SwiperCore>();
     const [thumbnails, setThumbnails] = React.useState<ThumbnailVideoFile[]>([]);
 
-    const [currentIndexBigSlider, setCurrentIndexBigSlider] = React.useState<number>(0);
+    // const [currentIndexBigSlider, setCurrentIndexBigSlider] = React.useState<number>(0);
     const [isDragging, setIsDragging] = React.useState<boolean>(false);
     const [style, api] = useSpring(() => ({
         x: 0,
@@ -162,7 +166,7 @@ const CropImage = React.forwardRef((props: ICropImageProps, refVideoElement: any
             }
            
             swiper.slideTo(index);
-            setCurrentIndexBigSlider(index)
+            handleChangeCurrentIndex(index)
             handleChangeImageGallery(index);
         }
     };
@@ -197,13 +201,14 @@ const CropImage = React.forwardRef((props: ICropImageProps, refVideoElement: any
         <Main>
             <Swiper
                 pagination={true}
+                initialSlide={currentIndexBigSlider}
                 slidesPerView={1}
                 navigation={true}
                 allowTouchMove={false}
                 effect={'fade'}
                 onSwiper={(swiper) => setSwiper(swiper)}
                 onSlideChange={(swiper) => {
-                    setCurrentIndexBigSlider(swiper.activeIndex)
+                    handleChangeCurrentIndex(swiper.activeIndex)
                     handleChangeImageGallery(swiper.activeIndex);
                     if (refVideo.current) {
                         refVideo.current.forEach(itemVideo => {
@@ -347,7 +352,7 @@ const CropImage = React.forwardRef((props: ICropImageProps, refVideoElement: any
                             thumbnails={thumbnails}
                             // handleClickChangeBigSlider={handleClickChangeBigSlider}
                             fileGallery={fileGallery}
-                            activeSliderSmall={activeSliderSmall}
+                            activeSliderSmall={currentIndexBigSlider}
                             handleClickSelectImage={handleClickSelectImage}
                             handleClickSliderGallery={handleClickSliderGallery}
                             handleCloseItemGallery={handleCloseItemGallery}

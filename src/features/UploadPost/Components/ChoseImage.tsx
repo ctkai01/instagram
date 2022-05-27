@@ -43,6 +43,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
     } = props;
     const [indexSlideCurrentEditPost, setIndexSlideCurrentEditPost] = React.useState<number>(0);
     const refVideo = React.useRef<HTMLVideoElement[]>([]);
+    const [currentIndexBigSlider, setCurrentIndexBigSlider] = React.useState<number>(0);
 
     const handleNextEditImage = (filesEdit: FileUrl[], indexSlideCurrent: number) => {
         console.log(filesEdit)
@@ -56,6 +57,10 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
         setIndexSlideCurrentEditPost(indexSlideCurrent)
         handleNextStep()
         
+    }
+
+    const handleChangeCurrentIndex = (index: number) => {
+        setCurrentIndexBigSlider(index)
     }
     console.log(refVideo.current)
     
@@ -77,6 +82,8 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                 <CropImage
                     refVideo={refVideo}
                     ref={refVideo}
+                    currentIndexBigSlider={currentIndexBigSlider}
+                    handleChangeCurrentIndex={handleChangeCurrentIndex}
                     handleCloseItemGallery={handleCloseItemGallery}
                     handleClickSelectImage={handleClickSelectImage}
                     handleChangeImageGallery={handleChangeImageGallery}
@@ -92,6 +99,9 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
             {step === StepCreatePost.EDIT_GALLERY && (
                 <EditImage
                     fileGallery={fileGallery}
+                    currentIndexBigSlider={currentIndexBigSlider}
+                    handleChangeCurrentIndex={handleChangeCurrentIndex}
+
                     handleNextEditImage={handleNextEditImage}
                     handleBackStep={handleBackStep}
                     // handleCloseItemGallery={handleCloseItemGallery}

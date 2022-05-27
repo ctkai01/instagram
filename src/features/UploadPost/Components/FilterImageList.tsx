@@ -1,3 +1,4 @@
+import LoadingSpecify from '@components/common/LoadingSpecify';
 import { FilterImage, AdjustmentImage } from '@constants/filter-image';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -23,7 +24,7 @@ export interface IFillerImageListProps {
     handleResetAdjustmentNoise: () => void;
 
     handleChangeRangeValue: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    handleClickFilter: (index: number) => void; 
+    handleClickFilter: (index: number) => void;
 }
 
 interface ConfigInputRange {
@@ -35,6 +36,7 @@ interface ConfigInputRange {
 
 const FilterImageList = React.memo((props: IFillerImageListProps) => {
     const [active, setActive] = React.useState(1);
+    const [isLoading, setIsLoading] = React.useState(true);
 
     const {
         activeFilter,
@@ -82,7 +84,12 @@ const FilterImageList = React.memo((props: IFillerImageListProps) => {
         max = 255;
         step = 1;
     }
-    
+
+    React.useEffect(() => {
+        setTimeout(() => {setIsLoading(false)}, 500)
+        
+    }, []);
+
     const optionInputAdjustment = (index: number): ConfigInputRange => {
         if (index === AdjustmentImage.SATURATION) {
             return {
@@ -222,121 +229,142 @@ const FilterImageList = React.memo((props: IFillerImageListProps) => {
     };
     return (
         <Container>
-            <div className="tabs">
-                <div
-                    onClick={() => setActive(1)}
-                    className={`${active === 1 ? 'tab-item active' : 'tab-item'}`}
-                >
-                    Filters
+            {isLoading ? (
+                <div className='container-loading'>
+                    <LoadingSpecify/>
                 </div>
-                <div
-                    onClick={() => setActive(2)}
-                    className={`${active === 2 ? 'tab-item active' : 'tab-item'}`}
-                >
-                    Adjustments
-                </div>
-            </div>
-            {active === 1 && (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        height: '100%',
-                    }}
-                >
-                    <div className="filters-list">
-                        {filterList.map((filterItem, index) => (
-                            <div
-                                key={index}
-                                className="filter-item"
-                                onClick={() => {
-                                    handleClickFilter(index);
-                                }}
-                            >
-                                <div className="filter-item-wrapper">
-                                    <div className="img-wrapper">
-                                        <img
-                                            style={{
-                                                border: `${
-                                                    currentFilter.indexActive === index
-                                                        ? '2px solid #0095f6'
-                                                        : 'none'
-                                                }`,
-                                            }}
-                                            src={filterItem.image}
-                                        />
-                                    </div>
+            ) : (
+                <>
+                    <div className="tabs">
+                        <div
+                            onClick={() => setActive(1)}
+                            className={`${active === 1 ? 'tab-item active' : 'tab-item'}`}
+                        >
+                            Filters
+                        </div>
+                        <div
+                            onClick={() => setActive(2)}
+                            className={`${active === 2 ? 'tab-item active' : 'tab-item'}`}
+                        >
+                            Adjustments
+                        </div>
+                    </div>
+                    {active === 1 && (
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                height: '100%',
+                            }}
+                        >
+                            <div className="filters-list">
+                                {filterList.map((filterItem, index) => (
                                     <div
-                                        className="name-filter"
-                                        style={{
-                                            color: `${
-                                                currentFilter.indexActive === index ? '#0095f6' : '#8e8e8e'
-                                            }`,
+                                        key={index}
+                                        className="filter-item"
+                                        onClick={() => {
+                                            handleClickFilter(index);
                                         }}
                                     >
-                                        {filterItem.name}
+                                        <div className="filter-item-wrapper">
+                                            <div className="img-wrapper">
+                                                <img
+                                                    style={{
+                                                        border: `${
+                                                            currentFilter.indexActive === index
+                                                                ? '2px solid #0095f6'
+                                                                : 'none'
+                                                        }`,
+                                                    }}
+                                                    src={filterItem.image}
+                                                />
+                                            </div>
+                                            <div
+                                                className="name-filter"
+                                                style={{
+                                                    color: `${
+                                                        currentFilter.indexActive === index
+                                                            ? '#0095f6'
+                                                            : '#8e8e8e'
+                                                    }`,
+                                                }}
+                                            >
+                                                {filterItem.name}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                    {currentFilter.indexActive === FilterImage.ORIGINAL ||
-                    currentFilter.indexActive === FilterImage.SOLARIZE ||
-                    currentFilter.indexActive === FilterImage.SEPIA ||
-                    currentFilter.indexActive === FilterImage.INVERT ||
-                    currentFilter.indexActive === FilterImage.GRAY_SCALE ? (
-                        ''
-                    ) : (
-                        <div className="filter-tool">
-                            <input
-                                className="input-range"
-                                onChange={handleChangeRangeValue}
-                                type="range"
-                                value={currentFilter.value}
-                                min={min}
-                                max={max}
-                                step={step}
-                            />
-                            {currentFilter.value}
+                            {currentFilter.indexActive === FilterImage.ORIGINAL ||
+                            currentFilter.indexActive === FilterImage.SOLARIZE ||
+                            currentFilter.indexActive === FilterImage.SEPIA ||
+                            currentFilter.indexActive === FilterImage.INVERT ||
+                            currentFilter.indexActive === FilterImage.GRAY_SCALE ? (
+                                ''
+                            ) : (
+                                <div className="filter-tool">
+                                    <input
+                                        className="input-range"
+                                        onChange={handleChangeRangeValue}
+                                        type="range"
+                                        value={currentFilter.value}
+                                        min={min}
+                                        max={max}
+                                        step={step}
+                                    />
+                                    {currentFilter.value}
+                                </div>
+                            )}
                         </div>
                     )}
-                </div>
-            )}
 
-            {active === 2 && (
-                <div className="adjustment-container">
-                    {adjustmentsList.map((adjustment, index) => (
-                        <div key={index} className="adjustment-item">
-                            <div className="adjustment-title">
-                                <div className="adjustment-text">{adjustment}</div>
-                                {
-                                    optionInputAdjustment(index).value !== 0 && <div className="adjustment-reset" onClick={() => onResetAdjustFunc(index)}>Reset</div>
-                                }
-                            </div>
-                            <div className="adjustment-input-range">
-                                <input
-                                    className="input-range"
-                                    onChange={(e) => onChangeAdjustFunc(index, e)}
-                                    type="range"
-                                    {...optionInputAdjustment(index)}
-                                />
-                                <div className="adjustment-input-range-value">
-                                    {optionInputAdjustment(index).value}
+                    {active === 2 && (
+                        <div className="adjustment-container">
+                            {adjustmentsList.map((adjustment, index) => (
+                                <div key={index} className="adjustment-item">
+                                    <div className="adjustment-title">
+                                        <div className="adjustment-text">{adjustment}</div>
+                                        {optionInputAdjustment(index).value !== 0 && (
+                                            <div
+                                                className="adjustment-reset"
+                                                onClick={() => onResetAdjustFunc(index)}
+                                            >
+                                                Reset
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="adjustment-input-range">
+                                        <input
+                                            className="input-range"
+                                            onChange={(e) => onChangeAdjustFunc(index, e)}
+                                            type="range"
+                                            {...optionInputAdjustment(index)}
+                                        />
+                                        <div className="adjustment-input-range-value">
+                                            {optionInputAdjustment(index).value}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    )}
+                </>
             )}
         </Container>
     );
-})
+});
 export default FilterImageList;
 const Container = styled.div`
     width: 100%;
     height: calc(100% - 53px);
-
+    .container-loading {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
     .adjustment-container {
         padding: 0 16px;
 

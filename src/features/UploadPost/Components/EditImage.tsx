@@ -1,4 +1,4 @@
-import { BackIcon } from '@components/Icons';
+import { BackIcon, PlayIcon } from '@components/Icons';
 import { FilterImage } from '@constants/filter-image';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -11,11 +11,14 @@ import { FileUrl } from './ModalPost';
 import Konva from 'konva';
 import { MediaType } from '@constants/media-type';
 import VideoSetting from './VideoSetting';
+import { getThumbnails } from 'video-metadata-thumbnails';
 
 export interface IEditImageProps {
     fileGallery: FileUrl[];
+    currentIndexBigSlider: number;
+    handleChangeCurrentIndex: (index: number) => void;
     handleNextEditImage: (files: FileUrl[], indexSlideCurrent: number) => void;
-    handleBackStep: () => void
+    handleBackStep: () => void;
     // setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
 }
 interface ContainerStyledProps {
@@ -39,7 +42,13 @@ export interface FiltersImage {
 }
 
 export default function EditImage(props: IEditImageProps) {
-    const { fileGallery, handleNextEditImage, handleBackStep } = props;
+    const {
+        fileGallery,
+        currentIndexBigSlider,
+        handleChangeCurrentIndex,
+        handleNextEditImage,
+        handleBackStep,
+    } = props;
     // const refStage = React.useRef([]);
     // const [stageRef, setStageRef] = React.useState([])
     // refStage.current = [];
@@ -59,16 +68,18 @@ export default function EditImage(props: IEditImageProps) {
     }));
 
     const [filters, setFilters] = React.useState<FiltersImage[]>(initialFilters);
-    const [currentIndexSlider, setCurrentIndexSlider] = React.useState<number>(0);
-    const [showSettingVideo, setShowSettingVideo] = React.useState<boolean>(false)
-    const currentRefVideo = React.useRef<HTMLVideoElement>(null)
+    const [showSettingVideo, setShowSettingVideo] = React.useState<boolean>(false);
+    const currentRefVideo = React.useRef<HTMLVideoElement>(null);
     const [isSubmitEdit, setIsSubmitEdit] = React.useState<boolean>(false);
+    const [isPlayVideo, setIsPlayVideo] = React.useState<boolean>(false);
+    const [thumbnailsCover, setThumbnailsCover] = React.useState<string>('');
+    const [durationVideo, setDurationVideo] = React.useState<number>(1);
 
     const [filesCanvas, setFilesCanvas] = React.useState<FileUrl[]>([]);
     const [swiper, setSwiper] = React.useState<SwiperCore>();
 
     const handleAddFileCanvas = (file: FileUrl) => {
-        console.log(file)
+        console.log(file);
         setFilesCanvas((filesCanvasPre) => [...filesCanvasPre, file]);
     };
 
@@ -79,6 +90,36 @@ export default function EditImage(props: IEditImageProps) {
     // @ts-ignore: Object is possibly 'null'.
     const swiperIndex = swiper?.activeIndex | 0;
     const currentFilter = filters.find((filter) => filter.indexImage === swiperIndex) || filters[0];
+
+    React.useEffect(() => {
+        if (
+            currentRefVideo.current &&
+            fileGallery[currentIndexBigSlider].type === MediaType.video
+        ) {
+            currentRefVideo.current.onloadedmetadata = function() {
+                  // @ts-ignore: Object is possibly 'null'.
+                setDurationVideo(currentRefVideo.current.duration);
+            }
+            // console.log(currentRefVideo.current.duration);
+           
+        }
+    }, [currentIndexBigSlider]);
+
+    React.useEffect(() => {
+        const generateThumbnail = async () => {
+            let thumbnail = await getThumbnails(fileGallery[currentIndexBigSlider].url, {
+                start: 0,
+                end: 0,
+                scale: 0.7,
+            });
+            // @ts-ignore: Object is possibly 'null'.
+            setThumbnailsCover(URL.createObjectURL(thumbnail[0].blob));
+        };
+
+        if (fileGallery[currentIndexBigSlider].type === MediaType.video) {
+            generateThumbnail();
+        }
+    }, [currentIndexBigSlider]);
 
     const handleClickFilter = (index: number) => {
         // @ts-ignore: Object is possibly 'null'.
@@ -365,7 +406,7 @@ export default function EditImage(props: IEditImageProps) {
 
     const currentAdjustment =
         adjustments.find((adjustment) => adjustment.indexImage === swiperIndex) || adjustments[0];
-    console.log(showSettingVideo)
+    console.log(showSettingVideo);
     // if (isSubmitEdit) {
     //     console.log(filesCanvas)
     //     handleNextEditImage(filesCanvas.slice(-fileGallery.length));
@@ -373,15 +414,15 @@ export default function EditImage(props: IEditImageProps) {
     // }
     const getFile = async (ref: any, namePath: string) => {
         // if (ref) {
-            //@ts-ignore: Object is possibly 'null'.
-            const base64 = await ref.current.toDataURL();
+        //@ts-ignore: Object is possibly 'null'.
+        const base64 = await ref.current.toDataURL();
 
-            const file = await dataUrlToFile(base64, namePath);
-            handleAddFileCanvas({
-                file,
-                url: URL.createObjectURL(file),
-                type: MediaType.image,
-            });
+        const file = await dataUrlToFile(base64, namePath);
+        handleAddFileCanvas({
+            file,
+            url: URL.createObjectURL(file),
+            type: MediaType.image,
+        });
         // }
     };
     async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
@@ -392,18 +433,38 @@ export default function EditImage(props: IEditImageProps) {
     React.useEffect(() => {
         if (isSubmitEdit && filesCanvas.length === 0) {
             refs.forEach(async (ref, index) => {
-                await getFile(ref.ref, fileGallery[index].file.name)
-            })
-            
+                await getFile(ref.ref, fileGallery[index].file.name);
+            });
         }
         if (filesCanvas.length === fileGallery.length) {
-            handleNextEditImage(filesCanvas, currentIndexSlider);
+            handleNextEditImage(filesCanvas, currentIndexBigSlider);
         }
-      
-        
-     }, [isSubmitEdit, filesCanvas]);
-    const refs = React.useMemo(() => fileGallery.map(item => ({ ref: React.createRef() })), []); // create refs only once
+    }, [isSubmitEdit, filesCanvas]);
+    const refs = React.useMemo(() => fileGallery.map((item) => ({ ref: React.createRef() })), []); // create refs only once
 
+    const handleChangeDurationVideo = async (nextSeconds: number) => {
+        console.log('debounce');
+        if (currentRefVideo.current) {
+            let thumbnails = await getThumbnails(fileGallery[currentIndexBigSlider].url, {
+                start: nextSeconds,
+                end: nextSeconds,
+                scale: 0.7,
+            });
+            // @ts-ignore: Object is possibly 'null'.
+            setThumbnailsCover(URL.createObjectURL(thumbnails[0].blob));
+        }
+    };
+
+    const handleClickVideo = () => {
+        if (showSettingVideo) {
+            if (!isPlayVideo) {
+                currentRefVideo.current?.play();
+            } else {
+                currentRefVideo.current?.pause();
+            }
+            setIsPlayVideo((isPlay) => !isPlay);
+        }
+    };
     return (
         <Container baseUrl={window.location.origin}>
             {/* <Container> */}
@@ -425,6 +486,7 @@ export default function EditImage(props: IEditImageProps) {
             <div className="content-main" style={{ flexDirection: 'row', height: '80vh' }}>
                 <div className="img-list">
                     <Swiper
+                        initialSlide={currentIndexBigSlider}
                         pagination={true}
                         slidesPerView={1}
                         navigation={true}
@@ -432,90 +494,103 @@ export default function EditImage(props: IEditImageProps) {
                         allowTouchMove={false}
                         effect={'fade'}
                         onSlideChange={(swiper) => {
-                            setCurrentIndexSlider(swiper.activeIndex);
-                            console.log(swiper.activeIndex)
+                            handleChangeCurrentIndex(swiper.activeIndex);
+                            console.log(swiper.activeIndex);
                             if (fileGallery[swiper.activeIndex].type === MediaType.video) {
-                                setShowSettingVideo(true)
+                                setShowSettingVideo(true);
                             } else {
-                                setShowSettingVideo(false)
+                                setShowSettingVideo(false);
                             }
-                            console.log(fileGallery)
-                            // if (instanceVideos) {
-                            //     // refVideo.current.forEach(itemVideo => {
-                            //     //     if (itemVideo) {
-                            //     //         itemVideo.pause()
-                            //     //     }
-                            //     // })
-                            //     if (typeof instanceVideos[swiper.activeIndex] !== 'undefined') {
-                            //         if (instanceVideos[swiper.activeIndex]) {
-                                       
-                            //             setShowSettingVideo(true)
-            
-                            //         } else {
-                            //             setShowSettingVideo(false)
-
-                            //         }
-                            //     } else {
-                            //         setShowSettingVideo(false)
-
-                            //     }
-                            // }
                         }}
                     >
                         {fileGallery.map((file, index) => (
-                            <SwiperSlide key={index} className="slider-item">
-                                {file.type === MediaType.image ? (
-                                         <CanvasImage
-                                         // ref={refStage[index]}
-                                         ref={refs[index].ref}
-                                         filters={filters}
-                                         indexCanvas={index}
-                                         isSubmitEdit={isSubmitEdit}
-                                         handleAddFileCanvas={handleAddFileCanvas}
-                                         currentAdjustment={currentAdjustment}
-                                         fileUpload={file}
-                                         currentFilter={currentFilter}
-                                     />
+                            <SwiperSlide
+                                onClick={handleClickVideo}
+                                key={index}
+                                className="slider-item"
+                            >
+                                {file.type === MediaType.image && index === currentIndexBigSlider && (
+                                    <CanvasImage
+                                        // ref={refStage[index]}
+                                        showCanvas={currentIndexBigSlider === index}
+                                        ref={refs[index].ref}
+                                        filters={filters}
+                                        indexCanvas={index}
+                                        currentAdjustment={currentAdjustment}
+                                        fileUpload={file}
+                                        currentFilter={currentFilter}
+                                    />
+                                )}
 
-
-                                ) : (
-                                    <div style={{width: '100%', height: '100%'}}>
-                                        <video ref={currentRefVideo} style={{width: '100%', height: '100%', objectFit: 'cover'}} src={file.url}></video>
+                                {file.type === MediaType.video && index === currentIndexBigSlider && (
+                                    <div
+                                        className="video-container"
+                                        style={{ width: '100%', height: '100%' }}
+                                    >
+                                        <video
+                                            loop
+                                            ref={currentRefVideo}
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover',
+                                            }}
+                                            src={file.url}
+                                        ></video>
+                                        {!isPlayVideo && (
+                                            <div className="cover-photo-container">
+                                                <div
+                                                    className="img-cover"
+                                                    style={{
+                                                        backgroundImage: `url(${thumbnailsCover})`,
+                                                    }}
+                                                ></div>
+                                                <div className="btn-play-video">
+                                                    <PlayIcon size="big" />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
-                               
                             </SwiperSlide>
                         ))}
                     </Swiper>
                 </div>
                 <div className="filter-list">
-                    {showSettingVideo ? <VideoSetting fileGallery={fileGallery} currentRefVideo={currentRefVideo} currentIndexSlider={currentIndexSlider}/> : (
+                    {fileGallery[currentIndexBigSlider].type === MediaType.video ? (
+                        <VideoSetting
+                            durationVideo={durationVideo}
+                            handleChangeDurationVideo={handleChangeDurationVideo}
+                            fileGallery={fileGallery}
+                            currentRefVideo={currentRefVideo}
+                            currentIndexSlider={currentIndexBigSlider}
+                        />
+                    ) : (
                         <FilterImageList
-                        handleChangeAdjustmentSaturation={handleChangeAdjustmentSaturation}
-                        handleChangeAdjustmentBrightness={handleChangeAdjustmentBrightness}
-                        handleChangeAdjustmentContrast={handleChangeAdjustmentContrast}
-                        handleChangeAdjustmentThreshold={handleChangeAdjustmentThreshold}
-                        handleChangeAdjustmentHue={handleChangeAdjustmentHue}
-                        handleChangeAdjustmentNoise={handleChangeAdjustmentNoise}
-                        handleResetAdjustmentSaturation={handleResetAdjustmentSaturation}
-                        handleResetAdjustmentBrightness={handleResetAdjustmentBrightness}
-                        handleResetAdjustmentContrast={handleResetAdjustmentContrast}
-                        handleResetAdjustmentThreshold={handleResetAdjustmentThreshold}
-                        handleResetAdjustmentHue={handleResetAdjustmentHue}
-                        handleResetAdjustmentNoise={handleResetAdjustmentNoise}
-                        currentAdjustment={currentAdjustment}
-                        handleChangeRangeValue={handleChangeRangeValue}
-                        activeFilter={activeFilter}
-                        currentFilter={currentFilter}
-                        handleClickFilter={handleClickFilter}
-                    />
+                            handleChangeAdjustmentSaturation={handleChangeAdjustmentSaturation}
+                            handleChangeAdjustmentBrightness={handleChangeAdjustmentBrightness}
+                            handleChangeAdjustmentContrast={handleChangeAdjustmentContrast}
+                            handleChangeAdjustmentThreshold={handleChangeAdjustmentThreshold}
+                            handleChangeAdjustmentHue={handleChangeAdjustmentHue}
+                            handleChangeAdjustmentNoise={handleChangeAdjustmentNoise}
+                            handleResetAdjustmentSaturation={handleResetAdjustmentSaturation}
+                            handleResetAdjustmentBrightness={handleResetAdjustmentBrightness}
+                            handleResetAdjustmentContrast={handleResetAdjustmentContrast}
+                            handleResetAdjustmentThreshold={handleResetAdjustmentThreshold}
+                            handleResetAdjustmentHue={handleResetAdjustmentHue}
+                            handleResetAdjustmentNoise={handleResetAdjustmentNoise}
+                            currentAdjustment={currentAdjustment}
+                            handleChangeRangeValue={handleChangeRangeValue}
+                            activeFilter={activeFilter}
+                            currentFilter={currentFilter}
+                            handleClickFilter={handleClickFilter}
+                        />
                     )}
-                    
                 </div>
             </div>
         </Container>
     );
-}           
+}
 
 const Container = styled.div<ContainerStyledProps>`
     width: 1101px;
@@ -586,6 +661,33 @@ const Container = styled.div<ContainerStyledProps>`
                 background-position: center center;
             
             } */
+        .video-container {
+            position: relative;
+
+            z-index: 9999;
+            .cover-photo-container {
+                height: 100%;
+                width: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+            .img-cover {
+                height: 100%;
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: center center;
+                /* background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfgep9UrtTmyClOM4e45sGoOMSTCHDEp_mfQ&usqp=CAU'); */
+            }
+
+            .btn-play-video {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
     }
 
     .swiper {

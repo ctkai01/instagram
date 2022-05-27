@@ -8,23 +8,21 @@ import { FileUrl } from './ModalPost';
 import { MediaType } from '@constants/media-type';
 export interface ICanvasImageProps {
     filters: FiltersImage[];
-    isSubmitEdit: boolean;
     fileUpload: FileUrl;
     indexCanvas: number;
     currentFilter: FiltersImage;
+    showCanvas: boolean;
     currentAdjustment: AdjustmentValueImage;
-    handleAddFileCanvas: (file: FileUrl) => void;
 }
 
 const CanvasImage = React.forwardRef((props: ICanvasImageProps, ref: any) => {
     const {
         filters,
         fileUpload,
-        isSubmitEdit,
+        showCanvas,
         indexCanvas,
         currentFilter,
         currentAdjustment,
-        handleAddFileCanvas,
     } = props;
     // @ts-ignore: Object is possibly 'null'.
     const imageRef: React.RefObject<Konva.Image> = React.useRef();
@@ -55,27 +53,6 @@ const CanvasImage = React.forwardRef((props: ICanvasImageProps, ref: any) => {
         }
     }, [image, imageRef, currentFilter]);
 
-    // const ref = React.useRef(null);
-    // React.useEffect(() => {
-    //     const getFile = async () => {
-    //         if (ref) {
-    //             //@ts-ignore: Object is possibly 'null'.
-    //             const base64 = await ref.current.toDataURL();
-
-    //             const file = await dataUrlToFile(base64, fileUpload.file.name);
-    //             handleAddFileCanvas({
-    //                 file,
-    //                 url: URL.createObjectURL(file),
-    //                 type: MediaType.image,
-    //             });
-    //         }
-    //     };
-    //     console.log(isSubmitEdit)
-    //     if (isSubmitEdit) {
-    //         getFile();
-    //     }
-    // }, []);
-    // console.log('SUbmit', isSubmitEdit)
     let modeFilter = [];
     let option = {};
 
@@ -148,7 +125,7 @@ const CanvasImage = React.forwardRef((props: ICanvasImageProps, ref: any) => {
         return new File([blob], fileName, { type: 'image/png' });
     }
     return (
-        <Stage ref={ref} width={width} height={height}>
+        <Stage ref={ref} width={width} height={height} style={{display: `${showCanvas ? 'block' : 'none'}`}}>
             <Layer>
                 <Image
                     ref={imageRef}
