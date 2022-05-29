@@ -10,12 +10,20 @@ import { useGesture } from '@use-gesture/react';
 import { animated, useSpring } from 'react-spring';
 import _, { debounce } from 'lodash';
 import SwitchButton from './SwitchButton';
+import { setInterval } from 'timers';
+import ReactPlayer from 'react-player';
+import { PositionDrag, StartEndTime } from './EditImage';
 
 interface IVideoSettingProps {
     currentIndexSlider: number;
     durationVideo: number;
     fileGallery: FileUrl[];
-    currentRefVideo: React.RefObject<HTMLVideoElement>;
+    positionLeftRightDrag: PositionDrag;
+    handlePlayVideo: () => void;
+    handleChangePositionDrag: (position: Partial<PositionDrag>) => void;
+    handleChangeStartEndTime: (stateChange: Partial<StartEndTime>) => void;
+    // currentRefVideo: React.RefObject<HTMLVideoElement>;
+    currentRefVideo: React.RefObject<ReactPlayer>;
     handleChangeDurationVideo: (nextSeconds: number) => void;
 }
 
@@ -24,28 +32,74 @@ export interface ThumbnailsVideoFile {
     urlsThumb: string[];
 }
 
+
+
 export default function VideoSetting(props: IVideoSettingProps) {
     const {
         fileGallery,
         durationVideo,
         currentIndexSlider,
         currentRefVideo,
+        positionLeftRightDrag,
+        handlePlayVideo,
+        handleChangeStartEndTime,
+        handleChangePositionDrag,
         handleChangeDurationVideo,
     } = props;
-
     let videoSliderRef = React.useRef<HTMLVideoElement>(null);
     const [thumbnails, setThumbnails] = React.useState<ThumbnailsVideoFile>();
     const [logoPos, setLogoPos] = useSpring(() => ({ x: 0, y: 0 }));
+
+    const [dragLef, setDragLef] = useSpring(() => ({ x: 0, y: 0 }));
+    const [dragRight, setDragRight] = useSpring(() => ({ x: 0, y: 0 }));
+    // const [positionLeftRightDrag, setPositionLeftRightDrag] = React.useState<PositionDrag>({
+    //     posLeft: 0,
+    //     posRight: 0
+    // })
     const [isLoading, setIsLoading] = React.useState(true);
     const [isMuteVideo, setIsMuteVideo] = React.useState(false);
 
     const ref = React.useRef(null);
+    const refDragLeft = React.useRef(null);
+    const refDragRight = React.useRef(null);
+    const refContentTrimVideo = React.useRef<HTMLDivElement>(null);
+   
+    React.useEffect(() => {
+        if (currentRefVideo.current && refContentTrimVideo.current) {
+            // console.log(durationVideo)
+            const startTime = positionLeftRightDrag.posLeft === 0 ? 0 : ( positionLeftRightDrag.posLeft/refContentTrimVideo.current.clientWidth ) * durationVideo
+            const endTime = positionLeftRightDrag.posRight === 0 ? durationVideo : ( (refContentTrimVideo.current.clientWidth + positionLeftRightDrag.posRight)/refContentTrimVideo.current.clientWidth ) * durationVideo
+            // const durationTime = (endTime - startTime) * 1000
+            console.log('First', refContentTrimVideo.current.clientWidth)
+            console.log('Second', refContentTrimVideo.current.clientWidth)
+            console.log('So chia', -positionLeftRightDrag.posRight/refContentTrimVideo.current.clientWidth)
+            console.log('Right', positionLeftRightDrag.posRight)
+            handlePlayVideo()
+            currentRefVideo.current?.seekTo(startTime)
+            handleChangeStartEndTime({
+                startTime,
+                endTime
+            })
+      
+        }
+    }, [positionLeftRightDrag])
+
     // React.useEffect(() => {
-    //     setTimeout(() => {
-    //         setIsLoading(false);
-    //     }, 3000);
-    // }, []);
-    // console.log(sliderPosition);
+    //     if (currentRefVideo.current && refContentTrimVideo.current) {
+    //         // console.log(durationVideo)
+    //         const startTime = positionLeftRightDrag.posLeft === 0 ? 0 : ( positionLeftRightDrag.posLeft/refContentTrimVideo.current.clientWidth ) * durationVideo
+    //         const endTime = positionLeftRightDrag.posRight === 0 ? durationVideo: ( positionLeftRightDrag.posRight/refContentTrimVideo.current.clientWidth ) * durationVideo
+    //         // const durationTime = (endTime - startTime) * 1000
+    //         console.log('Start time AAA', startTime)
+    //         console.log('End time AA', endTime)
+    //         handleChangeStartEndTime({
+    //             startTime,
+    //             endTime
+    //         })
+      
+    //     }
+    // }, [])
+
     React.useEffect(() => {
         const getThumbnailVideos = async () => {
             // console.log(currentRefVideo);
@@ -67,29 +121,20 @@ export default function VideoSetting(props: IVideoSettingProps) {
                     urlsThumb: blobThumbs,
                 });
             }
-            // const fileThumbNails = fileGallery.filter((file) => file.type === MediaType.video);
-            // const thumbNailsListPromise: Promise<ThumbnailsVideoFile> = 1;
-            //  Promise.all(
-            //     fileThumbNails.map(async (fileThumb) => {
 
-            //             const thumbnails = await getThumbnails(fileThumb.url, {
-            //             start: 0,
-            //             // end: 0,
-            //             interval: 1,
-            //             scale: 0.7,
-            //         });
-            //         // @ts-ignore: Object is possibly 'null'.
-            //         const blobThumbs = thumbnails.map(thumb =>  URL.createObjectURL(thumb.blob))
-            //         // const blobThumb = URL.createObjectURL(thumbnails[0].blob);
-            //         return {
-            //             urlBlob: fileThumb.url,
-            //             urlsThumb: blobThumbs,
-            //         };
-            //     })
-            // );
-            // console.log('Render Thumb');
-            // const thumbNailsList = await thumbNailsListPromise;
-            // setThumbnails((thumbnails) => [...thumbnails, ...thumbNailsList]);
+            if (currentRefVideo.current && refContentTrimVideo.current) {
+                // console.log(durationVideo)
+                const startTime = positionLeftRightDrag.posLeft === 0 ? 0 : ( positionLeftRightDrag.posLeft/refContentTrimVideo.current.clientWidth ) * durationVideo
+                const endTime = positionLeftRightDrag.posRight === 0 ? durationVideo: ( positionLeftRightDrag.posRight/refContentTrimVideo.current.clientWidth ) * durationVideo
+                // const durationTime = (endTime - startTime) * 1000
+                console.log('Start time AAA', startTime)
+                console.log('End time AA', endTime)
+                handleChangeStartEndTime({
+                    startTime,
+                    endTime
+                })
+          
+            }
         };
         getThumbnailVideos();
     }, []);
@@ -105,9 +150,6 @@ export default function VideoSetting(props: IVideoSettingProps) {
                 if (x >= 0 && x <= 255) {
                     if (videoSliderRef.current) {
                         const nextSeconds = videoSliderRef.current.duration * (x / 252);
-                        // const changeDurationVideo = _.debounce(handleChangeDurationVideo, 500)
-
-                        // const changeDurationVideo = React.useCallback(() => (handleChangeDurationVideo, 1000), []);
                         debounceDropDown(nextSeconds);
                         videoSliderRef.current.currentTime = nextSeconds;
                     }
@@ -127,7 +169,68 @@ export default function VideoSetting(props: IVideoSettingProps) {
             pinch: { scaleBounds: { min: 0.5, max: 2 }, rubberband: true },
         }
     );
-    console.log(thumbnails);
+
+    useGesture(
+        {
+            onDrag: ({ down, movement: [mx, my], pinching, cancel, offset: [x, y], ...rest }) => {
+                if (pinching) return cancel();
+        
+                let xApply = 0;
+                
+
+                if (refContentTrimVideo.current) {
+                    const limit = refContentTrimVideo.current.clientWidth + dragRight.x.get() - 12
+                    xApply = x >= limit ? limit : x;
+                }
+
+                if (x <= 0) {
+                    xApply = 0;
+                }
+                setDragLef.start({ x: xApply, y: 0 });
+                setTimeout(() =>  handleChangePositionDrag({posLeft: xApply}), 100)
+             
+
+            },
+        },
+        {
+            target: refDragLeft,
+            //  @ts-ignore: Object is possibly 'null'.
+            drag: { from: () => [dragLef.x.get(), dragLef.y.get()] },
+            pinch: { scaleBounds: { min: 0.5, max: 2 }, rubberband: true },
+        }
+    );
+
+    useGesture(
+        {
+            onDrag: ({ down, movement: [mx, my], pinching, cancel, offset: [x, y], ...rest }) => {
+                if (pinching) return cancel();
+               
+                let xApply = 0;
+                
+                if (refContentTrimVideo.current) {
+                    const limit = refContentTrimVideo.current.clientWidth - dragLef.x.get() - 12
+                    const xTransform = x < 0 ? x : -Math.abs(x) 
+                    xApply = xTransform >= -Math.abs(limit) ? xTransform : -Math.abs(limit);
+                    // console.log('Limit', limit)
+                    // console.log('Lef', dragLef.x.get())
+                }
+
+                if (x >= 0) {
+                    xApply = 0;
+                }
+                setDragRight.start({ x: xApply, y: 0 });
+                setTimeout(() =>  handleChangePositionDrag({posRight: xApply}), 100)
+            },
+        },
+        {
+            target: refDragRight,
+            //  @ts-ignore: Object is possibly 'null'.
+            drag: { from: () => [dragRight.x.get(), dragRight.y.get()] },
+            pinch: { scaleBounds: { min: 0.5, max: 2 }, rubberband: true },
+        }
+    );
+
+    // console.log(thumbnails);
     const handleClickSwitch = (e: any) => {
         setIsMuteVideo((isMute) => !isMute);
     };
@@ -176,12 +279,13 @@ export default function VideoSetting(props: IVideoSettingProps) {
                                         ref={ref}
                                         // onMouseUp={handleMouseUpCover}
                                         // onMouseDown={handleMouseDownCover}
-                                    >
+                                    >       
                                         <video
                                             ref={videoSliderRef}
                                             className="video-img"
-                                            src={fileGallery[currentIndexSlider].url}
-                                        ></video>
+                                            src={`${fileGallery[currentIndexSlider].url}`}
+                                        >
+                                        </video>
                                     </animated.div>
                                 </div>
                             </div>
@@ -192,8 +296,7 @@ export default function VideoSetting(props: IVideoSettingProps) {
                             <div className="text-tittle">Trim</div>
                         </div>
                         <div className="option-content">
-                            <div className="thumbnails-trim-container">
-                                <div className="line-vertical left"></div>
+                            <div className="thumbnails-trim-container" ref={refContentTrimVideo}>
                                 <div className="thumbnails-trim">
                                     {thumbnails?.urlsThumb.map((thumbnail, index) => (
                                         <div
@@ -209,7 +312,22 @@ export default function VideoSetting(props: IVideoSettingProps) {
                                         ></div>
                                     ))}
                                 </div>
-                                <div className="line-vertical right"></div>
+                                <div className="thumbnails-ignore">
+                                    <div style={{width: `${positionLeftRightDrag.posLeft}px`}} className="thumbnails-ignore-left"></div>
+                                    <div style={{width: `${-positionLeftRightDrag.posRight}px`}} className="thumbnails-ignore-right"></div>
+                                </div>
+                                <div className="thumbnails-selected"></div>
+                                <animated.div style={dragLef} ref={refDragLeft} className="line-vertical-container left">
+                                    <div className="line-vertical"></div>
+                                </animated.div>
+                                <animated.div style={dragRight} ref={refDragRight} className="line-vertical-container right">
+                                    <div className="line-vertical"></div>
+                                </animated.div>
+                                {/* <div className="line-vertical right"></div> */}
+                                {/* <div className="thumbnails-trim-modal">
+                                    
+                                </div> */}
+                                {/* <div className="modal-thumbnails"></div> */}
                             </div>
                             <div className="time-line-seconds">
                                 <div className="time-line-item">
@@ -357,6 +475,72 @@ const Container = styled.div`
             height: 100%;
         }
 
+        .thumbnails-ignore {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+
+            .thumbnails-ignore-left {
+                background: rgba(0, 0, 0, 0.5);
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+            }
+
+            .thumbnails-ignore-right {
+                position: absolute;
+                height: 100%;
+                right: 0;
+                top: 0;
+                background: rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        .thumbnails-selected {
+            position: absolute;
+            /* width: 77px; */
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            left: 52px;
+        }
+        /* .thumbnails-trim-container {
+            position: relative;
+        } */
+
+        .modal-thumbnails {
+            position: absolute;
+        }
+
+        .line-vertical-container {
+            position: absolute;
+            height: 100%;
+            width: 10px;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            cursor: ew-resize;
+            box-shadow: -1px 4px 4px -4px rgb(0 0 0 / 30%);
+            &.left {
+                top: 0;
+                left: 0;
+                border-bottom-left-radius: 5px;
+                border-top-left-radius: 5px;
+            }
+
+            &.right {
+                right: 0;
+                top: 0;
+                border-bottom-right-radius: 5px;
+                border-top-right-radius: 5px;
+            }
+        }
         .line-vertical {
             height: 100%;
             width: 10px;
@@ -367,16 +551,8 @@ const Container = styled.div`
             display: flex;
             align-items: center;
 
-            &.left {
-                top: 0;
-                left: 0;
-            }
-
-            &.right {
-                right: 0;
-                top: 0;
-            }
             &::after {
+                width: 100%;
                 color: #000;
                 color: #000;
                 content: '|';

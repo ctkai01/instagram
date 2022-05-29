@@ -12,6 +12,7 @@ import Konva from 'konva';
 import { MediaType } from '@constants/media-type';
 import VideoSetting from './VideoSetting';
 import { getThumbnails } from 'video-metadata-thumbnails';
+import ReactPlayer from 'react-player';
 
 export interface IEditImageProps {
     fileGallery: FileUrl[];
@@ -39,6 +40,16 @@ export interface FiltersImage {
     indexActive: number;
     value?: number;
     indexImage?: number;
+}
+
+export interface PositionDrag {
+    posLeft: number;
+    posRight: number;
+}
+
+export interface StartEndTime {
+    startTime: number;
+    endTime: number;
 }
 
 export default function EditImage(props: IEditImageProps) {
@@ -69,19 +80,29 @@ export default function EditImage(props: IEditImageProps) {
 
     const [filters, setFilters] = React.useState<FiltersImage[]>(initialFilters);
     const [showSettingVideo, setShowSettingVideo] = React.useState<boolean>(false);
-    const currentRefVideo = React.useRef<HTMLVideoElement>(null);
+    const currentRefVideo = React.useRef<ReactPlayer>(null);
+    // const currentRefVideo = React.useRef<BaseReactPlayerProps>(null);
     const [isSubmitEdit, setIsSubmitEdit] = React.useState<boolean>(false);
     const [isPlayVideo, setIsPlayVideo] = React.useState<boolean>(false);
     const [thumbnailsCover, setThumbnailsCover] = React.useState<string>('');
     const [durationVideo, setDurationVideo] = React.useState<number>(1);
 
     const [filesCanvas, setFilesCanvas] = React.useState<FileUrl[]>([]);
+    const [startEndTime, setStartEndTime] = React.useState<StartEndTime>({
+        startTime: 0,
+        endTime: durationVideo
+    });
     const [swiper, setSwiper] = React.useState<SwiperCore>();
 
     const handleAddFileCanvas = (file: FileUrl) => {
         console.log(file);
         setFilesCanvas((filesCanvasPre) => [...filesCanvasPre, file]);
     };
+
+    const [positionLeftRightDrag, setPositionLeftRightDrag] = React.useState<PositionDrag>({
+        posLeft: 0,
+        posRight: 0
+    })
 
     const [adjustments, setAdjustments] =
         React.useState<AdjustmentValueImage[]>(initialAdjustments);
@@ -91,19 +112,28 @@ export default function EditImage(props: IEditImageProps) {
     const swiperIndex = swiper?.activeIndex | 0;
     const currentFilter = filters.find((filter) => filter.indexImage === swiperIndex) || filters[0];
 
-    React.useEffect(() => {
-        if (
-            currentRefVideo.current &&
-            fileGallery[currentIndexBigSlider].type === MediaType.video
-        ) {
-            currentRefVideo.current.onloadedmetadata = function() {
-                  // @ts-ignore: Object is possibly 'null'.
-                setDurationVideo(currentRefVideo.current.duration);
-            }
-            // console.log(currentRefVideo.current.duration);
-           
-        }
-    }, [currentIndexBigSlider]);
+
+    const handleChangePositionDrag = (position: Partial<PositionDrag>) => {
+        setPositionLeftRightDrag((positionPre) => ({...positionPre, ...position}))
+    }
+
+    const handleChangeStartEndTime = (stateChange: Partial<StartEndTime>) => {
+        setStartEndTime((prev) => ({...prev, ...stateChange}))
+    }
+    // React.useEffect(() => {
+    //     if (
+    //         currentRefVideo.current &&
+    //         fileGallery[currentIndexBigSlider].type === MediaType.video
+    //     ) {
+    //         // currentRefVideo.current.onloadedmetadata = function() {
+    //         //       // @ts-ignore: Object is possibly 'null'.
+    //         console.log('DUR', currentRefVideo.current.getDuration())
+    //             setDurationVideo(currentRefVideo.current.getDuration());
+    //         // }
+    //         // console.log(currentRefVideo.current.duration);
+
+    //     }
+    // }, [currentIndexBigSlider]);
 
     React.useEffect(() => {
         const generateThumbnail = async () => {
@@ -457,14 +487,14 @@ export default function EditImage(props: IEditImageProps) {
 
     const handleClickVideo = () => {
         if (showSettingVideo) {
-            if (!isPlayVideo) {
-                currentRefVideo.current?.play();
-            } else {
-                currentRefVideo.current?.pause();
-            }
             setIsPlayVideo((isPlay) => !isPlay);
         }
     };
+
+    const handlePlayVideo = () => {
+        setIsPlayVideo(true);
+    }
+    
     return (
         <Container baseUrl={window.location.origin}>
             {/* <Container> */}
@@ -527,7 +557,7 @@ export default function EditImage(props: IEditImageProps) {
                                         className="video-container"
                                         style={{ width: '100%', height: '100%' }}
                                     >
-                                        <video
+                                        {/* <video
                                             loop
                                             ref={currentRefVideo}
                                             style={{
@@ -536,7 +566,32 @@ export default function EditImage(props: IEditImageProps) {
                                                 objectFit: 'cover',
                                             }}
                                             src={file.url}
-                                        ></video>
+                                        ></video> */}
+                                        {/* <div  className="video-img"> */}
+                                        <ReactPlayer
+                                            width='100%'
+                                            height='100%'
+                                            loop={true}
+                                            playing={isPlayVideo}
+                                            url={file.url}
+                                            ref={currentRefVideo}
+                                            
+                                            onDuration={(duration: number) => setDurationVideo(duration)}
+                                            onProgress={(state) => {
+                                                // console.log(currentRefVideo.current?.seekTo(startTime));
+                                                if (state.playedSeconds + 0.3 >= startEndTime.endTime) {
+                                                    console.log('READYY')
+                                                    currentRefVideo.current?.seekTo(startEndTime.startTime)
+                                                }
+                                                console.log('Current', state.playedSeconds)
+                                                console.log('End time', startEndTime.endTime)
+                                                setDurationVideo(state.loadedSeconds);
+                                                
+
+                                            }}
+                                        />
+
+                                        {/* </div> */}
                                         {!isPlayVideo && (
                                             <div className="cover-photo-container">
                                                 <div
@@ -559,7 +614,11 @@ export default function EditImage(props: IEditImageProps) {
                 <div className="filter-list">
                     {fileGallery[currentIndexBigSlider].type === MediaType.video ? (
                         <VideoSetting
+                            positionLeftRightDrag={positionLeftRightDrag}
+                            handleChangePositionDrag={handleChangePositionDrag}
                             durationVideo={durationVideo}
+                            handlePlayVideo={handlePlayVideo}
+                            handleChangeStartEndTime={handleChangeStartEndTime}
                             handleChangeDurationVideo={handleChangeDurationVideo}
                             fileGallery={fileGallery}
                             currentRefVideo={currentRefVideo}
@@ -598,6 +657,10 @@ const Container = styled.div<ContainerStyledProps>`
     min-width: 688px;
     min-height: 391px;
     max-height: 898px;
+
+    video {
+        object-fit: cover;
+    }
 
     .header {
         display: flex;

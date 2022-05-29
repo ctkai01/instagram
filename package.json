@@ -35,6 +35,7 @@
         "react-hook-form": "^6.15.8",
         "react-konva": "^17.0.2-5",
         "react-moment": "^1.1.1",
+        "react-player": "^2.10.1",
         "react-redux": "^7.2.6",
         "react-responsive-carousel": "^3.2.22",
         "react-router-dom": "^5.1.2",
