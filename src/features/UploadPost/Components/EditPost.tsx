@@ -3,6 +3,7 @@ import {
     ArrowTopIcon,
     BackIcon,
     CloseIcon,
+    PlayIcon,
     SiteIcon,
     SmileFaceIcon,
     TagShowIcon,
@@ -29,6 +30,7 @@ import SearchItemLocation from './SearchItemLocation';
 import TagItem from './TagItem';
 import TagSearch, { Position } from './TagSearch';
 import { MediaType } from '@models/commom';
+import ReactPlayer from 'react-player';
 
 export interface IEditPostProps {
     fileGallery: FileUrl[];
@@ -66,6 +68,7 @@ export default function EditPost(props: IEditPostProps) {
     const { fileGallery, indexSlideCurrentEditPost, handleBackStep } = props;
     const [swiper, setSwiper] = React.useState<SwiperCore>();
     const [currentIndexSlider, setCurrentIndexSlider] = React.useState(indexSlideCurrentEditPost);
+    const [isPlayVideo, setIsPlayVideo] = React.useState<boolean>(false);
 
     const [imageArea, setImageArea] = React.useState<Position>({
         x: 0,
@@ -157,19 +160,25 @@ export default function EditPost(props: IEditPostProps) {
     };
 
     const handleClickImage = (e: React.MouseEvent<HTMLImageElement>) => {
-        if (!activeSearchUser.active) {
-            setActiveSearchUser({
-                active: true,
-                x: e.nativeEvent.offsetX,
-                y: e.nativeEvent.offsetY,
-            });
+        console.log('WHAT')
+        if (fileGallery[currentIndexSlider].type === MediaType.video) {
+            setIsPlayVideo((isPlay) => !isPlay);
         } else {
-            setActiveSearchUser({
-                active: false,
-                x: 0,
-                y: 0,
-            });
+            if (!activeSearchUser.active) {
+                setActiveSearchUser({
+                    active: true,
+                    x: e.nativeEvent.offsetX,
+                    y: e.nativeEvent.offsetY,
+                });
+            } else {
+                setActiveSearchUser({
+                    active: false,
+                    x: 0,
+                    y: 0,
+                });
+            }
         }
+       
     };
 
     const handleClickUserSearch = (tagUserPost: TagUserPost, indexSlide: number) => {
@@ -266,14 +275,14 @@ export default function EditPost(props: IEditPostProps) {
 
     const handleHideTag = (indexSlide: number) => {
         setUsersTagPost((usersTagPostSlide) => {
-            const usersTagPostSlideClone = [...usersTagPostSlide]
+            const usersTagPostSlideClone = [...usersTagPostSlide];
             const userTagPostSlide = usersTagPostSlideClone.find(
                 (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
             );
             if (userTagPostSlide) {
-                const userTagPostSlideClone = {...userTagPostSlide }
+                const userTagPostSlideClone = { ...userTagPostSlide };
                 userTagPostSlideClone.show = !userTagPostSlideClone.show;
-       
+
                 usersTagPostSlideClone[
                     usersTagPostSlideClone.findIndex(
                         (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
@@ -286,6 +295,15 @@ export default function EditPost(props: IEditPostProps) {
         });
     };
     console.log(usersTagPost);
+
+    const handleClickVideo = () => {
+        console.log('How')
+        setIsPlayVideo((isPlay) => !isPlay);
+    };
+
+    // console.log(usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.show);
+    console.log(usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.show)
+    console.log(usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.tagsUser.length    )
     return (
         <>
             <Container baseUrl={window.location.origin}>
@@ -317,44 +335,92 @@ export default function EditPost(props: IEditPostProps) {
                             allowTouchMove={false}
                             effect={'fade'}
                             onSlideChange={(swiper) => {
+                                setActiveSearchUser({
+                                    active: false,
+                                    x: 0,
+                                    y: 0,
+                                });
                                 setCurrentIndexSlider(swiper.activeIndex);
+                                setIsPlayVideo(false);
                             }}
                         >
                             {fileGallery.map((file, indexGallery) => (
-                                <SwiperSlide key={indexGallery} className="slider-item">
-                                    <div
-                                        style={{
-                                            position: 'relative',
-                                            width: '100%',
-                                            height: '100%',
-                                        }}
-                                    >
-                                        <img
-                                            onClick={handleClickImage}
-                                            draggable={false}
-                                            src={file.url}
-                                            style={{
-                                                width: '100%',
-                                                height: '100%',
-                                                cursor: `${
-                                                    activeSearchUser.active ? 'initial' : 'move'
-                                                }`,
-                                                userSelect: 'none',
-                                            }}
-                                        />
-                                    </div>
+                                <SwiperSlide
+                                    key={indexGallery}
+                                    className="slider-item"
+                                    onClick={handleClickImage}
+                                >
+                                    {file.type === MediaType.image &&
+                                        indexGallery === currentIndexSlider && (
+                                            <div
+                                                style={{
+                                                    position: 'relative',
+                                                    width: '100%',
+                                                    height: '100%',
+                                                }}
+                                            >
+                                                <img
+                                                    // onClick={handleClickImage}
+                                                    draggable={false}
+                                                    src={file.url}
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        cursor: `${
+                                                            activeSearchUser.active
+                                                                ? 'initial'
+                                                                : 'move'
+                                                        }`,
+                                                        userSelect: 'none',
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+
+                                    {file.type === MediaType.video &&
+                                        indexGallery === currentIndexSlider && (
+                                            <div
+                                                className="video-container"
+                                                style={{ width: '100%', height: '100%' }}
+                                            >
+                                                <ReactPlayer
+                                                    width="100%"
+                                                    height="100%"
+                                                    loop={true}
+                                                    playing={isPlayVideo}
+                                                    url={file.url}
+                                                    muted={fileGallery[currentIndexSlider].isMute}
+                                                    // ref={currentRefVideo}
+                                                />
+                                                {!isPlayVideo && (
+                                                    <div className="cover-photo-container">
+                                                        <div
+                                                            className="img-cover"
+                                                            style={{
+                                                                backgroundImage: `url(${fileGallery[currentIndexSlider].coverUrl})`,
+                                                            }}
+                                                        ></div>
+                                                        <div className="btn-play-video">
+                                                            <PlayIcon size="big" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                 </SwiperSlide>
                             ))}
-                            {usersTagPost[currentIndexSlider]?.tagsUser.length && (
-                                <div
-                                    className="btn-show-tag"
-                                    onClick={() => handleHideTag(currentIndexSlider)}
-                                >
-                                    <TagShowIcon />
-                                </div>
-                            )}
-                            {usersTagPost[currentIndexSlider]?.show &&
-                                (usersTagPost[currentIndexSlider].tagsUser.map((userTag, index) => (
+                            {(usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.tagsUser.length &&
+                                fileGallery[currentIndexSlider].type === MediaType.image) && (
+                                    <div
+                                        className="btn-show-tag"
+                                        onClick={() => handleHideTag(currentIndexSlider)}
+                                    >
+                                        <TagShowIcon />
+                                    </div>  
+                                )}
+                            {(usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.show &&
+                                fileGallery[currentIndexSlider].type === MediaType.image) &&
+                                usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.tagsUser.map((userTag, index) => (
                                     <TagItem
                                         indexGallery={currentIndexSlider}
                                         handleDeleteUseTag={handleDeleteUseTag}
@@ -364,7 +430,7 @@ export default function EditPost(props: IEditPostProps) {
                                         key={index}
                                         userTag={userTag}
                                     />
-                                )))}
+                                ))}
                         </Swiper>
                         {activeSearchUser.active && (
                             <TagSearch
@@ -566,6 +632,11 @@ const Container = styled.div<ContainerStyledProps>`
     min-width: 688px;
     min-height: 391px;
     max-height: 898px;
+
+    video {
+        object-fit: cover;
+    }
+
     body::-webkit-scrollbar {
         display: none; /* for Chrome, Safari, and Opera */
     }
@@ -612,23 +683,23 @@ const Container = styled.div<ContainerStyledProps>`
             cursor: pointer;
 
             .btn-show-tag {
-            position: absolute;
-            display: flex;
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            bottom: 25px;
-            left: 25px;
-            padding: 8px;
-            background-color: rgba(26, 26, 26, 0.8);
-            border-radius: 50%;
-            box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
-            cursor: pointer;
+                position: absolute;
+                display: flex;
+                z-index: 9999;
+                justify-content: center;
+                align-items: center;
+                bottom: 25px;
+                left: 25px;
+                padding: 8px;
+                background-color: rgba(26, 26, 26, 0.8);
+                border-radius: 50%;
+                box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
+                cursor: pointer;
 
-            &:hover {
-                opacity: 0.7;
+                &:hover {
+                    opacity: 0.7;
+                }
             }
-        }
         }
 
         .option-create-post {
@@ -776,7 +847,6 @@ const Container = styled.div<ContainerStyledProps>`
         justify-content: center;
         align-items: center;
 
-        
         /* .img {
                 height: 100%;
                 width: 100%;
@@ -785,6 +855,33 @@ const Container = styled.div<ContainerStyledProps>`
                 background-position: center center;
             
             } */
+        .video-container {
+            position: relative;
+
+            z-index: 9999;
+            .cover-photo-container {
+                height: 100%;
+                width: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+            .img-cover {
+                height: 100%;
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: center center;
+                /* background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfgep9UrtTmyClOM4e45sGoOMSTCHDEp_mfQ&usqp=CAU'); */
+            }
+
+            .btn-play-video {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
     }
 
     .swiper {

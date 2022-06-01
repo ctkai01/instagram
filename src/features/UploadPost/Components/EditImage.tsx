@@ -20,6 +20,7 @@ export interface IEditImageProps {
     handleChangeCurrentIndex: (index: number) => void;
     handleNextEditImage: (files: FileUrl[], indexSlideCurrent: number) => void;
     handleBackStep: () => void;
+    setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
     // setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
 }
 interface ContainerStyledProps {
@@ -45,11 +46,29 @@ export interface FiltersImage {
 export interface PositionDrag {
     posLeft: number;
     posRight: number;
+    indexSlider: number;
 }
 
 export interface StartEndTime {
     startTime: number;
     endTime: number;
+    indexSlider: number;
+}
+
+export interface ThumbnailsDragVideoFile {
+    urlBlob: string;
+    urlsThumb: string[];
+    indexSlider: number;
+}
+
+export interface ThumbnailsCover {
+    urlBlob: string;
+    indexSlider: number;
+}
+
+export interface DurationVideo {
+    duration: number;
+    indexSlider: number;
 }
 
 export default function EditImage(props: IEditImageProps) {
@@ -59,6 +78,7 @@ export default function EditImage(props: IEditImageProps) {
         handleChangeCurrentIndex,
         handleNextEditImage,
         handleBackStep,
+        setFiles
     } = props;
     // const refStage = React.useRef([]);
     // const [stageRef, setStageRef] = React.useState([])
@@ -79,31 +99,40 @@ export default function EditImage(props: IEditImageProps) {
     }));
 
     const [filters, setFilters] = React.useState<FiltersImage[]>(initialFilters);
-    const [showSettingVideo, setShowSettingVideo] = React.useState<boolean>(false);
+    const [showSettingVideo, setShowSettingVideo] = React.useState<boolean>(fileGallery[currentIndexBigSlider].type === MediaType.video);
     const currentRefVideo = React.useRef<ReactPlayer>(null);
     // const currentRefVideo = React.useRef<BaseReactPlayerProps>(null);
     const [isSubmitEdit, setIsSubmitEdit] = React.useState<boolean>(false);
     const [isPlayVideo, setIsPlayVideo] = React.useState<boolean>(false);
-    const [thumbnailsCover, setThumbnailsCover] = React.useState<string>('');
-    const [durationVideo, setDurationVideo] = React.useState<number>(1);
+    // const [thumbnailsCover, setThumbnailsCover] = React.useState<ThumbnailsCover[]>([]);
+    const [durationVideo, setDurationVideo] = React.useState<DurationVideo[]>([]);
+
+    const [thumbnailsDrag, setThumbnailsDrag] = React.useState<ThumbnailsDragVideoFile[]>([]);
 
     const [filesCanvas, setFilesCanvas] = React.useState<FileUrl[]>([]);
-    const [startEndTime, setStartEndTime] = React.useState<StartEndTime>({
-        startTime: 0,
-        endTime: durationVideo
-    });
+    const [startEndTime, setStartEndTime] = React.useState<StartEndTime[]>([]);
     const [swiper, setSwiper] = React.useState<SwiperCore>();
 
     const handleAddFileCanvas = (file: FileUrl) => {
-        console.log(file);
+        console.log('ADD Canvas', file);
         setFilesCanvas((filesCanvasPre) => [...filesCanvasPre, file]);
     };
 
-    const [positionLeftRightDrag, setPositionLeftRightDrag] = React.useState<PositionDrag>({
+    const initialPositionLeftRight = fileGallery.map((file, index) => ({
         posLeft: 0,
-        posRight: 0
-    })
+        posRight: 0,
+        indexSlider: index,
+        file: file
+    })).filter(element => element.file.type === MediaType.video).map(element => ({
+        posLeft: element.posLeft,
+        posRight: element.posRight,
+        indexSlider: element.indexSlider
+    }))
+    // console.log('INITIAL',initialPositionLeftRight)
 
+
+    const [positionLeftRightDrag, setPositionLeftRightDrag] = React.useState<PositionDrag[]>(initialPositionLeftRight);
+    console.log('POSTION', positionLeftRightDrag)
     const [adjustments, setAdjustments] =
         React.useState<AdjustmentValueImage[]>(initialAdjustments);
 
@@ -112,14 +141,52 @@ export default function EditImage(props: IEditImageProps) {
     const swiperIndex = swiper?.activeIndex | 0;
     const currentFilter = filters.find((filter) => filter.indexImage === swiperIndex) || filters[0];
 
+    const handleSetThumbnails = (payload: ThumbnailsDragVideoFile) => {
+        console.log(payload);
+        setThumbnailsDrag((thumbnails: ThumbnailsDragVideoFile[]) => {
+            const checkExist = thumbnails.find(
+                (thumb) => thumb.indexSlider === payload.indexSlider
+            );
+            if (checkExist) {
+                return thumbnails;
+            } else {
+                return [...thumbnails, payload];
+            }
+        });
+    };
+    // console.log('WHATWAR', thumbnailsDrag)
 
     const handleChangePositionDrag = (position: Partial<PositionDrag>) => {
-        setPositionLeftRightDrag((positionPre) => ({...positionPre, ...position}))
-    }
+        setPositionLeftRightDrag((positionPre) => {
+            const positionClone = [...positionPre]
+            let positionUpdate = positionClone.find(element => element.indexSlider === currentIndexBigSlider)
+            if (positionUpdate) {
+                positionUpdate = {...positionUpdate, ...position}
+                positionClone[positionClone.findIndex(element => element.indexSlider === currentIndexBigSlider)] = positionUpdate
+                return positionClone
+            } else {
+                return positionClone
+            }
+
+        });
+    };
 
     const handleChangeStartEndTime = (stateChange: Partial<StartEndTime>) => {
-        setStartEndTime((prev) => ({...prev, ...stateChange}))
-    }
+        // setStartEndTime((prev) => ({ ...prev, ...stateChange }));
+
+        setStartEndTime(startEndTime => {
+            const startEndTimeClone = [...startEndTime]
+            let startEndTimeUpdate = startEndTime.find(element => element.indexSlider === currentIndexBigSlider)
+            if (startEndTimeUpdate) {
+                startEndTimeUpdate = {...startEndTimeUpdate, ...stateChange}
+                startEndTimeClone[startEndTimeClone.findIndex(element => element.indexSlider === currentIndexBigSlider)] = startEndTimeUpdate
+                return startEndTimeClone
+            } else {
+                return startEndTimeClone
+            }
+        })
+
+    };
     // React.useEffect(() => {
     //     if (
     //         currentRefVideo.current &&
@@ -137,19 +204,78 @@ export default function EditImage(props: IEditImageProps) {
 
     React.useEffect(() => {
         const generateThumbnail = async () => {
-            let thumbnail = await getThumbnails(fileGallery[currentIndexBigSlider].url, {
-                start: 0,
-                end: 0,
-                scale: 0.7,
-            });
-            // @ts-ignore: Object is possibly 'null'.
-            setThumbnailsCover(URL.createObjectURL(thumbnail[0].blob));
+            // if (
+            //     !thumbnailsCover.find(
+            //         (thumbnail) => thumbnail.indexSlider === currentIndexBigSlider
+            //     )
+            // ) {
+            //     let thumbnail = await getThumbnails(fileGallery[currentIndexBigSlider].url, {
+            //         start: 0,
+            //         end: 0,
+            //         scale: 0.7,
+            //     });
+            //     // @ts-ignore: Object is possibly 'null'.
+            //     setThumbnailsCover((thumbnails) => [
+            //         ...thumbnails,
+            //         {
+            //             indexSlider: currentIndexBigSlider,
+            //             // @ts-ignore: Object is possibly 'null'.
+            //             urlBlob: URL.createObjectURL(thumbnail[0].blob),
+            //         },
+            //     ]);
+            // }
+
+            if (
+               !fileGallery[currentIndexBigSlider].url
+            ) {
+                let thumbnail = await getThumbnails(fileGallery[currentIndexBigSlider].url, {
+                    start: 0,
+                    end: 0,
+                    scale: 0.7,
+                });
+               
+                setFiles(files => {
+                    const filesClone = [...files]
+                    let fileUpdate = fileGallery[currentIndexBigSlider]
+
+                    if (fileUpdate) {
+                        // @ts-ignore: Object is possibly 'null'.
+                        fileUpdate = {...fileUpdate, coverUrl: URL.createObjectURL(thumbnail[0].blob)}
+
+                        filesClone[currentIndexBigSlider] = fileUpdate
+
+                        return filesClone
+                    } else {
+                        return filesClone
+                    }
+                })
+            }
+
         };
 
         if (fileGallery[currentIndexBigSlider].type === MediaType.video) {
             generateThumbnail();
         }
     }, [currentIndexBigSlider]);
+
+
+    const handleChangeThumbCover = (url: string) => {
+        setFiles(files => {
+            const filesClone = [...files]
+            let fileUpdate = fileGallery[currentIndexBigSlider]
+
+            if (fileUpdate) {
+                // @ts-ignore: Object is possibly 'null'.
+                fileUpdate = {...fileUpdate, coverUrl: url}
+
+                filesClone[currentIndexBigSlider] = fileUpdate
+
+                return filesClone
+            } else {
+                return filesClone
+            }
+        })
+    }
 
     const handleClickFilter = (index: number) => {
         // @ts-ignore: Object is possibly 'null'.
@@ -439,11 +565,12 @@ export default function EditImage(props: IEditImageProps) {
     console.log(showSettingVideo);
     // if (isSubmitEdit) {
     //     console.log(filesCanvas)
-    //     handleNextEditImage(filesCanvas.slice(-fileGallery.length));
+    //     handleNextEditImage(filesCanvas.slice(-fileGallery.length), currentIndexBigSlider);
     //     setIsSubmitEdit(false)
     // }
     const getFile = async (ref: any, namePath: string) => {
-        // if (ref) {
+        if (ref.current) {
+        console.log(ref)
         //@ts-ignore: Object is possibly 'null'.
         const base64 = await ref.current.toDataURL();
 
@@ -453,7 +580,7 @@ export default function EditImage(props: IEditImageProps) {
             url: URL.createObjectURL(file),
             type: MediaType.image,
         });
-        // }
+        }
     };
     async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
         const res: Response = await fetch(dataUrl);
@@ -462,26 +589,46 @@ export default function EditImage(props: IEditImageProps) {
     }
     React.useEffect(() => {
         if (isSubmitEdit && filesCanvas.length === 0) {
+            console.log('Hey', refs)
             refs.forEach(async (ref, index) => {
                 await getFile(ref.ref, fileGallery[index].file.name);
             });
         }
-        if (filesCanvas.length === fileGallery.length) {
+        console.log('A', filesCanvas.length)
+        console.log('B', fileGallery.length)
+
+        if (filesCanvas.length === fileGallery.filter(file => file.type === MediaType.image).length) {
             handleNextEditImage(filesCanvas, currentIndexBigSlider);
         }
     }, [isSubmitEdit, filesCanvas]);
     const refs = React.useMemo(() => fileGallery.map((item) => ({ ref: React.createRef() })), []); // create refs only once
 
+    console.log('CURRENT', isSubmitEdit);
+
     const handleChangeDurationVideo = async (nextSeconds: number) => {
-        console.log('debounce');
         if (currentRefVideo.current) {
-            let thumbnails = await getThumbnails(fileGallery[currentIndexBigSlider].url, {
+            let thumbnailsCoverImage = await getThumbnails(fileGallery[currentIndexBigSlider].url, {
                 start: nextSeconds,
                 end: nextSeconds,
                 scale: 0.7,
             });
-            // @ts-ignore: Object is possibly 'null'.
-            setThumbnailsCover(URL.createObjectURL(thumbnails[0].blob));
+
+            setFiles(files => {
+                const filesClone = [...files]
+                let fileUpdate = fileGallery[currentIndexBigSlider]
+    
+                if (fileUpdate) {
+                    // @ts-ignore: Object is possibly 'null'.
+                    fileUpdate = {...fileUpdate, coverUrl: URL.createObjectURL(thumbnailsCoverImage[0].blob)}
+    
+                    filesClone[currentIndexBigSlider] = fileUpdate
+    
+                    return filesClone
+                } else {
+                    return filesClone
+                }
+            })
+            
         }
     };
 
@@ -493,8 +640,19 @@ export default function EditImage(props: IEditImageProps) {
 
     const handlePlayVideo = () => {
         setIsPlayVideo(true);
-    }
-    
+    };
+    const handlePauseVideo = () => {
+        setIsPlayVideo(false);
+    };
+
+    // React.useEffect(() => {
+    //     if (currentRefVideo.current) {
+    //         console.log('DurationXXX', currentRefVideo.current.getDuration())
+    //         setDurationVideo(currentRefVideo.current.getDuration())
+    //     }
+    // }, [])
+
+    console.log('REAK', fileGallery[currentIndexBigSlider].type);
     return (
         <Container baseUrl={window.location.origin}>
             {/* <Container> */}
@@ -528,9 +686,11 @@ export default function EditImage(props: IEditImageProps) {
                             console.log(swiper.activeIndex);
                             if (fileGallery[swiper.activeIndex].type === MediaType.video) {
                                 setShowSettingVideo(true);
+                                setIsPlayVideo(false)
                             } else {
                                 setShowSettingVideo(false);
                             }
+                            
                         }}
                     >
                         {fileGallery.map((file, index) => (
@@ -539,7 +699,7 @@ export default function EditImage(props: IEditImageProps) {
                                 key={index}
                                 className="slider-item"
                             >
-                                {file.type === MediaType.image && index === currentIndexBigSlider && (
+                                {file.type === MediaType.image  && (
                                     <CanvasImage
                                         // ref={refStage[index]}
                                         showCanvas={currentIndexBigSlider === index}
@@ -557,37 +717,62 @@ export default function EditImage(props: IEditImageProps) {
                                         className="video-container"
                                         style={{ width: '100%', height: '100%' }}
                                     >
-                                        {/* <video
-                                            loop
-                                            ref={currentRefVideo}
-                                            style={{
-                                                width: '100%',
-                                                height: '100%',
-                                                objectFit: 'cover',
-                                            }}
-                                            src={file.url}
-                                        ></video> */}
-                                        {/* <div  className="video-img"> */}
                                         <ReactPlayer
-                                            width='100%'
-                                            height='100%'
+                                            width="100%"
+                                            height="100%"
                                             loop={true}
                                             playing={isPlayVideo}
                                             url={file.url}
+                                            muted={fileGallery[currentIndexBigSlider].isMute}
                                             ref={currentRefVideo}
-                                            
-                                            onDuration={(duration: number) => setDurationVideo(duration)}
+                                            onDuration={(duration: number) => {
+                                                console.log('SETTTTTTT');
+                                                setStartEndTime(startEndTime => {
+                                                    const checkExist = startEndTime.find(element => element.indexSlider === currentIndexBigSlider)
+                                                    if (!checkExist) {
+                                                        return [...startEndTime, {
+                                                            startTime: 0,
+                                                            endTime: duration,
+                                                            indexSlider: currentIndexBigSlider, 
+                                                        }]
+                                                    } else {
+                                                        return startEndTime
+                                                    }
+                                                })
+
+                                                setDurationVideo(durationVideo => {
+                                                    const checkExist = durationVideo.find(element => element.indexSlider === currentIndexBigSlider)
+                                                    if (!checkExist) {
+                                                        return [...durationVideo, {
+                                                            duration,
+                                                            indexSlider: currentIndexBigSlider, 
+                                                        }]
+                                                    } else {
+                                                        return durationVideo
+                                                    }
+                                                    // const startEndTimeClone = setStartEndTime
+                                                })
+                                                // setDurationVideo((durationVideo) => )
+
+                                                // setDurationVideo(duration);
+                                            }}
                                             onProgress={(state) => {
                                                 // console.log(currentRefVideo.current?.seekTo(startTime));
-                                                if (state.playedSeconds + 0.3 >= startEndTime.endTime) {
-                                                    console.log('READYY')
-                                                    currentRefVideo.current?.seekTo(startEndTime.startTime)
+                                                if (
+                                                    state.playedSeconds + 0.3 >=
+                                                    // @ts-ignore: Object is possibly 'null'.
+                                                    startEndTime.find(el => el.indexSlider === currentIndexBigSlider).endTime
+                                                ) {
+                                                    console.log('READYY');
+                                                    currentRefVideo.current?.seekTo(
+                                                        // @ts-ignore: Object is possibly 'null'.
+                                                        startEndTime.find(el => el.indexSlider === currentIndexBigSlider).startTime
+                                                    );
                                                 }
-                                                console.log('Current', state.playedSeconds)
-                                                console.log('End time', startEndTime.endTime)
-                                                setDurationVideo(state.loadedSeconds);
-                                                
-
+                                                console.log('Current', state.playedSeconds);
+                                                 // @ts-ignore: Object is possibly 'null'.
+                                                console.log('End time',  startEndTime.find(el => el.indexSlider === currentIndexBigSlider).endTime);
+                                                // setDurationVideo(state.loadedSeconds);
                                             }}
                                         />
 
@@ -597,7 +782,9 @@ export default function EditImage(props: IEditImageProps) {
                                                 <div
                                                     className="img-cover"
                                                     style={{
-                                                        backgroundImage: `url(${thumbnailsCover})`,
+                                                        backgroundImage: `url(${
+                                                            fileGallery[currentIndexBigSlider].coverUrl
+                                                        })`,
                                                     }}
                                                 ></div>
                                                 <div className="btn-play-video">
@@ -612,39 +799,59 @@ export default function EditImage(props: IEditImageProps) {
                     </Swiper>
                 </div>
                 <div className="filter-list">
-                    {fileGallery[currentIndexBigSlider].type === MediaType.video ? (
-                        <VideoSetting
-                            positionLeftRightDrag={positionLeftRightDrag}
-                            handleChangePositionDrag={handleChangePositionDrag}
-                            durationVideo={durationVideo}
-                            handlePlayVideo={handlePlayVideo}
-                            handleChangeStartEndTime={handleChangeStartEndTime}
-                            handleChangeDurationVideo={handleChangeDurationVideo}
-                            fileGallery={fileGallery}
-                            currentRefVideo={currentRefVideo}
-                            currentIndexSlider={currentIndexBigSlider}
-                        />
-                    ) : (
-                        <FilterImageList
-                            handleChangeAdjustmentSaturation={handleChangeAdjustmentSaturation}
-                            handleChangeAdjustmentBrightness={handleChangeAdjustmentBrightness}
-                            handleChangeAdjustmentContrast={handleChangeAdjustmentContrast}
-                            handleChangeAdjustmentThreshold={handleChangeAdjustmentThreshold}
-                            handleChangeAdjustmentHue={handleChangeAdjustmentHue}
-                            handleChangeAdjustmentNoise={handleChangeAdjustmentNoise}
-                            handleResetAdjustmentSaturation={handleResetAdjustmentSaturation}
-                            handleResetAdjustmentBrightness={handleResetAdjustmentBrightness}
-                            handleResetAdjustmentContrast={handleResetAdjustmentContrast}
-                            handleResetAdjustmentThreshold={handleResetAdjustmentThreshold}
-                            handleResetAdjustmentHue={handleResetAdjustmentHue}
-                            handleResetAdjustmentNoise={handleResetAdjustmentNoise}
-                            currentAdjustment={currentAdjustment}
-                            handleChangeRangeValue={handleChangeRangeValue}
-                            activeFilter={activeFilter}
-                            currentFilter={currentFilter}
-                            handleClickFilter={handleClickFilter}
-                        />
-                    )}
+                    {fileGallery.map((file, index) => (
+                        <>
+                            {file.type === MediaType.video && index === currentIndexBigSlider && (
+                                <VideoSetting
+                                    positionLeftRightDrag={positionLeftRightDrag}
+                                    handleChangePositionDrag={handleChangePositionDrag}
+                                    durationVideo={durationVideo}
+                                    handlePauseVideo={handlePauseVideo}
+                                    handlePlayVideo={handlePlayVideo}
+                                    handleChangeStartEndTime={handleChangeStartEndTime}
+                                    handleChangeDurationVideo={handleChangeDurationVideo}
+                                    handleSetThumbnails={handleSetThumbnails}
+                                    setFiles={setFiles}
+                                    handleChangeThumbCover={handleChangeThumbCover}
+                                    fileGallery={fileGallery}
+                                    thumbnailsDrag={thumbnailsDrag}
+                                    currentRefVideo={currentRefVideo}
+                                    currentIndexSlider={currentIndexBigSlider}
+                                />
+                            )}
+                            {file.type === MediaType.image && index === currentIndexBigSlider && (
+                                <FilterImageList
+                                    handleChangeAdjustmentSaturation={
+                                        handleChangeAdjustmentSaturation
+                                    }
+                                    handleChangeAdjustmentBrightness={
+                                        handleChangeAdjustmentBrightness
+                                    }
+                                    handleChangeAdjustmentContrast={handleChangeAdjustmentContrast}
+                                    handleChangeAdjustmentThreshold={
+                                        handleChangeAdjustmentThreshold
+                                    }
+                                    handleChangeAdjustmentHue={handleChangeAdjustmentHue}
+                                    handleChangeAdjustmentNoise={handleChangeAdjustmentNoise}
+                                    handleResetAdjustmentSaturation={
+                                        handleResetAdjustmentSaturation
+                                    }
+                                    handleResetAdjustmentBrightness={
+                                        handleResetAdjustmentBrightness
+                                    }
+                                    handleResetAdjustmentContrast={handleResetAdjustmentContrast}
+                                    handleResetAdjustmentThreshold={handleResetAdjustmentThreshold}
+                                    handleResetAdjustmentHue={handleResetAdjustmentHue}
+                                    handleResetAdjustmentNoise={handleResetAdjustmentNoise}
+                                    currentAdjustment={currentAdjustment}
+                                    handleChangeRangeValue={handleChangeRangeValue}
+                                    activeFilter={activeFilter}
+                                    currentFilter={currentFilter}
+                                    handleClickFilter={handleClickFilter}
+                                />
+                            )}
+                        </>
+                    ))}
                 </div>
             </div>
         </Container>

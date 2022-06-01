@@ -54,6 +54,8 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                 return file
             }
         }))
+        console.log('CURRENT STE[', step)
+
         setIndexSlideCurrentEditPost(indexSlideCurrent)
         handleNextStep()
         
@@ -110,7 +112,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                     // fileGallery={fileGallery}
                     // activeSliderSmall={activeSliderSmall}
                     // setStep={setStep}
-                    // setFiles={setFiles}
+                    setFiles={setFiles}
                     // setIsClickBackFirst={setIsClickBackFirst}
                     // handleShowModalDiscard={handleShowModalDiscard}
                 />

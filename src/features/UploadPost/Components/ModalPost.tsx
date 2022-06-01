@@ -13,6 +13,8 @@ export interface FileUrl {
     file: File;
     url: string;
     type: MediaType.image | MediaType.video;
+    isMute?: boolean;
+    coverUrl?: string
 }
 
 export function ModalPost(props: IModalPostProps) {

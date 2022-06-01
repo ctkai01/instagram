@@ -3,12 +3,13 @@ import { styled } from '@mui/material/styles';
 import Switch, { SwitchProps } from '@mui/material/Switch';
 export interface ISwitchButtonProps {
   handleClick?: (e: any) => void;
+  isMute?: boolean | undefined;
 }
 
 export default function SwitchButton (props: ISwitchButtonProps) {
-  const {handleClick} = props
+  const {handleClick, isMute} = props
   return (
-    <SwitchBtn onClick={handleClick} sx={{ m: 1 }} defaultChecked />
+    <SwitchBtn onClick={handleClick} sx={{ m: 1 }} checked={!isMute} />
   );
 }
 

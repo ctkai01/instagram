@@ -10,29 +10,26 @@ import { useGesture } from '@use-gesture/react';
 import { animated, useSpring } from 'react-spring';
 import _, { debounce } from 'lodash';
 import SwitchButton from './SwitchButton';
-import { setInterval } from 'timers';
+import { DurationVideo, PositionDrag, StartEndTime, ThumbnailsDragVideoFile } from './EditImage';
 import ReactPlayer from 'react-player';
-import { PositionDrag, StartEndTime } from './EditImage';
 
 interface IVideoSettingProps {
     currentIndexSlider: number;
-    durationVideo: number;
+    durationVideo: DurationVideo[];
     fileGallery: FileUrl[];
-    positionLeftRightDrag: PositionDrag;
+    thumbnailsDrag: ThumbnailsDragVideoFile[];
+    positionLeftRightDrag: PositionDrag[];
+    handlePauseVideo: () => void;
     handlePlayVideo: () => void;
+    handleSetThumbnails: (payload: ThumbnailsDragVideoFile) => void;
     handleChangePositionDrag: (position: Partial<PositionDrag>) => void;
     handleChangeStartEndTime: (stateChange: Partial<StartEndTime>) => void;
     // currentRefVideo: React.RefObject<HTMLVideoElement>;
     currentRefVideo: React.RefObject<ReactPlayer>;
     handleChangeDurationVideo: (nextSeconds: number) => void;
+    handleChangeThumbCover: (url: string) => void;
+    setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
 }
-
-export interface ThumbnailsVideoFile {
-    urlBlob: string;
-    urlsThumb: string[];
-}
-
-
 
 export default function VideoSetting(props: IVideoSettingProps) {
     const {
@@ -41,48 +38,97 @@ export default function VideoSetting(props: IVideoSettingProps) {
         currentIndexSlider,
         currentRefVideo,
         positionLeftRightDrag,
+        thumbnailsDrag,
+        handleChangeThumbCover,
+        setFiles,
+        handleSetThumbnails,
+        handlePauseVideo,
         handlePlayVideo,
         handleChangeStartEndTime,
         handleChangePositionDrag,
         handleChangeDurationVideo,
     } = props;
+
+    // @ts-ignore: Object is possibly 'null'.
+    let indexPosition = positionLeftRightDrag.findIndex(
+        (element) => element.indexSlider === currentIndexSlider
+    );
+
+    if (indexPosition === -1) {
+        indexPosition = 0;
+    }
+    let currentLPosition: PositionDrag = positionLeftRightDrag[indexPosition];
+
     let videoSliderRef = React.useRef<HTMLVideoElement>(null);
-    const [thumbnails, setThumbnails] = React.useState<ThumbnailsVideoFile>();
+    // const [thumbnails, setThumbnails] = React.useState<ThumbnailsVideoFile>();
+    const [num, setNum] = React.useState<number>(0);
     const [logoPos, setLogoPos] = useSpring(() => ({ x: 0, y: 0 }));
 
-    const [dragLef, setDragLef] = useSpring(() => ({ x: 0, y: 0 }));
-    const [dragRight, setDragRight] = useSpring(() => ({ x: 0, y: 0 }));
+    const [dragLef, setDragLef] = useSpring(() => ({ x: currentLPosition.posLeft, y: 0 }));
+    const [dragRight, setDragRight] = useSpring(() => ({ x: currentLPosition.posRight, y: 0 }));
     // const [positionLeftRightDrag, setPositionLeftRightDrag] = React.useState<PositionDrag>({
     //     posLeft: 0,
     //     posRight: 0
     // })
     const [isLoading, setIsLoading] = React.useState(true);
-    const [isMuteVideo, setIsMuteVideo] = React.useState(false);
+    // const [isMuteVideo, setIsMuteVideo] = React.useState(false);
+    const isMute = fileGallery[currentIndexSlider].isMute
 
+    console.log('Mute', fileGallery)
+    console.log('Mute1', isMute)
     const ref = React.useRef(null);
+    const refInputSelectImageCover = React.useRef<HTMLInputElement>(null);
     const refDragLeft = React.useRef(null);
     const refDragRight = React.useRef(null);
     const refContentTrimVideo = React.useRef<HTMLDivElement>(null);
-   
+
+
+    console.log('POSSS', positionLeftRightDrag);
+
+    // @ts-ignore: Object is possibly 'null'.
+    const durationCurrent = durationVideo.find((el) => el.indexSlider === currentIndexSlider)?.duration | 1;
+
+    console.log('POSSS1', indexPosition);
+    console.log('POSSS2', currentLPosition);
+    // positionLeftRightDrag.find(
+    //     (element) => element.indexSlider === currentIndexSlider
+    // )
+    //     ? positionLeftRightDrag.find((element) => element.indexSlider === currentIndexSlider)
+    //     : defaultInit;
+
+    // currentLPosition = currentLPosition ? currentLPosition : defaultInit
+
     React.useEffect(() => {
         if (currentRefVideo.current && refContentTrimVideo.current) {
             // console.log(durationVideo)
-            const startTime = positionLeftRightDrag.posLeft === 0 ? 0 : ( positionLeftRightDrag.posLeft/refContentTrimVideo.current.clientWidth ) * durationVideo
-            const endTime = positionLeftRightDrag.posRight === 0 ? durationVideo : ( (refContentTrimVideo.current.clientWidth + positionLeftRightDrag.posRight)/refContentTrimVideo.current.clientWidth ) * durationVideo
+            const startTime =
+                // @ts-ignore: Object is possibly 'null'.
+                currentLPosition.posLeft === 0
+                    ? 0
+                    : (currentLPosition.posLeft / refContentTrimVideo.current.clientWidth) *
+                      durationCurrent;
+            const endTime =
+                currentLPosition.posRight === 0
+                    ? durationCurrent
+                    : ((refContentTrimVideo.current.clientWidth + currentLPosition.posRight) /
+                          refContentTrimVideo.current.clientWidth) *
+                      durationCurrent;
             // const durationTime = (endTime - startTime) * 1000
-            console.log('First', refContentTrimVideo.current.clientWidth)
-            console.log('Second', refContentTrimVideo.current.clientWidth)
-            console.log('So chia', -positionLeftRightDrag.posRight/refContentTrimVideo.current.clientWidth)
-            console.log('Right', positionLeftRightDrag.posRight)
-            handlePlayVideo()
-            currentRefVideo.current?.seekTo(startTime)
+            // console.log('First', refContentTrimVideo.current.clientWidth);
+            // console.log('Second', refContentTrimVideo.current.clientWidth);
+            // console.log(
+            //     'So chia',
+            //     -positionLeftRightDrag.posRight / refContentTrimVideo.current.clientWidth
+            // );
+            // console.log('Right', positionLeftRightDrag.posRight);
+            handlePlayVideo();
+            currentRefVideo.current?.seekTo(startTime);
             handleChangeStartEndTime({
                 startTime,
-                endTime
-            })
-      
+                endTime,
+            });
         }
-    }, [positionLeftRightDrag])
+    }, [positionLeftRightDrag]);
 
     // React.useEffect(() => {
     //     if (currentRefVideo.current && refContentTrimVideo.current) {
@@ -96,53 +142,85 @@ export default function VideoSetting(props: IVideoSettingProps) {
     //             startTime,
     //             endTime
     //         })
-      
+
     //     }
     // }, [])
 
     React.useEffect(() => {
+        setNum((pre) => {
+            if (pre === 0) {
+                return pre + 1;
+            } else {
+                return pre;
+            }
+        });
+        // console.log(num)
+        if (thumbnailsDrag.find((thumb) => thumb.indexSlider === currentIndexSlider)) {
+            setIsLoading(false);
+        }
+
         const getThumbnailVideos = async () => {
-            // console.log(currentRefVideo);
-            if (currentRefVideo.current) {
+            if (
+                currentRefVideo.current &&
+                !thumbnailsDrag.find((thumb) => thumb.indexSlider === currentIndexSlider)
+            ) {
                 const fileThumb = fileGallery[currentIndexSlider];
                 // console.log(fileThumb);
-                console.log('DURATION', durationVideo);
+                const interval = durationCurrent / 5;
                 let thumbnails = await getThumbnails(fileThumb.url, {
                     start: 0,
-                    interval: durationVideo / 5,
+                    interval: interval,
                     scale: 0.7,
                 });
-                setIsLoading(false);
-                thumbnails = thumbnails.slice(0, thumbnails.length - 1);
+                const numberSlice =
+                    thumbnails.length === 6 ? thumbnails.length - 1 : thumbnails.length;
+                thumbnails = thumbnails.slice(0, numberSlice);
+
                 // @ts-ignore: Object is possibly 'null'.
                 const blobThumbs = thumbnails.map((thumb) => URL.createObjectURL(thumb.blob));
-                setThumbnails({
+
+                handleSetThumbnails({
                     urlBlob: fileThumb.url,
                     urlsThumb: blobThumbs,
+                    indexSlider: currentIndexSlider,
                 });
+                setIsLoading(false);
             }
 
             if (currentRefVideo.current && refContentTrimVideo.current) {
-                // console.log(durationVideo)
-                const startTime = positionLeftRightDrag.posLeft === 0 ? 0 : ( positionLeftRightDrag.posLeft/refContentTrimVideo.current.clientWidth ) * durationVideo
-                const endTime = positionLeftRightDrag.posRight === 0 ? durationVideo: ( positionLeftRightDrag.posRight/refContentTrimVideo.current.clientWidth ) * durationVideo
-                // const durationTime = (endTime - startTime) * 1000
-                console.log('Start time AAA', startTime)
-                console.log('End time AA', endTime)
+                const startTime =
+                    currentLPosition.posLeft === 0
+                        ? 0
+                        : (currentLPosition.posLeft / refContentTrimVideo.current.clientWidth) *
+                          durationCurrent;
+                const endTime =
+                    currentLPosition.posRight === 0
+                        ? durationCurrent
+                        : (currentLPosition.posRight / refContentTrimVideo.current.clientWidth) *
+                          durationCurrent;
+
+                // console.log('Start time AAA', startTime);
+                // console.log('End time AA', endTime);
+                // console.log('WTF')
+
                 handleChangeStartEndTime({
                     startTime,
-                    endTime
-                })
-          
+                    endTime,
+                });
             }
         };
-        getThumbnailVideos();
-    }, []);
+        // console.log('HOI CHAM');
+        if (num === 1) {
+            getThumbnailVideos();
+        }
+    }, [durationVideo]);
     const debounceDropDown = React.useCallback(
-        debounce((nextValue) => handleChangeDurationVideo(nextValue), 500),
+        debounce((nextValue) => {
+            handleChangeDurationVideo(nextValue);
+        }, 500),
         []
     );
-
+    // console.log(thumbnailsDrag)
     useGesture(
         {
             onDrag: ({ down, movement: [mx, my], pinching, cancel, offset: [x, y], ...rest }) => {
@@ -151,6 +229,8 @@ export default function VideoSetting(props: IVideoSettingProps) {
                     if (videoSliderRef.current) {
                         const nextSeconds = videoSliderRef.current.duration * (x / 252);
                         debounceDropDown(nextSeconds);
+                        handlePauseVideo();
+
                         videoSliderRef.current.currentTime = nextSeconds;
                     }
                 }
@@ -174,12 +254,11 @@ export default function VideoSetting(props: IVideoSettingProps) {
         {
             onDrag: ({ down, movement: [mx, my], pinching, cancel, offset: [x, y], ...rest }) => {
                 if (pinching) return cancel();
-        
+
                 let xApply = 0;
-                
 
                 if (refContentTrimVideo.current) {
-                    const limit = refContentTrimVideo.current.clientWidth + dragRight.x.get() - 12
+                    const limit = refContentTrimVideo.current.clientWidth + dragRight.x.get() - 12;
                     xApply = x >= limit ? limit : x;
                 }
 
@@ -187,9 +266,7 @@ export default function VideoSetting(props: IVideoSettingProps) {
                     xApply = 0;
                 }
                 setDragLef.start({ x: xApply, y: 0 });
-                setTimeout(() =>  handleChangePositionDrag({posLeft: xApply}), 100)
-             
-
+                setTimeout(() => handleChangePositionDrag({ posLeft: xApply }), 100);
             },
         },
         {
@@ -204,12 +281,12 @@ export default function VideoSetting(props: IVideoSettingProps) {
         {
             onDrag: ({ down, movement: [mx, my], pinching, cancel, offset: [x, y], ...rest }) => {
                 if (pinching) return cancel();
-               
+
                 let xApply = 0;
-                
+
                 if (refContentTrimVideo.current) {
-                    const limit = refContentTrimVideo.current.clientWidth - dragLef.x.get() - 12
-                    const xTransform = x < 0 ? x : -Math.abs(x) 
+                    const limit = refContentTrimVideo.current.clientWidth - dragLef.x.get() - 12;
+                    const xTransform = x < 0 ? x : -Math.abs(x);
                     xApply = xTransform >= -Math.abs(limit) ? xTransform : -Math.abs(limit);
                     // console.log('Limit', limit)
                     // console.log('Lef', dragLef.x.get())
@@ -219,7 +296,7 @@ export default function VideoSetting(props: IVideoSettingProps) {
                     xApply = 0;
                 }
                 setDragRight.start({ x: xApply, y: 0 });
-                setTimeout(() =>  handleChangePositionDrag({posRight: xApply}), 100)
+                setTimeout(() => handleChangePositionDrag({ posRight: xApply }), 100);
             },
         },
         {
@@ -232,8 +309,32 @@ export default function VideoSetting(props: IVideoSettingProps) {
 
     // console.log(thumbnails);
     const handleClickSwitch = (e: any) => {
-        setIsMuteVideo((isMute) => !isMute);
+        setFiles(files => {
+            const filesClone = [...files]
+            let fileUpdate = filesClone[currentIndexSlider]
+            if (fileUpdate) {
+                fileUpdate = {...fileUpdate, isMute: !fileUpdate.isMute}
+                filesClone[currentIndexSlider] = fileUpdate
+                return filesClone
+            } else {
+                return filesClone
+            }
+        })
     };
+    const handleClickSelectPhoto = () => {
+        refInputSelectImageCover.current?.click()
+    }
+
+    const handleOnChangeFileCover = (e: React.FormEvent<HTMLInputElement>) => {
+        if (refInputSelectImageCover.current) {
+            // @ts-ignore: Object is possibly 'null'.
+            const file: File = refInputSelectImageCover.current.files[0];
+            const blobUrl = window.URL.createObjectURL(file);
+            handleChangeThumbCover(blobUrl)
+        }
+       
+    }
+    // console.log('Current', thumbnailsDrag[currentIndexSlider])
     return (
         <Container>
             {isLoading ? (
@@ -246,10 +347,12 @@ export default function VideoSetting(props: IVideoSettingProps) {
                         <div className="option-header">
                             <div className="text-tittle">Cover photo</div>
                             <div className="select-input-cover">
-                                <button className="btn-select-cover-photo">
+                                <button style={{cursor: 'pointer'}} className="btn-select-cover-photo" onClick={handleClickSelectPhoto}>
                                     Select from computer
                                 </button>
                                 <input
+                                    ref={refInputSelectImageCover}
+                                    onChange={handleOnChangeFileCover}
                                     type="file"
                                     accept="image/jpeg,image/png"
                                     className="input-cover-photo"
@@ -259,19 +362,21 @@ export default function VideoSetting(props: IVideoSettingProps) {
                         <div className="option-content">
                             <div className="list-thumbnails">
                                 <div className="thumbnails" style={{ display: 'flex' }}>
-                                    {thumbnails?.urlsThumb.map((thumbnail, index) => (
-                                        <div
-                                            key={index}
-                                            style={{
-                                                backgroundImage: `url(${thumbnail})`,
-                                                backgroundRepeat: 'no-repeat',
-                                                backgroundSize: 'cover',
-                                                backgroundPosition: 'center',
-                                                height: '100px',
-                                                flex: 1,
-                                            }}
-                                        ></div>
-                                    ))}
+                                    {thumbnailsDrag
+                                        .find((thumb) => thumb.indexSlider === currentIndexSlider)
+                                        ?.urlsThumb.map((thumbnail, index) => (
+                                            <div
+                                                key={index}
+                                                style={{
+                                                    backgroundImage: `url(${thumbnail})`,
+                                                    backgroundRepeat: 'no-repeat',
+                                                    backgroundSize: 'cover',
+                                                    backgroundPosition: 'center',
+                                                    height: '100px',
+                                                    flex: 1,
+                                                }}
+                                            ></div>
+                                        ))}
                                     <animated.div
                                         style={logoPos}
                                         // style={{ transform: `translateX(${sliderPosition}px)` }}
@@ -279,13 +384,12 @@ export default function VideoSetting(props: IVideoSettingProps) {
                                         ref={ref}
                                         // onMouseUp={handleMouseUpCover}
                                         // onMouseDown={handleMouseDownCover}
-                                    >       
+                                    >
                                         <video
                                             ref={videoSliderRef}
                                             className="video-img"
                                             src={`${fileGallery[currentIndexSlider].url}`}
-                                        >
-                                        </video>
+                                        ></video>
                                     </animated.div>
                                 </div>
                             </div>
@@ -298,29 +402,45 @@ export default function VideoSetting(props: IVideoSettingProps) {
                         <div className="option-content">
                             <div className="thumbnails-trim-container" ref={refContentTrimVideo}>
                                 <div className="thumbnails-trim">
-                                    {thumbnails?.urlsThumb.map((thumbnail, index) => (
-                                        <div
-                                            key={index}
-                                            style={{
-                                                backgroundImage: `url(${thumbnail})`,
-                                                backgroundRepeat: 'no-repeat',
-                                                backgroundSize: 'cover',
-                                                backgroundPosition: 'center',
-                                                // flex: ,
-                                                width: '19%',
-                                            }}
-                                        ></div>
-                                    ))}
+                                    {thumbnailsDrag
+                                        .find((thumb) => thumb.indexSlider === currentIndexSlider)
+                                        ?.urlsThumb.map((thumbnail, index) => (
+                                            <div
+                                                key={index}
+                                                style={{
+                                                    backgroundImage: `url(${thumbnail})`,
+                                                    backgroundRepeat: 'no-repeat',
+                                                    backgroundSize: 'cover',
+                                                    backgroundPosition: 'center',
+                                                    // flex: ,
+                                                    width: '19%',
+                                                }}
+                                            ></div>
+                                        ))}
                                 </div>
                                 <div className="thumbnails-ignore">
-                                    <div style={{width: `${positionLeftRightDrag.posLeft}px`}} className="thumbnails-ignore-left"></div>
-                                    <div style={{width: `${-positionLeftRightDrag.posRight}px`}} className="thumbnails-ignore-right"></div>
+                                    <div
+                                        style={{ width: `${currentLPosition.posLeft}px` }}
+                                        className="thumbnails-ignore-left"
+                                    ></div>
+                                    <div
+                                        style={{ width: `${-currentLPosition.posRight}px` }}
+                                        className="thumbnails-ignore-right"
+                                    ></div>
                                 </div>
                                 <div className="thumbnails-selected"></div>
-                                <animated.div style={dragLef} ref={refDragLeft} className="line-vertical-container left">
+                                <animated.div
+                                    style={dragLef}
+                                    ref={refDragLeft}
+                                    className="line-vertical-container left"
+                                >
                                     <div className="line-vertical"></div>
                                 </animated.div>
-                                <animated.div style={dragRight} ref={refDragRight} className="line-vertical-container right">
+                                <animated.div
+                                    style={dragRight}
+                                    ref={refDragRight}
+                                    className="line-vertical-container right"
+                                >
                                     <div className="line-vertical"></div>
                                 </animated.div>
                                 {/* <div className="line-vertical right"></div> */}
@@ -369,8 +489,8 @@ export default function VideoSetting(props: IVideoSettingProps) {
                         </div>
                         <div className="option-content">
                             <div className="video-sound-container">
-                                <div className="text">Video Sound {isMuteVideo ? 'Off' : 'On'}</div>
-                                <SwitchButton handleClick={handleClickSwitch} />
+                                <div className="text">Video Sound {isMute ? 'Off' : 'On'}</div>
+                                <SwitchButton isMute={isMute} handleClick={handleClickSwitch} />
                             </div>
                         </div>
                     </div>

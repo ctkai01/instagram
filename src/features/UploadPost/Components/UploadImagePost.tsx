@@ -64,11 +64,16 @@ export function UploadImagePost(props: IUploadImagePostProps) {
             const blobUrl = window.URL.createObjectURL(file);
 
             const type = file?.type === 'video/mp4' ? MediaType.video : MediaType.image;
-            filesUploadUrl.push({
+            const dataPush: FileUrl = {
                 file: file,
                 url: blobUrl,
                 type,
-            });
+            }
+
+            if (type === MediaType.video) {
+                dataPush['isMute'] = false
+            }
+            filesUploadUrl.push(dataPush);
         }
         // filesUpload.forEach((file) => {
         //     console.log(file)
@@ -130,9 +135,11 @@ export function UploadImagePost(props: IUploadImagePostProps) {
 
     // console.log(files);
     const handleNextStep = () => {
-        setStep((stepPrev: number) => stepPrev + 1);
+        
+        setStep((stepPrev: number) => {
+            return stepPrev + 1
+        });
     };
-
     const handleBackStep = () => {
         setStep((stepPrev: number) => stepPrev - 1);
     };
