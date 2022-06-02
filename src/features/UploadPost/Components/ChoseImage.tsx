@@ -7,6 +7,7 @@ import { FileUrl } from '.';
 import CropImage  from './CropImage';
 import EditImage from './EditImage';
 import EditPost from './EditPost';
+import { StartEndTime } from './ModalPost';
 
 
 export interface IChoseImagePostProps {
@@ -20,6 +21,8 @@ export interface IChoseImagePostProps {
     setStep: React.Dispatch<React.SetStateAction<number>>;
     setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
     setIsClickBackFirst: React.Dispatch<React.SetStateAction<boolean>>;
+    setStartEndTime: React.Dispatch<React.SetStateAction<StartEndTime[]>>;
+    startEndTime: StartEndTime[];
     step: number;
     activeSliderSmall: number;
     fileGallery: FileUrl[];
@@ -37,6 +40,8 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
         handleNextStep,
         setStep,
         setFiles,
+        setStartEndTime,
+        startEndTime,
         step,
         fileGallery,
         activeSliderSmall
@@ -103,7 +108,8 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                     fileGallery={fileGallery}
                     currentIndexBigSlider={currentIndexBigSlider}
                     handleChangeCurrentIndex={handleChangeCurrentIndex}
-
+                    setStartEndTime={setStartEndTime}
+                    startEndTime={startEndTime}
                     handleNextEditImage={handleNextEditImage}
                     handleBackStep={handleBackStep}
                     // handleCloseItemGallery={handleCloseItemGallery}

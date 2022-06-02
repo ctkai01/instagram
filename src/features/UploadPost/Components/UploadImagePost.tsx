@@ -4,10 +4,13 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { FileUrl } from '.';
 import { ChoseImage } from './ChoseImage';
+import { StartEndTime } from './ModalPost';
 
 export interface IUploadImagePostProps {
     step: number;
     files: FileUrl[];
+    startEndTime: StartEndTime[];
+    setStartEndTime: React.Dispatch<React.SetStateAction<StartEndTime[]>>;
     setStep: React.Dispatch<React.SetStateAction<number>>;
     setIsClickBackFirst: React.Dispatch<React.SetStateAction<boolean>>;
     setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
@@ -18,6 +21,8 @@ export function UploadImagePost(props: IUploadImagePostProps) {
     const {
         step,
         files,
+        startEndTime,
+        setStartEndTime,
         setStep,
         handleShowModalDiscard,
         setIsClickBackFirst,
@@ -151,6 +156,7 @@ export function UploadImagePost(props: IUploadImagePostProps) {
                 step === StepCreatePost.EDIT_GALLERY ||
                 step === StepCreatePost.EDIT_POST) && (
                 <ChoseImage
+                    setStartEndTime={setStartEndTime}
                     handleClickSelectImage={handleClickSelectImage}
                     handleOnChangeFile={handleOnChangeFile}
                     handleShowModalDiscard={handleShowModalDiscard}
@@ -159,6 +165,7 @@ export function UploadImagePost(props: IUploadImagePostProps) {
                     handleCloseItemGallery={handleCloseItemGallery}
                     handleNextStep={handleNextStep}
                     handleBackStep={handleBackStep}
+                    startEndTime={startEndTime}
                     activeSliderSmall={activeSliderSmall}
                     step={step}
                     ref={refInput}

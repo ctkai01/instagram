@@ -14,7 +14,13 @@ export interface FileUrl {
     url: string;
     type: MediaType.image | MediaType.video;
     isMute?: boolean;
-    coverUrl?: string
+    coverUrl?: string;
+}
+
+export interface StartEndTime {
+    startTime: number;
+    endTime: number;
+    indexSlider: number;
 }
 
 export function ModalPost(props: IModalPostProps) {
@@ -22,6 +28,7 @@ export function ModalPost(props: IModalPostProps) {
     const [step, setStep] = React.useState<number>(1);
     const [isClickBackFirst, setIsClickBackFirst] = React.useState<boolean>(false);
     const [files, setFiles] = React.useState<FileUrl[]>([]);
+    const [startEndTime, setStartEndTime] = React.useState<StartEndTime[]>([]);
 
     const { handleCloseModalCreatePost, showModalCreatePost } = props;
 
@@ -45,6 +52,8 @@ export function ModalPost(props: IModalPostProps) {
                         setIsClickBackFirst={setIsClickBackFirst}
                         setFiles={setFiles}
                         files={files}
+                        startEndTime={startEndTime}
+                        setStartEndTime={setStartEndTime}
                     />
                 }
                 color="#000000d9"

@@ -31,6 +31,7 @@ import TagItem from './TagItem';
 import TagSearch, { Position } from './TagSearch';
 import { MediaType } from '@models/commom';
 import ReactPlayer from 'react-player';
+import TagSearchUserVideo from './TagSearchUserVideo';
 
 export interface IEditPostProps {
     fileGallery: FileUrl[];
@@ -50,6 +51,8 @@ export interface TagUserPost {
     x?: number;
     y?: number;
     user_name: string;
+    url: string;
+    full_name: string
 }
 
 export interface TagUsersPost {
@@ -60,6 +63,11 @@ export interface TagUsersPost {
 
 interface ContainerStyledProps {
     baseUrl: string;
+}
+
+export interface SettingPost {
+    isHideLikeAndView: boolean,
+    isOffComment: boolean,
 }
 
 const LIMIT_TEXT_CAPTION = 2200;
@@ -79,16 +87,27 @@ export default function EditPost(props: IEditPostProps) {
     const [inputCaption, setInputCaption] = React.useState('');
     const [inputLocation, setInputLocation] = React.useState('');
     const [activeOption, setActiveOption] = React.useState(false);
+    const [settingPost, setSettingPost] = React.useState<SettingPost>({
+        isHideLikeAndView: false,
+        isOffComment: false
+    });
     const [usersTagPost, setUsersTagPost] = React.useState<TagUsersPost[]>([]);
     const [activeSearchUser, setActiveSearchUser] = React.useState<ActiveSearchUser>({
         active: false,
         x: 0,
         y: 0,
     });
+
+    const [activeSearchUserVideo, setActiveSearchUserVideo] = React.useState<boolean>(false);
+
     const [showEmoji, setShowEmoji] = React.useState(false);
     const [isFillLocation, setIsFillLocation] = React.useState(false);
     const [showSearchLocation, setShowSearchLocation] = React.useState(false);
     const [searchLocation, setSearchLocation] = React.useState<Address[]>([]);
+    const usersTagPostCurrent = usersTagPost.find((el) => el.indexSlide === currentIndexSlider);
+    const [modeShowTag, setModeShowTag] = React.useState<boolean>(
+        !!usersTagPostCurrent?.tagsUser.length || false
+    );
 
     React.useEffect(() => {
         if (refImage.current) {
@@ -160,7 +179,7 @@ export default function EditPost(props: IEditPostProps) {
     };
 
     const handleClickImage = (e: React.MouseEvent<HTMLImageElement>) => {
-        console.log('WHAT')
+        console.log('WHAT');
         if (fileGallery[currentIndexSlider].type === MediaType.video) {
             setIsPlayVideo((isPlay) => !isPlay);
         } else {
@@ -178,7 +197,6 @@ export default function EditPost(props: IEditPostProps) {
                 });
             }
         }
-       
     };
 
     const handleClickUserSearch = (tagUserPost: TagUserPost, indexSlide: number) => {
@@ -222,6 +240,10 @@ export default function EditPost(props: IEditPostProps) {
             x: 0,
             y: 0,
         });
+
+        if (activeSearchUserVideo) {
+            setModeShowTag(true);
+        }
     };
 
     const handleChangePostUser = (position: Position, indexTag: number, indexSlide: number) => {
@@ -273,6 +295,13 @@ export default function EditPost(props: IEditPostProps) {
         });
     };
 
+    React.useEffect(() => {
+        if (!usersTagPostCurrent?.tagsUser.length && activeSearchUserVideo) {
+            setActiveSearchUserVideo(false)
+            console.log('Hay')
+        }
+    }, [usersTagPost])
+
     const handleHideTag = (indexSlide: number) => {
         setUsersTagPost((usersTagPostSlide) => {
             const usersTagPostSlideClone = [...usersTagPostSlide];
@@ -296,14 +325,31 @@ export default function EditPost(props: IEditPostProps) {
     };
     console.log(usersTagPost);
 
-    const handleClickVideo = () => {
-        console.log('How')
-        setIsPlayVideo((isPlay) => !isPlay);
+    const handleShowSearchUserVideo = () => {
+        if (usersTagPostCurrent?.tagsUser.length && !activeSearchUserVideo) {
+            setModeShowTag(true);
+        }
+        setActiveSearchUserVideo((active) => !active);
+
     };
 
-    // console.log(usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.show);
-    console.log(usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.show)
-    console.log(usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.tagsUser.length    )
+    const handleAddTagVideo = () => {
+        setModeShowTag(false);
+    };
+
+    const handleSwitchOffComment = () => {
+        setSettingPost(settingPost => ({
+            ...settingPost,
+            isOffComment: !settingPost.isOffComment
+        }))
+    }
+
+    const handleSwitchOffViewCount = () => {
+        setSettingPost(settingPost => ({
+            ...settingPost,
+            isHideLikeAndView: !settingPost.isHideLikeAndView
+        }))
+    }
     return (
         <>
             <Container baseUrl={window.location.origin}>
@@ -342,6 +388,7 @@ export default function EditPost(props: IEditPostProps) {
                                 });
                                 setCurrentIndexSlider(swiper.activeIndex);
                                 setIsPlayVideo(false);
+                                setActiveSearchUserVideo(false)
                             }}
                         >
                             {fileGallery.map((file, indexGallery) => (
@@ -409,36 +456,62 @@ export default function EditPost(props: IEditPostProps) {
                                         )}
                                 </SwiperSlide>
                             ))}
-                            {(usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.tagsUser.length &&
-                                fileGallery[currentIndexSlider].type === MediaType.image) && (
+                            {usersTagPost.find((ele) => ele.indexSlide === currentIndexSlider)
+                                ?.tagsUser.length &&
+                                fileGallery[currentIndexSlider].type === MediaType.image && (
                                     <div
                                         className="btn-show-tag"
                                         onClick={() => handleHideTag(currentIndexSlider)}
                                     >
                                         <TagShowIcon />
-                                    </div>  
+                                    </div>
                                 )}
-                            {(usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.show &&
-                                fileGallery[currentIndexSlider].type === MediaType.image) &&
-                                usersTagPost.find(ele => ele.indexSlide === currentIndexSlider)?.tagsUser.map((userTag, index) => (
-                                    <TagItem
-                                        indexGallery={currentIndexSlider}
-                                        handleDeleteUseTag={handleDeleteUseTag}
-                                        areaListImage={imageArea}
-                                        indexTag={index}
-                                        handleChangePostUser={handleChangePostUser}
-                                        key={index}
-                                        userTag={userTag}
-                                    />
-                                ))}
+                            {fileGallery[currentIndexSlider].type === MediaType.video && (
+                                <div
+                                    className="btn-show-tag-video"
+                                    onClick={handleShowSearchUserVideo}
+                                >
+                                    <TagShowIcon />
+                                    <div className="text">Tag people</div>
+                                </div>
+                            )}
+                            {usersTagPost.find((ele) => ele.indexSlide === currentIndexSlider)
+                                ?.show &&
+                                fileGallery[currentIndexSlider].type === MediaType.image &&
+                                usersTagPost
+                                    .find((ele) => ele.indexSlide === currentIndexSlider)
+                                    ?.tagsUser.map((userTag, index) => (
+                                        <TagItem
+                                            indexGallery={currentIndexSlider}
+                                            handleDeleteUseTag={handleDeleteUseTag}
+                                            areaListImage={imageArea}
+                                            indexTag={index}
+                                            handleChangePostUser={handleChangePostUser}
+                                            key={index}
+                                            userTag={userTag}
+                                        />
+                                    ))}
                         </Swiper>
-                        {activeSearchUser.active && (
-                            <TagSearch
-                                activeSearchUser={activeSearchUser}
-                                currentIndexSlider={currentIndexSlider}
-                                handleClickUserSearch={handleClickUserSearch}
-                            />
-                        )}
+                        {fileGallery[currentIndexSlider].type === MediaType.image &&
+                            activeSearchUser.active && (
+                                <TagSearch
+                                    activeSearchUser={activeSearchUser}
+                                    currentIndexSlider={currentIndexSlider}
+                                    handleClickUserSearch={handleClickUserSearch}
+                                />
+                            )}
+
+                        {fileGallery[currentIndexSlider].type === MediaType.video &&
+                            activeSearchUserVideo && (
+                                <TagSearchUserVideo
+                                    usersTagPost={usersTagPost}
+                                    currentIndexSlider={currentIndexSlider}
+                                    modeShowTag={modeShowTag}
+                                    handleAddTagVideo={handleAddTagVideo}
+                                    handleDeleteUseTag={handleDeleteUseTag}
+                                    handleClickUserSearch={handleClickUserSearch}
+                                />
+                            )}
                     </div>
                     <div className="option-create-post">
                         <div className="avatar-container">
@@ -573,8 +646,8 @@ export default function EditPost(props: IEditPostProps) {
                                                 <div className="option-item-text">
                                                     Hide like and view counts on this post
                                                 </div>
-                                                <div className="option-item-status">
-                                                    <SwitchButton />
+                                                <div className="option-item-status" onClick={handleSwitchOffViewCount}>
+                                                    <SwitchButton isChecked={settingPost.isHideLikeAndView}/>
                                                 </div>
                                             </div>
                                             <div className="option-item-content">
@@ -599,8 +672,8 @@ export default function EditPost(props: IEditPostProps) {
                                                 <div className="option-item-text">
                                                     Turn off commenting
                                                 </div>
-                                                <div className="option-item-status">
-                                                    <SwitchButton />
+                                                <div className="option-item-status" onClick={handleSwitchOffComment}>
+                                                    <SwitchButton isChecked={settingPost.isOffComment}/>
                                                 </div>
                                             </div>
                                             <div className="option-item-content">
@@ -698,6 +771,31 @@ const Container = styled.div<ContainerStyledProps>`
 
                 &:hover {
                     opacity: 0.7;
+                }
+            }
+
+            .btn-show-tag-video {
+                position: absolute;
+                display: flex;
+                z-index: 9999;
+                justify-content: center;
+                align-items: center;
+                bottom: 25px;
+                left: 25px;
+                padding: 8px;
+                background-color: rgba(26, 26, 26, 0.8);
+                border-radius: 16px;
+                box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
+                cursor: pointer;
+
+                &:hover {
+                    opacity: 0.7;
+                }
+
+                .text {
+                    margin-left: 8px;
+                    color: #fff;
+                    font-weight: 700;
                 }
             }
         }

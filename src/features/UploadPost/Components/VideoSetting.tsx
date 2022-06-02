@@ -4,13 +4,13 @@ import LoadingSpecify from '@components/common/LoadingSpecify';
 import * as React from 'react';
 import styled from 'styled-components';
 import { getThumbnails } from 'video-metadata-thumbnails';
-import { FileUrl } from './ModalPost';
+import { FileUrl, StartEndTime } from './ModalPost';
 import { getVideoDurationInSeconds } from 'get-video-duration';
 import { useGesture } from '@use-gesture/react';
 import { animated, useSpring } from 'react-spring';
 import _, { debounce } from 'lodash';
 import SwitchButton from './SwitchButton';
-import { DurationVideo, PositionDrag, StartEndTime, ThumbnailsDragVideoFile } from './EditImage';
+import { DurationVideo, PositionDrag, ThumbnailsDragVideoFile } from './EditImage';
 import ReactPlayer from 'react-player';
 
 interface IVideoSettingProps {
@@ -334,7 +334,7 @@ export default function VideoSetting(props: IVideoSettingProps) {
         }
        
     }
-    // console.log('Current', thumbnailsDrag[currentIndexSlider])
+
     return (
         <Container>
             {isLoading ? (
@@ -490,7 +490,7 @@ export default function VideoSetting(props: IVideoSettingProps) {
                         <div className="option-content">
                             <div className="video-sound-container">
                                 <div className="text">Video Sound {isMute ? 'Off' : 'On'}</div>
-                                <SwitchButton isMute={isMute} handleClick={handleClickSwitch} />
+                                <SwitchButton isChecked={!isMute} handleClick={handleClickSwitch} />
                             </div>
                         </div>
                     </div>

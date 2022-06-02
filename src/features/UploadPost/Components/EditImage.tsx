@@ -7,7 +7,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore from 'swiper';
 import CanvasImage from './CanvasImage';
 import FilterImageList from './FilterImageList';
-import { FileUrl } from './ModalPost';
+import { FileUrl, StartEndTime } from './ModalPost';
 import Konva from 'konva';
 import { MediaType } from '@constants/media-type';
 import VideoSetting from './VideoSetting';
@@ -17,10 +17,12 @@ import ReactPlayer from 'react-player';
 export interface IEditImageProps {
     fileGallery: FileUrl[];
     currentIndexBigSlider: number;
+    startEndTime: StartEndTime[];
     handleChangeCurrentIndex: (index: number) => void;
     handleNextEditImage: (files: FileUrl[], indexSlideCurrent: number) => void;
     handleBackStep: () => void;
     setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
+    setStartEndTime: React.Dispatch<React.SetStateAction<StartEndTime[]>>;
     // setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
 }
 interface ContainerStyledProps {
@@ -49,11 +51,11 @@ export interface PositionDrag {
     indexSlider: number;
 }
 
-export interface StartEndTime {
-    startTime: number;
-    endTime: number;
-    indexSlider: number;
-}
+// export interface StartEndTime {
+//     startTime: number;
+//     endTime: number;
+//     indexSlider: number;
+// }
 
 export interface ThumbnailsDragVideoFile {
     urlBlob: string;
@@ -78,7 +80,9 @@ export default function EditImage(props: IEditImageProps) {
         handleChangeCurrentIndex,
         handleNextEditImage,
         handleBackStep,
-        setFiles
+        setFiles,
+        startEndTime,
+        setStartEndTime,
     } = props;
     // const refStage = React.useRef([]);
     // const [stageRef, setStageRef] = React.useState([])
@@ -110,7 +114,7 @@ export default function EditImage(props: IEditImageProps) {
     const [thumbnailsDrag, setThumbnailsDrag] = React.useState<ThumbnailsDragVideoFile[]>([]);
 
     const [filesCanvas, setFilesCanvas] = React.useState<FileUrl[]>([]);
-    const [startEndTime, setStartEndTime] = React.useState<StartEndTime[]>([]);
+    // const [startEndTime, setStartEndTime] = React.useState<StartEndTime[]>([]);
     const [swiper, setSwiper] = React.useState<SwiperCore>();
 
     const handleAddFileCanvas = (file: FileUrl) => {
@@ -597,7 +601,7 @@ export default function EditImage(props: IEditImageProps) {
         console.log('A', filesCanvas.length)
         console.log('B', fileGallery.length)
 
-        if (filesCanvas.length === fileGallery.filter(file => file.type === MediaType.image).length) {
+        if (filesCanvas.length === fileGallery.filter(file => file.type === MediaType.image).length && isSubmitEdit) {
             handleNextEditImage(filesCanvas, currentIndexBigSlider);
         }
     }, [isSubmitEdit, filesCanvas]);
