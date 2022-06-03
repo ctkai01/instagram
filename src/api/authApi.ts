@@ -1,3 +1,4 @@
+import { PayloadTransformCreatePost } from '@features/UploadPost/Components/UploadImagePost';
 import { Login, SignIn } from '@models/Auth';
 import { ListResponsePagination, Tokens } from '@models/commom';
 import { Post } from '@models/Post';
@@ -31,4 +32,8 @@ export const Api = {
             page
         } });
     },
+    createPost: (data: FormData) => {
+        const url = 'api/posts';
+        return axiosClient.post(url, data)
+    }
 };

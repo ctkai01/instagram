@@ -1,3 +1,4 @@
+import { Api } from '@api/authApi';
 import { MediaType } from '@constants/media-type';
 import { StepCreatePost } from '@constants/step_create_post';
 import * as React from 'react';
@@ -18,7 +19,11 @@ export interface IUploadImagePostProps {
     handleShowModalDiscard: () => void;
 }
 
-export interface FilePost extends FileUrl {
+export interface FilePost {
+    file?: File;
+    type: MediaType.image | MediaType.video;
+    isMute?: boolean;
+    coverUrl?: File | string;
     tags: TagUserPost[],
     startTime?: number;
     endTime?: number;
@@ -29,6 +34,23 @@ export interface PayloadCreatePost extends SettingPost {
     location?: string;
     caption?: string;
 }
+
+interface OptionFileCreatePost {
+    type: MediaType.image | MediaType.video;
+    isMute?: boolean;
+    tags: TagUserPost[],
+    startTime?: number;
+    endTime?: number;
+}
+
+export interface PayloadTransformCreatePost extends SettingPost  {
+    files: File[];
+    coverFiles: (File | string | undefined)[]
+    location?: string;
+    caption?: string;
+    optionFiles: OptionFileCreatePost[];
+}
+
 
 export function UploadImagePost(props: IUploadImagePostProps) {
     const {
@@ -162,8 +184,11 @@ export function UploadImagePost(props: IUploadImagePostProps) {
         setStep((stepPrev: number) => stepPrev - 1);
     };
 
-    const handleSharePost = (payload: PayloadCreatePost) => {
-        let fileStartTime = payload.files.map((file, index) => {
+    const handleSharePost = async (payload: PayloadCreatePost) => {
+        console.log('BEgin', payload.files)
+        console.log('BEgin1', payload)
+        let fileStartTime = await Promise.all(
+        payload.files.map(async (file, index) => {
             if (file.type === MediaType.image) {
                 return file
             }
@@ -178,20 +203,68 @@ export function UploadImagePost(props: IUploadImagePostProps) {
                 trimVideo = checkStartTime
             }
 
+            // const coverFile=  new File([file.coverUrl], 'cover', { type: 'image/png' });
+            
+            
+            console.log('FIle', file)
+            //@ts-ignore: Object is possibly 'null'.
+            const coverFile: File = await dataUrlToFile(file.coverUrl, 'cover.png')
             return {
                 ...file,
+                coverUrl: coverFile,
                 startTime: trimVideo.startTime,
                 endTime: trimVideo.endTime,
             }
            
-        })
+        }))
         payload.files = fileStartTime
-        console.log('Payload', payload)
 
+        const payloadTransform: PayloadTransformCreatePost = {
+             //@ts-ignore: Object is possibly 'null'.
+            files: payload.files.map(file => file.file),
+            coverFiles: payload.files.filter(file => file.coverUrl).map(file => file.coverUrl),
+            caption: payload.caption,
+            location: payload.caption,
+            isOffComment: payload.isOffComment,
+            isHideLikeAndView: payload.isHideLikeAndView,
+            optionFiles: payload.files.map(file => {
+                delete file['file']
+                delete file['coverUrl']
+                return file
+            })
+        }
+        console.log('Payload', payloadTransform)
+        const formData = new FormData();
 
-        handleNextStep()
+        formData.set("caption", payloadTransform.caption ? payloadTransform.caption : '');
+        formData.set("location", payloadTransform.location ? payloadTransform.location : '');
+        formData.set("isOffComment", `${+payloadTransform.isOffComment}`);
+        formData.set("isHideLikeAndView", `${+payloadTransform.isHideLikeAndView}`);
+        formData.append('optionFiles', JSON.stringify(payloadTransform.optionFiles));
+
+        payloadTransform.files.forEach(file => {
+            formData.append('files', file);
+        })
+
+        payloadTransform.coverFiles.forEach(file => {
+              //@ts-ignore: Object is possibly 'null'.
+            formData.append('coverFiles', file);
+        })
+
+        fetchCreatePost(formData);
+        // handleNextStep()
     }
 
+    const fetchCreatePost = async (data: FormData) => {
+        const response = await Api.createPost(data);
+    }
+
+    async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
+        const res: Response = await fetch(dataUrl);
+        const blob: Blob = await res.blob();
+        console.log('URL', dataUrl)
+        return new File([blob], fileName, { type: 'image/png' });
+    }
     return (
         <Container className={isBumpContent ? 'bump' : ''}>
             {(step === StepCreatePost.CREATE_NEW_POST ||
