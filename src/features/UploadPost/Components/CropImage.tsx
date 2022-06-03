@@ -384,7 +384,7 @@ const Main = styled.div`
 
     .btn-zoom {
         padding: 8px;
-        margin-right: 20px;
+        margin-left: 20px;
         background: rgba(26, 26, 26, 0.8);
         border-radius: 50%;
         box-shadow: 0 4px 12px rgb(0 0 0 / 15%);

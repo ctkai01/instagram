@@ -7,7 +7,9 @@ import { FileUrl } from '.';
 import CropImage  from './CropImage';
 import EditImage from './EditImage';
 import EditPost from './EditPost';
+import SharedPost from './SharedPost';
 import { StartEndTime } from './ModalPost';
+import { PayloadCreatePost } from './UploadImagePost';
 
 
 export interface IChoseImagePostProps {
@@ -22,6 +24,7 @@ export interface IChoseImagePostProps {
     setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
     setIsClickBackFirst: React.Dispatch<React.SetStateAction<boolean>>;
     setStartEndTime: React.Dispatch<React.SetStateAction<StartEndTime[]>>;
+    handleSharePost: (payload: PayloadCreatePost) => void;
     startEndTime: StartEndTime[];
     step: number;
     activeSliderSmall: number;
@@ -41,6 +44,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
         setStep,
         setFiles,
         setStartEndTime,
+        handleSharePost,
         startEndTime,
         step,
         fileGallery,
@@ -124,7 +128,10 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                 />
             )}
             {step === StepCreatePost.EDIT_POST && (
-                <EditPost fileGallery={fileGallery} handleBackStep={handleBackStep} indexSlideCurrentEditPost={indexSlideCurrentEditPost}/>
+                <EditPost fileGallery={fileGallery} handleSharePost={handleSharePost} handleBackStep={handleBackStep} indexSlideCurrentEditPost={indexSlideCurrentEditPost}/>
+            )}
+            {step === StepCreatePost.SHARED_POST && (
+                <SharedPost/>
             )}
             <form>
                 <input

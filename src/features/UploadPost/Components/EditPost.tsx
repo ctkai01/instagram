@@ -32,11 +32,13 @@ import TagSearch, { Position } from './TagSearch';
 import { MediaType } from '@models/commom';
 import ReactPlayer from 'react-player';
 import TagSearchUserVideo from './TagSearchUserVideo';
+import { FilePost, PayloadCreatePost } from './UploadImagePost';
 
 export interface IEditPostProps {
     fileGallery: FileUrl[];
     indexSlideCurrentEditPost: number;
     handleBackStep: () => void;
+    handleSharePost: (payload: PayloadCreatePost) => void;
     // handleNextEditImage: (files: FileUrl[]) => void;
     // setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
 }
@@ -73,7 +75,7 @@ export interface SettingPost {
 const LIMIT_TEXT_CAPTION = 2200;
 
 export default function EditPost(props: IEditPostProps) {
-    const { fileGallery, indexSlideCurrentEditPost, handleBackStep } = props;
+    const { fileGallery, indexSlideCurrentEditPost, handleSharePost, handleBackStep } = props;
     const [swiper, setSwiper] = React.useState<SwiperCore>();
     const [currentIndexSlider, setCurrentIndexSlider] = React.useState(indexSlideCurrentEditPost);
     const [isPlayVideo, setIsPlayVideo] = React.useState<boolean>(false);
@@ -350,6 +352,29 @@ export default function EditPost(props: IEditPostProps) {
             isHideLikeAndView: !settingPost.isHideLikeAndView
         }))
     }
+
+    const handleShare = () => {
+        let filesPost: FilePost[]  = fileGallery.map((file, index) => {
+            let dataTags: TagUserPost[] = []
+            const checkTags = usersTagPost.find(el => el.indexSlide === index)
+            if (checkTags) {
+                dataTags = checkTags.tagsUser
+            }
+            return {
+                ...file,
+                tags: dataTags
+            }
+        })
+        console.log(inputLocation)
+        const data: PayloadCreatePost = {
+            files: filesPost,
+            caption: inputCaption,
+            location: inputLocation,
+            ...settingPost
+        }
+
+        handleSharePost(data)
+    }
     return (
         <>
             <Container baseUrl={window.location.origin}>
@@ -362,9 +387,7 @@ export default function EditPost(props: IEditPostProps) {
                     <div className="main-header">Create new post</div>
                     <div
                         className="next-button"
-                        // onClick={() => {
-                        //     setIsSubmitEdit((isSubmit) => !isSubmit);
-                        // }}
+                        onClick={handleShare}
                     >
                         Share
                     </div>

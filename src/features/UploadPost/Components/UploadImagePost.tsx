@@ -4,6 +4,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { FileUrl } from '.';
 import { ChoseImage } from './ChoseImage';
+import { SettingPost, TagUserPost } from './EditPost';
 import { StartEndTime } from './ModalPost';
 
 export interface IUploadImagePostProps {
@@ -15,6 +16,18 @@ export interface IUploadImagePostProps {
     setIsClickBackFirst: React.Dispatch<React.SetStateAction<boolean>>;
     setFiles: React.Dispatch<React.SetStateAction<FileUrl[]>>;
     handleShowModalDiscard: () => void;
+}
+
+export interface FilePost extends FileUrl {
+    tags: TagUserPost[],
+    startTime?: number;
+    endTime?: number;
+} 
+
+export interface PayloadCreatePost extends SettingPost {
+    files: FilePost[];
+    location?: string;
+    caption?: string;
 }
 
 export function UploadImagePost(props: IUploadImagePostProps) {
@@ -149,13 +162,46 @@ export function UploadImagePost(props: IUploadImagePostProps) {
         setStep((stepPrev: number) => stepPrev - 1);
     };
 
+    const handleSharePost = (payload: PayloadCreatePost) => {
+        let fileStartTime = payload.files.map((file, index) => {
+            if (file.type === MediaType.image) {
+                return file
+            }
+
+            let trimVideo: StartEndTime = {
+                startTime: 0,
+                endTime: 0,
+                indexSlider: 1
+            }
+            const checkStartTime = startEndTime.find(el => el.indexSlider === index)
+            if (checkStartTime) {
+                trimVideo = checkStartTime
+            }
+
+            return {
+                ...file,
+                startTime: trimVideo.startTime,
+                endTime: trimVideo.endTime,
+            }
+           
+        })
+        payload.files = fileStartTime
+        console.log('Payload', payload)
+
+
+        handleNextStep()
+    }
+
     return (
         <Container className={isBumpContent ? 'bump' : ''}>
             {(step === StepCreatePost.CREATE_NEW_POST ||
                 step === StepCreatePost.CROP_GALLERY ||
                 step === StepCreatePost.EDIT_GALLERY ||
-                step === StepCreatePost.EDIT_POST) && (
+                step === StepCreatePost.EDIT_POST ||
+                step === StepCreatePost.SHARED_POST
+                ) && (
                 <ChoseImage
+                    handleSharePost={handleSharePost}
                     setStartEndTime={setStartEndTime}
                     handleClickSelectImage={handleClickSelectImage}
                     handleOnChangeFile={handleOnChangeFile}

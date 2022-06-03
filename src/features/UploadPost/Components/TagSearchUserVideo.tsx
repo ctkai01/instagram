@@ -38,9 +38,6 @@ export default function TagSearchUserVideo(props: ITagSearchUserVideoProps) {
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTextSearchTag(e.target.value);
     };
-    console.log('Check', usersTagPostCurrent?.tagsUser.length && modeShowTag);
-    console.log('Check1', usersTagPostCurrent);
-    console.log('Check2', usersTagPost);
 
     return (
         <Container url={window.location.origin}>
