@@ -224,7 +224,7 @@ export function UploadImagePost(props: IUploadImagePostProps) {
             files: payload.files.map(file => file.file),
             coverFiles: payload.files.filter(file => file.coverUrl).map(file => file.coverUrl),
             caption: payload.caption,
-            location: payload.caption,
+            location: payload.location,
             isOffComment: payload.isOffComment,
             isHideLikeAndView: payload.isHideLikeAndView,
             optionFiles: payload.files.map(file => {

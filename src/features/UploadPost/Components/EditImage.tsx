@@ -117,6 +117,7 @@ export default function EditImage(props: IEditImageProps) {
     // const [startEndTime, setStartEndTime] = React.useState<StartEndTime[]>([]);
     const [swiper, setSwiper] = React.useState<SwiperCore>();
 
+    console.log('FIle', fileGallery)
     const handleAddFileCanvas = (file: FileUrl) => {
         console.log('ADD Canvas', file);
         setFilesCanvas((filesCanvasPre) => [...filesCanvasPre, file]);
@@ -191,76 +192,44 @@ export default function EditImage(props: IEditImageProps) {
         })
 
     };
-    // React.useEffect(() => {
-    //     if (
-    //         currentRefVideo.current &&
-    //         fileGallery[currentIndexBigSlider].type === MediaType.video
-    //     ) {
-    //         // currentRefVideo.current.onloadedmetadata = function() {
-    //         //       // @ts-ignore: Object is possibly 'null'.
-    //         console.log('DUR', currentRefVideo.current.getDuration())
-    //             setDurationVideo(currentRefVideo.current.getDuration());
-    //         // }
-    //         // console.log(currentRefVideo.current.duration);
-
-    //     }
-    // }, [currentIndexBigSlider]);
 
     React.useEffect(() => {
-        const generateThumbnail = async () => {
-            // if (
-            //     !thumbnailsCover.find(
-            //         (thumbnail) => thumbnail.indexSlider === currentIndexBigSlider
-            //     )
-            // ) {
-            //     let thumbnail = await getThumbnails(fileGallery[currentIndexBigSlider].url, {
-            //         start: 0,
-            //         end: 0,
-            //         scale: 0.7,
-            //     });
-            //     // @ts-ignore: Object is possibly 'null'.
-            //     setThumbnailsCover((thumbnails) => [
-            //         ...thumbnails,
-            //         {
-            //             indexSlider: currentIndexBigSlider,
-            //             // @ts-ignore: Object is possibly 'null'.
-            //             urlBlob: URL.createObjectURL(thumbnail[0].blob),
-            //         },
-            //     ]);
-            // }
+        const generateThumbnail = async (file: FileUrl, index: number) => {
 
             if (
-               !fileGallery[currentIndexBigSlider].url
-            ) {
-                let thumbnail = await getThumbnails(fileGallery[currentIndexBigSlider].url, {
-                    start: 0,
-                    end: 0,
-                    scale: 0.7,
-                });
-               
-                setFiles(files => {
-                    const filesClone = [...files]
-                    let fileUpdate = fileGallery[currentIndexBigSlider]
-
-                    if (fileUpdate) {
-                        // @ts-ignore: Object is possibly 'null'.
-                        fileUpdate = {...fileUpdate, coverUrl: URL.createObjectURL(thumbnail[0].blob)}
-
-                        filesClone[currentIndexBigSlider] = fileUpdate
-
-                        return filesClone
-                    } else {
-                        return filesClone
-                    }
-                })
-            }
+                !file.coverUrl
+             ) {
+                 let thumbnail = await getThumbnails(file.url, {
+                     start: 0,
+                     end: 0,
+                     scale: 0.7,
+                 });
+                
+                 setFiles(files => {
+                     const filesClone = [...files]
+                     let fileUpdate = file
+ 
+                     if (fileUpdate) {
+                         // @ts-ignore: Object is possibly 'null'.
+                         fileUpdate = {...fileUpdate, coverUrl: URL.createObjectURL(thumbnail[0].blob)}
+ 
+                         filesClone[index] = fileUpdate
+ 
+                         return filesClone
+                     } else {
+                         return filesClone
+                     }
+                 })
+             }
 
         };
 
-        if (fileGallery[currentIndexBigSlider].type === MediaType.video) {
-            generateThumbnail();
-        }
-    }, [currentIndexBigSlider]);
+        fileGallery.forEach((file, index) => {
+            if (file.type === MediaType.video) {
+                generateThumbnail(file, index);
+            }
+        })
+    }, []);
 
 
     const handleChangeThumbCover = (url: string) => {
