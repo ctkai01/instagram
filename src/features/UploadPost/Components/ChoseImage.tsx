@@ -25,6 +25,7 @@ export interface IChoseImagePostProps {
     setIsClickBackFirst: React.Dispatch<React.SetStateAction<boolean>>;
     setStartEndTime: React.Dispatch<React.SetStateAction<StartEndTime[]>>;
     handleSharePost: (payload: PayloadCreatePost) => void;
+    isLoadingCreatePost: boolean;
     startEndTime: StartEndTime[];
     step: number;
     activeSliderSmall: number;
@@ -45,6 +46,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
         setFiles,
         setStartEndTime,
         handleSharePost,
+        isLoadingCreatePost,
         startEndTime,
         step,
         fileGallery,
@@ -131,7 +133,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                 <EditPost fileGallery={fileGallery} handleSharePost={handleSharePost} handleBackStep={handleBackStep} indexSlideCurrentEditPost={indexSlideCurrentEditPost}/>
             )}
             {step === StepCreatePost.SHARED_POST && (
-                <SharedPost/>
+                <SharedPost isLoadingCreatePost={isLoadingCreatePost}/>
             )}
             <form>
                 <input

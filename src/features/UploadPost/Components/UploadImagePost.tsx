@@ -64,6 +64,7 @@ export function UploadImagePost(props: IUploadImagePostProps) {
         setFiles,
     } = props;
     const [isBumpContent, setIsBumpContent] = React.useState<boolean>(false);
+    const [isLoadingCreatePost, setIsLoadingCreatePost] = React.useState<boolean>(true);
     const [activeSliderSmall, setActiveSliderSmall] = React.useState<number>(0);
 
     const refInput = React.createRef();
@@ -185,8 +186,9 @@ export function UploadImagePost(props: IUploadImagePostProps) {
     };
 
     const handleSharePost = async (payload: PayloadCreatePost) => {
-        console.log('BEgin', payload.files)
-        console.log('BEgin1', payload)
+        setIsLoadingCreatePost(true)
+        handleNextStep()
+
         let fileStartTime = await Promise.all(
         payload.files.map(async (file, index) => {
             if (file.type === MediaType.image) {
@@ -203,10 +205,6 @@ export function UploadImagePost(props: IUploadImagePostProps) {
                 trimVideo = checkStartTime
             }
 
-            // const coverFile=  new File([file.coverUrl], 'cover', { type: 'image/png' });
-            
-            
-            console.log('FIle', file)
             //@ts-ignore: Object is possibly 'null'.
             const coverFile: File = await dataUrlToFile(file.coverUrl, 'cover.png')
             return {
@@ -250,9 +248,9 @@ export function UploadImagePost(props: IUploadImagePostProps) {
               //@ts-ignore: Object is possibly 'null'.
             formData.append('coverFiles', file);
         })
+        await fetchCreatePost(formData);
+        setIsLoadingCreatePost(false)
 
-        fetchCreatePost(formData);
-        // handleNextStep()
     }
 
     const fetchCreatePost = async (data: FormData) => {
@@ -288,6 +286,7 @@ export function UploadImagePost(props: IUploadImagePostProps) {
                     activeSliderSmall={activeSliderSmall}
                     step={step}
                     ref={refInput}
+                    isLoadingCreatePost={isLoadingCreatePost}
                     fileGallery={files}
                     setStep={setStep}
                     setFiles={setFiles}

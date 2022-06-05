@@ -1,4 +1,5 @@
 import authReducer from '@features/Auth/authSlice';
+import postReducer from '@features/UploadPost/postSlice';
 import createSagaMiddleware from '@redux-saga/core';
 import {
     Action,
@@ -15,7 +16,7 @@ import rootSaga from './rootSaga';
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth'],
+    whitelist: ['auth', 'post'],
     transforms: [
         createBlacklistFilter('auth', ['loading', 'message', 'error'])
     ],
@@ -24,6 +25,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
     router: connectRouter(history),
     auth: authReducer,
+    post: postReducer,
 });
 
 const persistReduce = persistReducer(persistConfig, rootReducer);

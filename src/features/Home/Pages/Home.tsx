@@ -1,6 +1,8 @@
 import { Api, AuthApi } from '@api/authApi';
+import { postActions, selectPosts } from '@features/UploadPost/postSlice';
 import { Grid } from '@material-ui/core';
 import { Post } from '@models/Post';
+import { useAppDispatch, useAppSelector } from '@redux/hooks';
 import * as React from 'react';
 import { PostList } from '../Components/Posts/PostList';
 import { FooterSideBar } from '../Components/Sidebar/FooterSideBar';
@@ -11,14 +13,17 @@ import StoriesList from '../Components/Stories/StoriesList';
 export interface IHomeProps {}
 
 export function Home(props: IHomeProps) {
-    const [posts, setPosts] = React.useState<Post[]>([]);
+    // const [posts, setPosts] = React.useState<Post[]>([]);
+    const dispatch = useAppDispatch();
+    const posts= useAppSelector(selectPosts);
 
     React.useEffect(() => {
-        const fetchPost = async () => {
-            const response = await Api.listPost();
-            setPosts(response.data);
-        }
-        fetchPost();
+        // const fetchPost = async () => {
+        //     const response = await Api.listPost();
+        //     setPosts(response.data);
+        // }
+        // fetchPost();
+        dispatch(postActions.fetchData());
     }, [])
     console.log(posts);
     return (

@@ -24,6 +24,13 @@ export interface ResponseAuthPagination<T> {
     statusCode: number;
 }
 
+export interface ResponsePagination<T> {
+    data: ListResponsePagination<T>;
+    message: string;
+    statusCode: number;
+}
+
+
 export interface ListParams {
     _page: number;
     _limit: number;

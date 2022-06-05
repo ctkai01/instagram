@@ -3,29 +3,49 @@ import 'react-twemoji-picker/dist/EmojiPicker.css';
 import styled from 'styled-components';
 import 'swiper/css/pagination';
 
-export interface ISharedPostProps {}
+export interface ISharedPostProps {
+    isLoadingCreatePost: boolean;
+}
 
 interface ContainerStyledProps {
     baseUrl: string;
 }
 
 export default function SharedPost(props: ISharedPostProps) {
-    const {} = props;
+    const { isLoadingCreatePost } = props;
 
     return (
         <>
             <Container baseUrl={window.location.origin}>
                 <div className="header">
-                    <div className="main-header">Post shared</div>
+                    <div className="main-header">
+                        {isLoadingCreatePost ? 'Sharing' : 'Post shared'}
+                    </div>
                 </div>
 
                 <div className="content-main" style={{ height: '80vh' }}>
-
                     <div className="container-notify-shared">
-                        <img src={`${window.location.origin}/images/tick.gif`} height={96} width={96} alt="" className="" />
-                        <div className="text">Your post has been shared.</div>
+                        {isLoadingCreatePost ? (
+                            <img
+                            src={`${window.location.origin}/images/loading_r.gif`}
+                            height={96}
+                            width={96}
+                            alt=""
+                            className=""
+                        />
+                        ) : (
+                            <>
+                                <img
+                                    src={`${window.location.origin}/images/tick.gif`}
+                                    height={96}
+                                    width={96}
+                                    alt=""
+                                    className=""
+                                />
+                                <div className="text">Your post has been shared.</div>
+                            </>
+                        )}
                     </div>
-
                 </div>
             </Container>
         </>
@@ -69,7 +89,7 @@ const Container = styled.div<ContainerStyledProps>`
         .text {
             margin-top: 16px;
             font-size: 22px;
-            color: #262626
+            color: #262626;
         }
     }
 `;

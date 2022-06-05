@@ -1,5 +1,6 @@
 import { Modal } from '@components/common';
 import { MediaType } from '@constants/media-type';
+import { StepCreatePost } from '@constants/step_create_post';
 import * as React from 'react';
 import { DiscardPost } from './DiscardPost';
 import {UploadImagePost } from './UploadImagePost';
@@ -33,7 +34,15 @@ export function ModalPost(props: IModalPostProps) {
     const { handleCloseModalCreatePost, showModalCreatePost } = props;
 
     const handleShowModalDiscard = () => {
-        setShowModalDiscard(true);
+        if (step === StepCreatePost.SHARED_POST) {
+            handleCloseModalCreatePost()
+            setStep(1);
+            setIsClickBackFirst(false);
+            setFiles([]);
+        } else {
+            setShowModalDiscard(true);
+
+        }
     };
 
     const handleCloseModalDiscard = () => {

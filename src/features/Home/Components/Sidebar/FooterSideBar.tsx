@@ -57,7 +57,7 @@ export function FooterSideBar(props: IFooterSideBarProps) {
                 {listService.map((item, index) => {
                     if (index === listService.length - 1) {
                         return (
-                            <div className="item-wrapper">
+                            <div key={index} className="item-wrapper">
                                 <Link className="item-service" to={item.url}>
                                     {item.name}
                                 </Link>
@@ -65,7 +65,7 @@ export function FooterSideBar(props: IFooterSideBarProps) {
                         );
                     } else {
                         return (
-                            <div className="item-wrapper">
+                            <div key={index}  className="item-wrapper">
                                 <Link className="item-service" to={item.url}>
                                     {item.name}
                                 </Link>
