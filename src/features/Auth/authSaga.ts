@@ -16,7 +16,7 @@ function* handleRegister(payload: SignIn) {
         yield put(authActions.registerSuccess(response));
         lsTokenAuth.setItem(response.data.tokens.access_token)
         lsRefreshTokenAuth.setItem(response.data.tokens.refresh_token)
-        
+        yield put(push(PATH_BASE))
     } catch (error) {
         const errorResponse = (error as ErrorResponse);
         yield put(authActions.registerFailed(errorResponse))
@@ -30,6 +30,7 @@ function* handleLogin(payload: Login) {
         yield put(authActions.loginSuccess(response))
         lsTokenAuth.setItem(response.data.tokens.access_token)
         lsRefreshTokenAuth.setItem(response.data.tokens.refresh_token)
+   
     } catch (err) {
         const errorResponse = (err as ErrorResponse);
         yield put(authActions.loginFailed(errorResponse))

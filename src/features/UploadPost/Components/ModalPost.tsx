@@ -1,7 +1,9 @@
 import { Modal } from '@components/common';
 import { MediaType } from '@constants/media-type';
 import { StepCreatePost } from '@constants/step_create_post';
+import { useAppDispatch } from '@redux/hooks';
 import * as React from 'react';
+import { postActions } from '../postSlice';
 import { DiscardPost } from './DiscardPost';
 import {UploadImagePost } from './UploadImagePost';
 
@@ -30,6 +32,7 @@ export function ModalPost(props: IModalPostProps) {
     const [isClickBackFirst, setIsClickBackFirst] = React.useState<boolean>(false);
     const [files, setFiles] = React.useState<FileUrl[]>([]);
     const [startEndTime, setStartEndTime] = React.useState<StartEndTime[]>([]);
+    const dispatch = useAppDispatch();
 
     const { handleCloseModalCreatePost, showModalCreatePost } = props;
 
@@ -39,9 +42,9 @@ export function ModalPost(props: IModalPostProps) {
             setStep(1);
             setIsClickBackFirst(false);
             setFiles([]);
+            dispatch(postActions.fetchData());
         } else {
             setShowModalDiscard(true);
-
         }
     };
 

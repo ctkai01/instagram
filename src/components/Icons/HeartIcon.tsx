@@ -3,7 +3,7 @@ import * as React from 'react';
 export interface IHeartIconProps {
     className?: string;
     ariaLabel?: string;
-    color?: 'black' | 'gray'
+    color?: 'black' | 'gray' | 'white'
 }
 
 const defaultProps: Partial<IHeartIconProps> = {
@@ -18,6 +18,8 @@ export function HeartIcon (props: IHeartIconProps) {
         hexColor = '#262626'
     } else if (color === 'gray') {
         hexColor = '#8e8e8e'
+    } else {
+        hexColor = '#fff'
     }
 
 
