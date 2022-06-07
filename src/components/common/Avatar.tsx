@@ -170,6 +170,6 @@ const Container = styled.div<Partial<StyledContainerProps>>`
         display: block;
         border-radius: 50%;
         position: relative;
-        z-index: 10;
+        z-index: 1;
     }
 `;

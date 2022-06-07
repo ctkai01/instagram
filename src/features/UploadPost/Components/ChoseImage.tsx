@@ -141,6 +141,7 @@ export const ChoseImage = React.forwardRef((props: IChoseImagePostProps, ref: an
                     onChange={handleOnChangeFile}
                     ref={ref}
                     multiple
+                    accept="image/jpeg,image/png,image/heic,image/heif,video/mp4,video/quicktime"
                     type="file"
                 />
             </form>

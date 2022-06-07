@@ -18,13 +18,12 @@ export function Home(props: IHomeProps) {
     const posts= useAppSelector(selectPosts);
 
     React.useEffect(() => {
-        // const fetchPost = async () => {
-        //     const response = await Api.listPost();
-        //     setPosts(response.data);
-        // }
-        // fetchPost();
         dispatch(postActions.fetchData());
     }, [])
+
+    
+
+
     console.log(posts);
     return (
         <Grid container justifyContent="space-between" style={{ paddingTop: '30px' }}>

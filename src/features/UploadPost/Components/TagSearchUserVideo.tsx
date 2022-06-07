@@ -1,7 +1,11 @@
+import { Api } from '@api/authApi';
+import LoadingSpecify from '@components/common/LoadingSpecify';
 import SearchItem from '@components/common/SearchItem';
+import { debounce } from 'lodash';
 import * as React from 'react';
 import styled from 'styled-components';
 import { TagUserPost, TagUsersPost } from './EditPost';
+import { SearchTag } from './TagSearch';
 
 export interface ITagSearchUserVideoProps {
     usersTagPost: TagUsersPost[];
@@ -29,6 +33,8 @@ export default function TagSearchUserVideo(props: ITagSearchUserVideoProps) {
         handleClickUserSearch,
     } = props;
     const [textSearchTag, setTextSearchTag] = React.useState('');
+    const [listSearch, setListSearch] = React.useState<SearchTag[]>([]);
+    const [isSearch, setIsSearch] = React.useState<boolean>(false);
     const usersTagPostCurrent = usersTagPost.find((el) => el.indexSlide === currentIndexSlider);
 
     const handleCLoseTextSearch = () => {
@@ -39,6 +45,19 @@ export default function TagSearchUserVideo(props: ITagSearchUserVideoProps) {
         setTextSearchTag(e.target.value);
     };
 
+    const searchTag = async (value: string) => {
+        setIsSearch(true);
+        const response = await Api.searchUser(value);
+        setIsSearch(false);
+        setListSearch(response.data);
+    };
+
+    const debounceSearch = React.useCallback(debounce(searchTag, 1000), []);
+
+    React.useEffect(() => {
+        debounceSearch(textSearchTag);
+    }, [textSearchTag]);
+
     return (
         <Container url={window.location.origin}>
             <div className="arrow-bottom"></div>
@@ -46,7 +65,11 @@ export default function TagSearchUserVideo(props: ITagSearchUserVideoProps) {
                 <>
                     <div className="header-tagged">
                         <div className="header-tag-text">Tagged people</div>
-                        <button onClick={handleAddTagVideo} className="btn-add-tag">
+                        <button onClick={() => {
+                            handleAddTagVideo()
+                            handleCLoseTextSearch()
+                            setListSearch([])
+                        }} className="btn-add-tag">
                             Add tag
                         </button>
                     </div>
@@ -75,14 +98,32 @@ export default function TagSearchUserVideo(props: ITagSearchUserVideoProps) {
                             placeholder="Search"
                             className="input-search"
                         />
-                        {textSearchTag && (
+                        {/* {textSearchTag && (
+                            <button onClick={handleCLoseTextSearch} className="button-close-search">
+                                <span></span>
+                            </button>
+                        )} */}
+                        {textSearchTag && !isSearch && (
                             <button onClick={handleCLoseTextSearch} className="button-close-search">
                                 <span></span>
                             </button>
                         )}
+                        {isSearch && <LoadingSpecify size="small" />}
                     </div>
                     <div className="list_search">
-                        <SearchItem
+                        {isSearch && <LoadingSpecify />}
+                        {!isSearch &&
+                            listSearch.map((user) => (
+                                <SearchItem
+                                    handleClickUserSearch={handleClickUserSearch}
+                                    full_name={user.name}
+                                    user_name={user.user_name}
+                                    currentIndexSlider={currentIndexSlider}
+                                    url={user.avatar}
+                                    is_tick={user.is_tick}
+                                />
+                            ))}
+                        {/* <SearchItem
                             handleClickUserSearch={handleClickUserSearch}
                             full_name="Lai Quang Long"
                             user_name="ctkaino1"
@@ -109,7 +150,7 @@ export default function TagSearchUserVideo(props: ITagSearchUserVideoProps) {
                             full_name="Lai Quang Ki"
                             user_name="ctkaino4"
                             url="http://localhost:3000/images/bgIcon.png"
-                        />
+                        /> */}
                     </div>
                 </>
             )}

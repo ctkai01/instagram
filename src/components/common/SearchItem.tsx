@@ -1,4 +1,5 @@
 import { CancelIcon, CloseCircleIcon, CloseIcon } from '@components/Icons';
+import { Status } from '@constants/status';
 import { ActiveSearchUser, TagUserPost } from '@features/UploadPost/Components/EditPost';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -8,7 +9,7 @@ export interface ISearchItemProps {
     url: string;
     user_name: string;
     full_name: string;
-    is_tick?: boolean;
+    is_tick?: Status;
     currentIndexSlider: number;
     activeSearchUser?: ActiveSearchUser;
     is_video?: boolean;
@@ -18,7 +19,7 @@ export interface ISearchItemProps {
 }
 
 const defaultProps: Partial<ISearchItemProps> = {
-    is_tick: false,
+    is_tick: Status.NO_ACTIVE,
 };
 
 export default function SearchItem(props: ISearchItemProps) {

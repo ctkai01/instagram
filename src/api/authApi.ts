@@ -35,5 +35,9 @@ export const Api = {
     createPost: (data: FormData) => {
         const url = 'api/posts';
         return axiosClient.post(url, data)
+    },
+    searchUser: (search: string) => {
+        const url = `api/user?search=${search}`;
+        return axiosClient.get(url)
     }
 };

@@ -4,9 +4,15 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { Navigation, Pagination } from 'swiper';
 import 'swiper/css/pagination';
 import { Media } from '@models/Media';
+import { MediaType } from '@models/commom';
+import { Post } from '@models/Post';
+import { MuteIcon, UnMuteIcon } from '@components/Icons';
 
 export interface IPhotoListProps {
     media: Media[];
+    checkFirstVideo: boolean;
+    post: Post;
+    getVideoRef: (ref: HTMLVideoElement | null, post: Post) => void;
 }
 SwiperCore.use([Navigation, Pagination]);
 
@@ -15,46 +21,54 @@ interface StyledPhotosProps {
     showButton?: boolean;
 }
 export default function PhotoList(props: IPhotoListProps) {
-    const { media } = props;
-    // const listPhoto = [
-    //     {
-    //         url: 'https://picsum.photos/700/700?random=1',
-    //         tag: [
-    //             {
-    //                 userName: 'ctkaino1',
-    //                 location: '1',
-    //             },
-    //         ],
-    //     },
-    //     {
-    //         url: 'https://picsum.photos/700/700?random=2',
-    //         tag: [
-    //             {
-    //                 userName: 'king.a',
-    //                 location: '1',
-    //             },
-    //         ],
-    //     },
-    //     {
-    //         url: 'https://picsum.photos/700/700?random=3',
-    //         tag: [
-    //             {
-    //                 userName: 'nope.ke',
-    //                 location: '1',
-    //             },
-    //         ],
-    //     },
-    // ];
-
+    const { media, checkFirstVideo, post, getVideoRef } = props;
+    const videoRef = React.useRef<HTMLVideoElement | null>(null);
+    const [isMute, setIsMute] = React.useState<boolean>(true)
     const urlReact = process.env.REACT_APP_URL;
     const showButton = !(media.length === 1);
 
+
+    const handleSwitchMute = () => {
+        setIsMute(isMute => !isMute)
+    }
     return (
         <Container urlReact={urlReact} showButton={showButton}>
             <Swiper pagination={true} slidesPerView={1} navigation={true} allowTouchMove={false}>
                 {media.map((mediaItem, index) => (
                     <SwiperSlide key={index} className="slider-item">
-                        <img src={mediaItem.name} alt="photoPost" />
+                        {mediaItem.type === MediaType.image && (
+                            <img src={mediaItem.name} alt="photoPost" />
+                        )}
+                        {mediaItem.type === MediaType.video && index === 0 && (
+                            <video
+                                ref={(ref) => {
+                                    videoRef.current = ref;
+                                    getVideoRef(ref, post);
+                                }}
+                                loop={true}
+                                muted={isMute}
+                                src={mediaItem.name}
+                            ></video>
+                        )}
+                        {mediaItem.type === MediaType.video && index !== 0 && (
+                            <video
+                                loop={true}
+                                muted={isMute}
+                                src={mediaItem.name}
+                            ></video>
+                        )}
+                        {mediaItem.type === MediaType.video && (
+                            <div className="btn-mute-container" onClick={handleSwitchMute}>
+                                <div className="btn-mute">
+                                    {isMute ? (
+                                        <MuteIcon />
+                                    ): (
+                                        <UnMuteIcon/>
+                                    )}
+                                    
+                                </div>
+                            </div>
+                        )}
                     </SwiperSlide>
                 ))}
             </Swiper>
@@ -67,9 +81,31 @@ const Container = styled.div<StyledPhotosProps>`
         display: flex;
         justify-content: center;
         align-items: center;
-
-        img {
+        position: relative;
+        img,
+        video {
             width: 100%;
+            height: 100%;
+            object-fit: cover;
+            max-height: 673px;
+        }
+
+        .btn-mute-container {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            cursor: pointer;
+            /* padding: 20px; */
+        }
+
+        .btn-mute {
+            padding: 8px;
+            margin: 0px 16px 16px 0;
+            background-color: rgb(38, 38, 38);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     }
 

@@ -1,4 +1,9 @@
+import { Api } from '@api/authApi';
+import Loading from '@components/common/Loading';
+import LoadingSpecify from '@components/common/LoadingSpecify';
 import SearchItem from '@components/common/SearchItem';
+import { Status } from '@constants/status';
+import { debounce, StringIterator } from 'lodash';
 import * as React from 'react';
 import styled from 'styled-components';
 import { ActiveSearchUser, TagUserPost } from './EditPost';
@@ -6,7 +11,7 @@ import { ActiveSearchUser, TagUserPost } from './EditPost';
 export interface ITagSearchProps {
     activeSearchUser: ActiveSearchUser;
     currentIndexSlider: number;
-    handleClickUserSearch: (tagUser: TagUserPost, indexSlider: number) => void
+    handleClickUserSearch: (tagUser: TagUserPost, indexSlider: number) => void;
 }
 
 export interface Position {
@@ -17,10 +22,20 @@ interface TagSearchContainer {
     url: string;
     activeSearchUser: ActiveSearchUser;
 }
+
+export interface SearchTag {
+    id: number;
+    avatar: string;
+    user_name: string;
+    is_tick: Status;
+    name: string;
+}
+
 export default function TagSearch(props: ITagSearchProps) {
     const { activeSearchUser, currentIndexSlider, handleClickUserSearch } = props;
     const [textSearchTag, setTextSearchTag] = React.useState('');
-
+    const [listSearch, setListSearch] = React.useState<SearchTag[]>([]);
+    const [isSearch, setIsSearch] = React.useState<boolean>(false);
     const handleCLoseTextSearch = () => {
         setTextSearchTag('');
     };
@@ -29,7 +44,18 @@ export default function TagSearch(props: ITagSearchProps) {
         setTextSearchTag(e.target.value);
     };
 
+    const searchTag = async (value: string) => {
+        setIsSearch(true);
+        const response = await Api.searchUser(value);
+        setIsSearch(false);
+        setListSearch(response.data);
+    };
 
+    const debounceSearch = React.useCallback(debounce(searchTag, 1000), []);
+
+    React.useEffect(() => {
+        debounceSearch(textSearchTag);
+    }, [textSearchTag]);
 
     return (
         <Container url={window.location.origin} activeSearchUser={activeSearchUser}>
@@ -42,14 +68,27 @@ export default function TagSearch(props: ITagSearchProps) {
                     placeholder="Search"
                     className="input-search"
                 />
-                {textSearchTag && (
+                {(textSearchTag && !isSearch)&& (
                     <button onClick={handleCLoseTextSearch} className="button-close-search">
                         <span></span>
                     </button>
                 )}
+                {isSearch && <LoadingSpecify size='small'/>}
             </div>
             <div className="list_search">
-                <SearchItem
+                {isSearch && <LoadingSpecify/>}
+                {!isSearch && listSearch.map((user) => (
+                    <SearchItem
+                        handleClickUserSearch={handleClickUserSearch}
+                        full_name={user.name}
+                        user_name={user.user_name}
+                        currentIndexSlider={currentIndexSlider}
+                        activeSearchUser={activeSearchUser}
+                        url={user.avatar}
+                        is_tick={user.is_tick}
+                    />
+                ))}
+                {/* <SearchItem
                     handleClickUserSearch={handleClickUserSearch}
                     full_name="Lai Quang Nam"
                     user_name="ctkaino1"
@@ -61,7 +100,6 @@ export default function TagSearch(props: ITagSearchProps) {
                     handleClickUserSearch={handleClickUserSearch}
                     activeSearchUser={activeSearchUser}
                     currentIndexSlider={currentIndexSlider}
-
                     full_name="Lai Quang Nam"
                     user_name="ctkaino2"
                     url="http://localhost:3000/images/bgIcon.png"
@@ -70,7 +108,6 @@ export default function TagSearch(props: ITagSearchProps) {
                     handleClickUserSearch={handleClickUserSearch}
                     activeSearchUser={activeSearchUser}
                     currentIndexSlider={currentIndexSlider}
-
                     full_name="Lai Quang Nam"
                     user_name="ctkaino3"
                     url="http://localhost:3000/images/bgIcon.png"
@@ -82,7 +119,7 @@ export default function TagSearch(props: ITagSearchProps) {
                     full_name="Lai Quang Nam"
                     user_name="ctkaino4"
                     url="http://localhost:3000/images/bgIcon.png"
-                />
+                /> */}
             </div>
         </Container>
     );
@@ -108,7 +145,7 @@ const Container = styled.div<TagSearchContainer>`
         -webkit-transform: rotate(45deg);
         transform: translateZ(-1px) rotate(45deg);
         width: 14px;
-        background-color: #fff; 
+        background-color: #fff;
         left: 18px;
         top: -6px;
     }

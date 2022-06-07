@@ -3,7 +3,7 @@ import { Media } from './Media';
 import { User } from './User';
 
 export interface Post {
-    id?: number;
+    id: number;
     caption?: string;
     location?: string;
     created_by: User;
