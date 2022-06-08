@@ -6,12 +6,18 @@ import 'swiper/css/pagination';
 import { Media } from '@models/Media';
 import { MediaType } from '@models/commom';
 import { Post } from '@models/Post';
-import { MuteIcon, UnMuteIcon } from '@components/Icons';
+import { MuteIcon, PlayIcon, TagShowIcon, UnMuteIcon } from '@components/Icons';
+import VideoItem from './VideoItem';
+import ImageItem from './ImageItem';
+import TagPostItem from './TagPostItem';
 
 export interface IPhotoListProps {
     media: Media[];
     checkFirstVideo: boolean;
     post: Post;
+    isPlay: boolean;
+    handleSetPlay: () => void;
+    handleSetPause: () => void;
     getVideoRef: (ref: HTMLVideoElement | null, post: Post) => void;
 }
 SwiperCore.use([Navigation, Pagination]);
@@ -20,55 +26,181 @@ interface StyledPhotosProps {
     urlReact?: string;
     showButton?: boolean;
 }
+
+interface ShowTag {
+    show: boolean;
+    indexSlider: number;            
+}
+
 export default function PhotoList(props: IPhotoListProps) {
-    const { media, checkFirstVideo, post, getVideoRef } = props;
-    const videoRef = React.useRef<HTMLVideoElement | null>(null);
-    const [isMute, setIsMute] = React.useState<boolean>(true)
+    const { media, isPlay, checkFirstVideo, post, getVideoRef, handleSetPlay, handleSetPause } =
+        props;
+    // const videoRef = React.useRef<HTMLVideoElement | null>(null);
+    const refVideo = React.useRef<HTMLVideoElement[]>([]);
+    const [swiper, setSwiper] = React.useState<SwiperCore>();
+
+    const [isMute, setIsMute] = React.useState<boolean>(true);
+
+    const [showTags, setShowTags] = React.useState<ShowTag[]>(checkFirstVideo ? [] : [{
+        indexSlider: 0,
+        show: false
+    }]);
+    // const [isPlay, setIsPlay] = React.useState<boolean>(false);
     const urlReact = process.env.REACT_APP_URL;
     const showButton = !(media.length === 1);
 
-
     const handleSwitchMute = () => {
-        setIsMute(isMute => !isMute)
+        setIsMute((isMute) => !isMute);
+    };
+
+
+    const handleClickPhotoItem = (type: MediaType) => {
+        if (type === MediaType.image) {
+            
+        } else {
+            if (refVideo.current && swiper) {
+                if (refVideo.current[swiper.activeIndex].paused) {
+                    refVideo.current[swiper.activeIndex].play();
+                    // setIsPlay(false)
+                    handleSetPause();
+                } else {
+                    refVideo.current[swiper.activeIndex].pause();
+                    // setIsPlay(true)
+                    handleSetPlay();
+                }
+            }
+        }
+    };
+    // ref={(el) => {
+    //     // @ts-ignore: Object is possibly 'null'.
+    //     refVideoElement.current[index] = el;
+    // }}
+    // console.log('FUKC', videoRef.current);
+    const handleAddShowTagImage = (index: number) => {
+        setShowTags(showTags => {
+            const checkExist = showTags.find(showTag => showTag.indexSlider === index)
+            if (!checkExist) {
+                return [...showTags, {
+                    indexSlider: index,
+                    show: false
+                }]
+            } else {
+                return showTags
+            }
+        })
     }
+
+    const handleSwitchShowTagImage = (index: number) => {
+        setShowTags(showTags => {
+            const checkExist = showTags.find(showTag => showTag.indexSlider === index)
+            // const checkExistClone = {...checkExist}
+            const showTagClone = [...showTags]
+            if (checkExist) {
+                const cloneExist = {...checkExist}
+                cloneExist.show = !cloneExist.show
+                showTagClone[showTagClone.findIndex(showTag => showTag.indexSlider === index)] = cloneExist
+                return showTagClone
+            } else {
+                return showTagClone
+            }
+        })
+    }
+
+    console.log(showTags)
     return (
         <Container urlReact={urlReact} showButton={showButton}>
-            <Swiper pagination={true} slidesPerView={1} navigation={true} allowTouchMove={false}>
+            <Swiper
+                onSwiper={(swiper) => setSwiper(swiper)}
+                onSlideChange={(swiper) => {
+                    console.log(refVideo);
+                    // setIsPlay(false)
+                    handleSetPause();
+                    if (media[swiper.activeIndex].type === MediaType.image ) {
+                        handleAddShowTagImage(swiper.activeIndex)
+                    }
+
+
+                    if (media[swiper.activeIndex].type === MediaType.video && refVideo.current) {
+                        refVideo.current[swiper.activeIndex].play();
+                        // swiper.history
+                        if (media[swiper.previousIndex].type === MediaType.video) {
+                            refVideo.current[swiper.previousIndex].pause();
+                            refVideo.current[swiper.previousIndex].currentTime = 0;
+                        }
+                        console.log(refVideo, swiper);
+                        // previousIndex
+                    } else {
+                        if (media[swiper.previousIndex].type === MediaType.video) {
+                            refVideo.current[swiper.previousIndex].pause();
+                            refVideo.current[swiper.previousIndex].currentTime = 0;
+                        }
+                    }
+                }}
+                pagination={true}
+                slidesPerView={1}
+                navigation={true}
+                allowTouchMove={false}
+            >
                 {media.map((mediaItem, index) => (
                     <SwiperSlide key={index} className="slider-item">
                         {mediaItem.type === MediaType.image && (
-                            <img src={mediaItem.name} alt="photoPost" />
+                            <ImageItem
+                                handleClickPhotoItem={handleClickPhotoItem}
+                                mediaItem={mediaItem}
+                            />
                         )}
                         {mediaItem.type === MediaType.video && index === 0 && (
-                            <video
-                                ref={(ref) => {
-                                    videoRef.current = ref;
-                                    getVideoRef(ref, post);
-                                }}
-                                loop={true}
-                                muted={isMute}
-                                src={mediaItem.name}
-                            ></video>
+                            <VideoItem
+                                refVideo={refVideo}
+                                index={index}
+                                post={post}
+                                isMute={isMute}
+                                mediaItem={mediaItem}
+                                getVideoRef={getVideoRef}
+                                handleClickPhotoItem={handleClickPhotoItem}
+                            />
                         )}
                         {mediaItem.type === MediaType.video && index !== 0 && (
-                            <video
-                                loop={true}
-                                muted={isMute}
-                                src={mediaItem.name}
-                            ></video>
+                            <VideoItem
+                                refVideo={refVideo}
+                                index={index}
+                                post={post}
+                                isMute={isMute}
+                                mediaItem={mediaItem}
+                                // getVideoRef={getVideoRef}
+                                handleClickPhotoItem={handleClickPhotoItem}
+                            />
                         )}
                         {mediaItem.type === MediaType.video && (
                             <div className="btn-mute-container" onClick={handleSwitchMute}>
                                 <div className="btn-mute">
-                                    {isMute ? (
-                                        <MuteIcon />
-                                    ): (
-                                        <UnMuteIcon/>
-                                    )}
-                                    
+                                    {isMute ? <MuteIcon /> : <UnMuteIcon />}
                                 </div>
                             </div>
                         )}
+                        {(mediaItem.type === MediaType.image && mediaItem.tags_user.length) && (
+                            <div className="btn-show-tag-container" onClick={() => {handleSwitchShowTagImage(index)}}>
+                                <div className="btn-show">
+                                    <TagShowIcon />
+                                </div>
+                            </div>
+                        )}
+                        {(mediaItem.type === MediaType.image && showTags.find(showTag => showTag.indexSlider === index)?.show) && (
+                            mediaItem.tags_user.map(tagUser => (
+                                <TagPostItem tagUser={tagUser}/>
+                            ))
+                        )}
+                        
+                        {mediaItem.type === MediaType.video && isPlay && (
+                            <div
+                                onClick={() => handleClickPhotoItem(mediaItem.type)}
+                                className="btn-play"
+                            >
+                                <PlayIcon size="big" />
+                            </div>
+                        )}
+
+
                     </SwiperSlide>
                 ))}
             </Swiper>
@@ -82,6 +214,8 @@ const Container = styled.div<StyledPhotosProps>`
         justify-content: center;
         align-items: center;
         position: relative;
+        cursor: pointer;
+
         img,
         video {
             width: 100%;
@@ -98,9 +232,37 @@ const Container = styled.div<StyledPhotosProps>`
             /* padding: 20px; */
         }
 
+        .btn-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn-show-tag-container {
+            position: absolute;
+            cursor: pointer;
+            bottom: 0;
+            left: 0;
+        }
+
+        .btn-show-tag-container:active {
+            opacity: 0.7;
+        }
+
         .btn-mute {
             padding: 8px;
             margin: 0px 16px 16px 0;
+            background-color: rgb(38, 38, 38);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-show {
+            padding: 8px;
+            margin: 12px;
             background-color: rgb(38, 38, 38);
             border-radius: 50%;
             display: flex;

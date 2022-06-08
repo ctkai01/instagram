@@ -8,6 +8,7 @@ export interface Post {
     location?: string;
     created_by: User;
     is_off_comment?: ActiveStatus;
+    is_hide_like_view?: ActiveStatus;
     media: Media[];
     created_at: string;
     updated_at: string;

@@ -1,39 +1,57 @@
 import { CommentIcon, GalleryFull, HeartIcon } from '@components/Icons';
+import { MediaType } from '@models/commom';
+import { Post } from '@models/Post';
+import { Skeleton } from '@mui/material';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
-export interface IPostAccountListProps {}
+export interface IPostAccountListProps {
+    posts?: Post[];
+}
 
 export default function PostAccountList(props: IPostAccountListProps) {
+    const { posts } = props;
     return (
         <Container>
-            {Array.from(Array(7).keys()).map((el, index) => (
-                <div className="item-post">
-                    <Link className="link-redirect" to="a">
-                        <img
-                            src={`https://picsum.photos/300/300?random=${el + 1}`}
-                            alt=""
-                            className="img"
-                        />
-                        <div className="icon-container">
-                            <GalleryFull />
-                        </div>
-                        <div className="modal-container">
-                            <div className="count-container">
-                                <div className="icon-item">
-                                    <HeartIcon className='icon' color='white'/>
-                                    <div className="count">39.4K</div>
-                                </div>
-                                <div className="icon-item">
-                                    <CommentIcon className='icon' color='white'/>
-                                    <div className="count">83</div>
+            {posts ? (
+                posts.map((post, index) => (
+                    <div className="item-post">
+                        <Link className="link-redirect" to="a">
+                            <img
+                                src={
+                                    post.media[0].type === MediaType.image
+                                        ? post.media[0].name
+                                        : post.media[0].cover_name
+                                }
+                                alt=""
+                                className="img"
+                            />
+                            <div className="icon-container">
+                                <GalleryFull />
+                            </div>
+                            <div className="modal-container">
+                                <div className="count-container">
+                                    <div className="icon-item">
+                                        <HeartIcon className="icon" color="white" />
+                                        <div className="count">39.4K</div>
+                                    </div>
+                                    <div className="icon-item">
+                                        <CommentIcon className="icon" color="white" />
+                                        <div className="count">83</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
+                    </div>
+                ))
+            ) : (
+                <div style={{display: 'flex', gap: '35px'}}>
+                    <Skeleton width={300} height={300}/>
+                    <Skeleton width={300} height={300}/>
+                    <Skeleton width={300} height={300}/>
                 </div>
-            ))}
+            )}
         </Container>
     );
 }

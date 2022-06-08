@@ -51,7 +51,9 @@ export interface ActiveSearchUser {
 
 export interface TagUserPost {
     x?: number;
+    xPos?: number;
     y?: number;
+    yPos?: number;
     user_name: string;
     url: string;
     full_name: string
@@ -248,7 +250,7 @@ export default function EditPost(props: IEditPostProps) {
         }
     };
 
-    const handleChangePostUser = (position: Position, indexTag: number, indexSlide: number) => {
+    const handleChangePostUser = (position: Position, positionPercent: Position, indexTag: number, indexSlide: number) => {
         setUsersTagPost((usersTagPostSlide) => {
             const userTagPostSlide = usersTagPostSlide.find(
                 (userTagPostSlide) => userTagPostSlide.indexSlide === indexSlide
@@ -258,6 +260,8 @@ export default function EditPost(props: IEditPostProps) {
                 userTagPostSlide.tagsUser[indexTag] = {
                     ...userTagPostSlide.tagsUser[indexTag],
                     ...position,
+                    xPos: positionPercent.x,
+                    yPos: positionPercent.y,
                 };
                 usersTagPostSlide[
                     usersTagPostSlide.findIndex(
@@ -518,6 +522,7 @@ export default function EditPost(props: IEditPostProps) {
                         {fileGallery[currentIndexSlider].type === MediaType.image &&
                             activeSearchUser.active && (
                                 <TagSearch
+                                    imageArea={imageArea}
                                     activeSearchUser={activeSearchUser}
                                     currentIndexSlider={currentIndexSlider}
                                     handleClickUserSearch={handleClickUserSearch}

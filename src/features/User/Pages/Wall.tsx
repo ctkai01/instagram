@@ -1,4 +1,5 @@
 // import { Avatar } from '@components/common';
+import { Api } from '@api/authApi';
 import { Avatar } from '@components/common';
 import {
     ArrowTopIcon,
@@ -7,8 +8,12 @@ import {
     TaggedIcon,
     ThereDotIcon,
 } from '@components/Icons';
-import { PATH_PERSON_ACCOUNT, PATH_TAGGED_PERSON_ACCOUNT } from '@routes/index';
+import { NUMBER_SHOW_USER_FOLLOWED } from '@constants/general';
+import { User } from '@models/User';
+import { Skeleton } from '@mui/material';
+import { PATH_PERSON_ACCOUNT } from '@routes/index';
 import * as React from 'react';
+// import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import { Link, useParams, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import SwiperCore, { Navigation } from 'swiper';
@@ -38,17 +43,29 @@ enum ActiveTag {
 export function Wall(props: IWallProps) {
     const [showSuggested, setShowSuggested] = React.useState<boolean>(false);
     const [tagActive, setTagActive] = React.useState<ActiveTag>(ActiveTag.POSTS);
-
+    const [user, setUser] = React.useState<User>();
     let { user_name } = useParams<Params>();
+
     console.log(user_name);
-    let matchIndexPersonAccount = useRouteMatch(PATH_PERSON_ACCOUNT);
-    let matchIndexPersonAccountTagged = useRouteMatch(PATH_TAGGED_PERSON_ACCOUNT);
+    // let matchIndexPersonAccount = useRouteMatch(PATH_PERSON_ACCOUNT);
+    // let matchIndexPersonAccountTagged = useRouteMatch(PATH_TAGGED_PERSON_ACCOUNT);
 
     React.useEffect(() => {
-        if (matchIndexPersonAccount?.isExact) {
-            setTagActive(ActiveTag.POSTS);
-        } else if (matchIndexPersonAccountTagged?.isExact) {
-            setTagActive(ActiveTag.TAGGED);
+        // if (matchIndexPersonAccount?.isExact) {
+        setTagActive(ActiveTag.POSTS);
+        // } else if (matchIndexPersonAccountTagged?.isExact) {
+        setTagActive(ActiveTag.TAGGED);
+        // }
+
+        const fetchUser = async () => {
+            const response = await Api.getUserByUserName(user_name);
+            console.log(response);
+            setUser(response.data);
+        };
+
+        if (!user) {
+            console.log('Fetch');
+            fetchUser();
         }
     }, []);
 
@@ -59,14 +76,17 @@ export function Wall(props: IWallProps) {
         <Container urlReact={urlReact}>
             <header>
                 <div className="avatar-container">
-                    <Avatar
-                        size="large"
-                        url="https://library.sportingnews.com/2022-03/ronaldo-portugal-03242022-ftr-getty.jpg"
-                    />
+                    {user ? (
+                        <Avatar size="large" url={user.avatar} />
+                    ) : (
+                        <Skeleton variant="circular" height={150} width={150} />
+                    )}
                 </div>
                 <div className="introduce-container">
                     <div className="introduce-header">
-                        <h2 className="user_name">chanchan.0411</h2>
+                        <h2 className="user_name">
+                            {user ? user.user_name : <Skeleton width={100} />}
+                        </h2>
                         <div className="check-container">
                             <div className="check-icon"></div>
                         </div>
@@ -94,36 +114,71 @@ export function Wall(props: IWallProps) {
                     </div>
                     <div className="info-contact-container">
                         <div className="info-contact-item">
-                            <span>174</span>
-                            posts
+                            {user ? (
+                                <>
+                                    <span>{user?.posts?.length} </span>
+                                    posts
+                                </>
+                            ) : (
+                                <Skeleton width={100} />
+                            )}
                         </div>
                         <div className="info-contact-item">
-                            <span>1.8M</span>
-                            followers
+                            {user ? (
+                                <>
+                                    <span>{user?.count_follower} </span>
+                                    followers
+                                </>
+                            ) : (
+                                <Skeleton width={100} />
+                            )}
                         </div>
                         <div className="info-contact-item">
-                            <span>453</span>
-                            following
+                            {user ? (
+                                <>
+                                    <span>{user?.count_following} </span>
+                                    following
+                                </>
+                            ) : (
+                                <Skeleton width={100} />
+                            )}
                         </div>
                     </div>
                     <div className="bio-container">
-                        <div className="full_name">Phạm Trang</div>
-                        <div>Liên hệ trực tiếp qua fb hoặc ig !!!. phamtrang041102@gmail.com</div>
+                        <div className="full_name">{user ? user.name : <Skeleton width={200} />}</div>
+                        <div>{user?.bio}</div>
                     </div>
                     <div className="mutual-only-container">
+                        {user ?
+                        <>
                         Followed by{' '}
-                        <Link className="user_name_link" to="aa">
-                            ngoctrinh89
-                        </Link>{' '}
-                        ,
-                        <Link className="user_name_link" to="aa">
-                            ngokienhuy_bap
-                        </Link>
-                        ,{' '}
-                        <Link className="user_name_link" to="aa">
-                            huyen.204
-                        </Link>{' '}
-                        +9 more
+                        {user?.followed_by
+                            ?.slice(0, NUMBER_SHOW_USER_FOLLOWED)
+                            .map((followed, index) => (
+                                <>
+                                    <Link className="user_name_link" to={`/${followed}`}>
+                                        {followed}
+                                    </Link>
+                                    {index <
+                                    // @ts-ignore: Object is possibly 'null'.
+                                    user?.followed_by?.slice(0, NUMBER_SHOW_USER_FOLLOWED) - 1
+                                        ? ', '
+                                        : ''}
+                                </>
+                            ))}
+                        {
+                            // @ts-ignore: Object is possibly 'null'.
+                            user?.followed_by?.length > NUMBER_SHOW_USER_FOLLOWED
+                                ? // @ts-ignore: Object is possibly 'null'.
+                                  `+${user?.followed_by?.length - NUMBER_SHOW_USER_FOLLOWED} more`
+                                : ''
+                        }
+                        </>
+                        : <Skeleton width={250}/>
+                        
+                        }
+
+                        
                     </div>
                 </div>
             </header>
@@ -140,20 +195,21 @@ export function Wall(props: IWallProps) {
                             <SuggestFollowedItem
                                 url={`https://picsum.photos/200/300?random=${el + 1}`}
                             />
+                            {/* <Skeleton width={180} height={210}/> */}
                         </SwiperSlide>
                     ))}
                 </Swiper>
             </div>
             <div className="header-media-container">
-                <Link
-                    to={`/${user_name}`}
+                <div
+                    onClick={() => {
+                        setTagActive(ActiveTag.POSTS);
+                    }}
                     style={{
                         borderTop: `${
                             tagActive === ActiveTag.POSTS ? '1px solid rgb(38, 38, 38)' : 'none'
                         }`,
-                        color: `${
-                            tagActive === ActiveTag.POSTS ? '#262626' : '#8e8e8e'
-                        }`,
+                        color: `${tagActive === ActiveTag.POSTS ? '#262626' : '#8e8e8e'}`,
                     }}
                     className="header-media-item"
                 >
@@ -163,17 +219,18 @@ export function Wall(props: IWallProps) {
                         <MultipleSquareIcon color="gray" />
                     )}
                     <div className="text">POSTS</div>
-                </Link>
+                </div>
 
-                <Link
-                    to={`/${user_name}/tagged`}
+                <div
+                    // to={`/${user_name}/tagged`}
+                    onClick={() => {
+                        setTagActive(ActiveTag.TAGGED);
+                    }}
                     style={{
                         borderTop: `${
                             tagActive === ActiveTag.TAGGED ? '1px solid rgb(38, 38, 38)' : 'none'
                         }`,
-                        color: `${
-                            tagActive === ActiveTag.TAGGED ? '#262626' : '#8e8e8e'
-                        }`,
+                        color: `${tagActive === ActiveTag.TAGGED ? '#262626' : '#8e8e8e'}`,
                     }}
                     className="header-media-item"
                 >
@@ -183,9 +240,9 @@ export function Wall(props: IWallProps) {
                         <TaggedIcon color="gray" />
                     )}
                     <div className="text">TAGGED</div>
-                </Link>
+                </div>
             </div>
-            <PostAccountList/>
+            <PostAccountList posts={user ? user.posts : undefined} />
         </Container>
     );
 }
@@ -357,7 +414,7 @@ const Container = styled.div<StyledWallProps>`
             align-items: center;
             margin-right: 60px;
             text-decoration: none;
-
+            cursor: pointer;
             .text {
                 margin-left: 6px;
                 font-size: 12px;

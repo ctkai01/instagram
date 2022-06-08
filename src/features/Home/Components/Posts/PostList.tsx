@@ -17,6 +17,7 @@ export function PostList(props: IPostListProps) {
     const currentVideoRef = React.useRef(null)
     const [currentPost, setCurrentPost] = React.useState(null)
     const [postInViewport, setPostInViewport] = React.useState<Post>()
+    const [isPlay, setIsPlay] = React.useState<boolean>(false);
 
     const setVideoRefByPostId = (postId: number, ref: HTMLVideoElement | null) => {
         videoRefs.current[postId] = ref
@@ -37,7 +38,14 @@ export function PostList(props: IPostListProps) {
     //         videoRef.scrollIntoView({ block: 'center' })
     //     }
     // }, [])
-    console.log('FUCK YOU')
+    
+    const handleSetPlay = () => {
+        setIsPlay(true)
+    }
+
+    const handleSetPause = () => {
+        setIsPlay(false)
+    }
 
     const handleWaypointEnter = (post: Post) => {
         // Don't auto play videos in background
@@ -48,6 +56,8 @@ export function PostList(props: IPostListProps) {
         // stopWhenPaused.current = true
         // getVideoRefByPostId(post.id).load()
         getVideoRefByPostId(post.id).play()
+        setIsPlay(false)
+
         // setPostInViewport(post)
     }
 
@@ -60,6 +70,8 @@ export function PostList(props: IPostListProps) {
         // stopWhenPaused.current = true
         videoRefs.current[post.id].currentTime = 0
         getVideoRefByPostId(post.id).pause()
+        setIsPlay(true)
+
 
         // setPostInViewport(post)
     }
@@ -80,6 +92,9 @@ export function PostList(props: IPostListProps) {
                 <PostItem
                     key={index}
                     post={post}
+                    isPlay={isPlay}
+                    handleSetPlay={handleSetPlay}
+                    handleSetPause={handleSetPause}
                     onWaypointEnter={handleWaypointEnter}
                     onWaypointLeave={handleWaypointLeave}
                     getVideoRef={handleVideoRef}

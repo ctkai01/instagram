@@ -12,11 +12,13 @@ export interface ITagItemProps {
     indexGallery: number;
     areaListImage: Position;
     handleDeleteUseTag: (userName: string, indexSlide: number) => void
-    handleChangePostUser: (position: Position, indexTag: number, indexSlide: number) => void;
+    handleChangePostUser: (position: Position, positionPercent: Position, indexTag: number, indexSlide: number) => void;
 }
 
 export default function TagItem(props: ITagItemProps) {
     const { userTag, indexTag, indexGallery, areaListImage, handleDeleteUseTag, handleChangePostUser } = props;
+   
+
     const [logoPos, setLogoPos] = useSpring(() => ({ x: userTag.x, y: userTag.y }));
     const ref = React.useRef(null);
 
@@ -29,7 +31,10 @@ export default function TagItem(props: ITagItemProps) {
                 const xApply = x >= areaListImage.x ? areaListImage.x : x;
                 const yApply = y >= areaListImage.y ? areaListImage.y : y;
                 setLogoPos.start({ x: xApply, y: yApply });
-                handleChangePostUser({ x: xApply, y: yApply }, indexTag, indexGallery);
+                const percentX = (Math.round(xApply / areaListImage.x * 10) / 10) * 100
+                const percentY = (Math.round(yApply / areaListImage.y * 10) / 10) * 100
+                
+                handleChangePostUser({ x: xApply, y: yApply }, { x: percentX, y: percentY }, indexTag, indexGallery);
             },
         },
         {

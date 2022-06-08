@@ -11,6 +11,7 @@ import { ActiveSearchUser, TagUserPost } from './EditPost';
 export interface ITagSearchProps {
     activeSearchUser: ActiveSearchUser;
     currentIndexSlider: number;
+    imageArea: Position;
     handleClickUserSearch: (tagUser: TagUserPost, indexSlider: number) => void;
 }
 
@@ -32,7 +33,7 @@ export interface SearchTag {
 }
 
 export default function TagSearch(props: ITagSearchProps) {
-    const { activeSearchUser, currentIndexSlider, handleClickUserSearch } = props;
+    const { activeSearchUser, imageArea, currentIndexSlider, handleClickUserSearch } = props;
     const [textSearchTag, setTextSearchTag] = React.useState('');
     const [listSearch, setListSearch] = React.useState<SearchTag[]>([]);
     const [isSearch, setIsSearch] = React.useState<boolean>(false);
@@ -84,6 +85,7 @@ export default function TagSearch(props: ITagSearchProps) {
                         user_name={user.user_name}
                         currentIndexSlider={currentIndexSlider}
                         activeSearchUser={activeSearchUser}
+                        imageArea={imageArea}
                         url={user.avatar}
                         is_tick={user.is_tick}
                     />

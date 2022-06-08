@@ -10,20 +10,31 @@ import PhotoList from './PhotoList';
 
 export interface IPostItemProps {
     post: Post;
+    isPlay: boolean;
+    handleSetPlay: () => void;
+    handleSetPause: () => void;
     getVideoRef: (ref: HTMLVideoElement | null, post: Post) => void;
     onWaypointEnter: (post: Post) => void;
     onWaypointLeave: (post: Post) => void;
 }
 
 export default function PostItem(props: IPostItemProps) {
-    const { post, getVideoRef, onWaypointEnter, onWaypointLeave } = props;
+    const { post, isPlay, getVideoRef, onWaypointEnter, onWaypointLeave, handleSetPlay, handleSetPause } = props;
 
     const checkFirstVideo = post.media[0].type === MediaType.video;
 
     return (
         <Container>
             <Header urlImage={post.created_by.avatar} userName={post.created_by.user_name} />
-            <PhotoList post={post} getVideoRef={getVideoRef} media={post.media} checkFirstVideo={checkFirstVideo}/>
+            <PhotoList
+                post={post}
+                isPlay={isPlay}
+                handleSetPlay={handleSetPlay}
+                handleSetPause={handleSetPause}
+                getVideoRef={getVideoRef}
+                media={post.media}
+                checkFirstVideo={checkFirstVideo}
+            />
             <ActionReactPost />
             <ContentPost
                 content={post.caption}
@@ -33,10 +44,10 @@ export default function PostItem(props: IPostItemProps) {
 
             {checkFirstVideo && (
                 <Waypoint
-                // topOffset={data.computed_top_offset}
-                // bottomOffset={data.computed_bottom_offset}
-                onEnter={() => onWaypointEnter(post)}
-                onLeave={() => onWaypointLeave(post)}
+                    // topOffset={data.computed_top_offset}
+                    // bottomOffset={data.computed_bottom_offset}
+                    onEnter={() => onWaypointEnter(post)}
+                    onLeave={() => onWaypointLeave(post)}
                 >
                     <div className="waypoint_item" />
                 </Waypoint>
@@ -58,6 +69,6 @@ const Container = styled.div`
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 9999;
-        background: red;
+        /* background: red; */
     }
 `;

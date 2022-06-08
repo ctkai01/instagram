@@ -8,3 +8,4 @@ export * from './status';
 export * from './story-status';
 export * from './filter-image';
 export * from './step_create_post';
+export * from './general';

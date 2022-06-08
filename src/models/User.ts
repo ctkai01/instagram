@@ -1,4 +1,5 @@
 import { FollowStatus } from './commom';
+import { Post } from './Post';
 export interface User {
     id?: string;
     name: string;
@@ -9,6 +10,7 @@ export interface User {
     website?: string;
     bio?: string;
     gender?: string;
+    posts?: Post[];
     status_notification?: string;
     status?: number;
     status_activity?: number;
@@ -17,6 +19,7 @@ export interface User {
     count_follower?: number;
     count_following?: number;
     status_story?: number;
+    followed_by?: string[];
     created_at?: string
     updated_at?: string
 }

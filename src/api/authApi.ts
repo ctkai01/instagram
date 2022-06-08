@@ -39,5 +39,9 @@ export const Api = {
     searchUser: (search: string) => {
         const url = `api/user?search=${search}`;
         return axiosClient.get(url)
+    },
+    getUserByUserName: (userName: string) => {
+        const url = `api/user/${userName}`
+        return axiosClient.get(url)
     }
 };

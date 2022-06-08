@@ -1,6 +1,7 @@
 import { CancelIcon, CloseCircleIcon, CloseIcon } from '@components/Icons';
 import { Status } from '@constants/status';
 import { ActiveSearchUser, TagUserPost } from '@features/UploadPost/Components/EditPost';
+import { Position } from '@features/UploadPost/Components/TagSearch';
 import * as React from 'react';
 import styled from 'styled-components';
 import { Avatar } from '.';
@@ -14,6 +15,7 @@ export interface ISearchItemProps {
     activeSearchUser?: ActiveSearchUser;
     is_video?: boolean;
     modeShowTag?: boolean;
+    imageArea?: Position;
     handleDeleteUseTag?: (userName: string, indexSlide: number) => void;
     handleClickUserSearch: (tagUserPost: TagUserPost, indexSlider: number) => void;
 }
@@ -33,6 +35,7 @@ export default function SearchItem(props: ISearchItemProps) {
         activeSearchUser,
         is_video,
         modeShowTag,
+        imageArea,
         handleDeleteUseTag,
         handleClickUserSearch,
     } = props;
@@ -46,8 +49,12 @@ export default function SearchItem(props: ISearchItemProps) {
                 };
 
                 if (!is_video) {
-                    dataUserSearch['x'] = activeSearchUser ? activeSearchUser.x : 0;
+
+                    dataUserSearch['x'] = activeSearchUser  ?  activeSearchUser.x  : 0;
                     dataUserSearch['y'] = activeSearchUser ? activeSearchUser.y : 0;
+
+                    dataUserSearch['xPos'] = activeSearchUser ? (Math.round(activeSearchUser.x / (imageArea ? imageArea.x : 1) * 10) / 10) * 100 : 0;
+                    dataUserSearch['yPos'] = activeSearchUser ? (Math.round(activeSearchUser.y / (imageArea ? imageArea.y : 1) * 10) / 10) * 100 : 0;
                 }
 
                 if (!modeShowTag) {

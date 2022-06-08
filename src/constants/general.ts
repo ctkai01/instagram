@@ -1,0 +1,1 @@
+export const NUMBER_SHOW_USER_FOLLOWED = 4
