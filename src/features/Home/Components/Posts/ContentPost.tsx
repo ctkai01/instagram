@@ -64,7 +64,7 @@ export function ContentPost(props: IContentPostProps) {
                 <div className="count-like">38, 467 likes</div>
                 <div className="title-wrapper">
                     <span className="author-username">
-                        <Link to="username">{content && author}</Link>
+                        <Link to={`/${author}`}>{content && author}</Link>
                     </span>
                     &nbsp;
                     {content && (

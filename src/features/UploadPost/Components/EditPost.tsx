@@ -150,8 +150,10 @@ export default function EditPost(props: IEditPostProps) {
 
     const emojiData = Object.freeze(EmojiData);
     const handleEmojiSelect = (emoji: EmojiObject) => {
+        console.log('?????')
         setInputCaption((value: string) => {
             const characterEmoji = String.fromCodePoint(parseInt(emoji.unicode, 16));
+            console.log('Fuke ', characterEmoji)
             return value + characterEmoji;
         });
     };
@@ -898,7 +900,7 @@ const Container = styled.div<ContainerStyledProps>`
             position: absolute;
             top: 100%;
             left: 2px;
-            z-index: 3;
+            z-index: 10001;
 
             & .emoji-picker-scroll > div {
                 height: 255px !important;
@@ -917,7 +919,7 @@ const Container = styled.div<ContainerStyledProps>`
                 height: 180px;
                 overflow-y: scroll;
                 border-radius: 8px;
-                z-index: 9999;
+                z-index: 10001;
                 position: absolute;
                 width: 100%;
                 top: 100%;

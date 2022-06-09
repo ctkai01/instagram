@@ -1,5 +1,6 @@
 import { Header } from '@components/Header';
 import { selectUserAuth } from '@features/Auth/authSlice';
+import { Footer } from '@features/Auth/Components/Footer';
 import { IRoute } from '@models/index';
 import { useAppSelector } from '@redux/hooks';
 import { routeApp } from '@routes/index';
@@ -23,6 +24,7 @@ export function AppLayout() {
                         </Route>
                     </Switch>
                 </Content>
+                <Footer/>
             </LayoutScreen>
         </Wrapper>
     );

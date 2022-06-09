@@ -35,7 +35,7 @@ export default function PostItem(props: IPostItemProps) {
                 media={post.media}
                 checkFirstVideo={checkFirstVideo}
             />
-            <ActionReactPost />
+            <ActionReactPost post={post}/>
             <ContentPost
                 content={post.caption}
                 time={post.created_at}

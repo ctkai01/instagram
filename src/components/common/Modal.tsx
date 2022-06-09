@@ -47,7 +47,7 @@ const Container = styled.div<Partial<IModalProps>>`
     position: fixed;
     right: 0;
     top: 0;
-    z-index: 2;
+    z-index: 10000;
     display: flex;
     justify-content: center;
     align-items: center;

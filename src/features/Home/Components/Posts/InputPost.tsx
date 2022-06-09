@@ -89,6 +89,10 @@ const Container = styled.section`
             overflow-y: scroll;
             background: 0 0;
             font-size: 14px;
+
+            &::placeholder {
+                font-family: Arial, Helvetica, sans-serif;
+            }
         }
 
         div {
@@ -102,6 +106,7 @@ const Container = styled.section`
         background: 0 0;
         border: none;
         flex: 1;
+        outline: none;
         cursor: pointer;
     }
 

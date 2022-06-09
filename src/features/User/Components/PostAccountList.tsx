@@ -46,10 +46,10 @@ export default function PostAccountList(props: IPostAccountListProps) {
                     </div>
                 ))
             ) : (
-                <div style={{display: 'flex', gap: '35px'}}>
-                    <Skeleton width={300} height={300}/>
-                    <Skeleton width={300} height={300}/>
-                    <Skeleton width={300} height={300}/>
+                <div style={{ display: 'flex', gap: '35px' }}>
+                    <Skeleton width={300} height={300} />
+                    <Skeleton width={300} height={300} />
+                    <Skeleton width={300} height={300} />
                 </div>
             )}
         </Container>
@@ -71,6 +71,8 @@ const Container = styled.div`
         position: relative;
         img {
             width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     }
 

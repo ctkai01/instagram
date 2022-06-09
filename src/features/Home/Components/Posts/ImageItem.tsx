@@ -11,6 +11,7 @@ export default function ImageItem(props: IImageItemProps) {
     const {mediaItem, handleClickPhotoItem } = props
     return (
         <img
+            style={{marginLeft: `${mediaItem.tags_user.length ? '' : '8px'}`}}
             onClick={() => handleClickPhotoItem(mediaItem.type)}
             src={mediaItem.name}
             alt="photoPost"

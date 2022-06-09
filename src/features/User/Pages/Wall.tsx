@@ -44,6 +44,7 @@ export function Wall(props: IWallProps) {
     const [showSuggested, setShowSuggested] = React.useState<boolean>(false);
     const [tagActive, setTagActive] = React.useState<ActiveTag>(ActiveTag.POSTS);
     const [user, setUser] = React.useState<User>();
+    const [foundUser, setFoundUser] = React.useState<boolean>(true);
     let { user_name } = useParams<Params>();
 
     console.log(user_name);
@@ -58,192 +59,225 @@ export function Wall(props: IWallProps) {
         // }
 
         const fetchUser = async () => {
-            const response = await Api.getUserByUserName(user_name);
-            console.log(response);
-            setUser(response.data);
+            try {
+                const response = await Api.getUserByUserName(user_name);
+                console.log(response);
+                setUser(response.data);
+                setFoundUser(true)
+            } catch (err) {
+                console.log(err);
+                setFoundUser(false);
+            }
         };
 
-        if (!user) {
-            console.log('Fetch');
-            fetchUser();
-        }
-    }, []);
+        console.log('Fetch');
+        fetchUser();
+    }, [user_name]);
 
     const handleSwitchSuggested = () => {
         setShowSuggested((showSuggested) => !showSuggested);
     };
     return (
-        <Container urlReact={urlReact}>
-            <header>
-                <div className="avatar-container">
-                    {user ? (
-                        <Avatar size="large" url={user.avatar} />
-                    ) : (
-                        <Skeleton variant="circular" height={150} width={150} />
-                    )}
-                </div>
-                <div className="introduce-container">
-                    <div className="introduce-header">
-                        <h2 className="user_name">
-                            {user ? user.user_name : <Skeleton width={100} />}
-                        </h2>
-                        <div className="check-container">
-                            <div className="check-icon"></div>
+        <>
+            {foundUser ? (
+                // <div>1</div>
+                <Container urlReact={urlReact}>
+                    <header>
+                        <div className="avatar-container">
+                            {user ? (
+                                <Avatar size="large" url={user.avatar} />
+                            ) : (
+                                <Skeleton variant="circular" height={150} width={150} />
+                            )}
                         </div>
-                        <div className="action-container">
-                            <button className="btn-message">Message</button>
-                            <button className="btn-follow">
-                                <div className="icon-container">
-                                    <PersonIcon />
+                        <div className="introduce-container">
+                            <div className="introduce-header">
+                                <h2 className="user_name">
+                                    {user ? user.user_name : <Skeleton width={100} />}
+                                </h2>
+                                <div className="check-container">
+                                    <div className="check-icon"></div>
                                 </div>
-                            </button>
-                            <button className="btn-show-suggest" onClick={handleSwitchSuggested}>
-                                <div
-                                    className="icon-container"
-                                    style={{
-                                        transform: `${showSuggested ? 'rotate(180deg)' : ''}`,
-                                    }}
-                                >
-                                    <ArrowTopIcon size={12} />
+                                <div className="action-container">
+                                    <button className="btn-message">Message</button>
+                                    <button className="btn-follow">
+                                        <div className="icon-container">
+                                            <PersonIcon />
+                                        </div>
+                                    </button>
+                                    <button
+                                        className="btn-show-suggest"
+                                        onClick={handleSwitchSuggested}
+                                    >
+                                        <div
+                                            className="icon-container"
+                                            style={{
+                                                transform: `${
+                                                    showSuggested ? 'rotate(180deg)' : ''
+                                                }`,
+                                            }}
+                                        >
+                                            <ArrowTopIcon size={12} />
+                                        </div>
+                                    </button>
+                                    <button className="btn-action-account">
+                                        <ThereDotIcon size={32} />
+                                    </button>
                                 </div>
-                            </button>
-                            <button className="btn-action-account">
-                                <ThereDotIcon size={32} />
-                            </button>
+                            </div>
+                            <div className="info-contact-container">
+                                <div className="info-contact-item">
+                                    {user ? (
+                                        <>
+                                            <span>{user?.posts?.length} </span>
+                                            posts
+                                        </>
+                                    ) : (
+                                        <Skeleton width={100} />
+                                    )}
+                                </div>
+                                <div className="info-contact-item">
+                                    {user ? (
+                                        <>
+                                            <span>{user?.count_follower} </span>
+                                            followers
+                                        </>
+                                    ) : (
+                                        <Skeleton width={100} />
+                                    )}
+                                </div>
+                                <div className="info-contact-item">
+                                    {user ? (
+                                        <>
+                                            <span>{user?.count_following} </span>
+                                            following
+                                        </>
+                                    ) : (
+                                        <Skeleton width={100} />
+                                    )}
+                                </div>
+                            </div>
+                            <div className="bio-container">
+                                <div className="full_name">
+                                    {user ? user.name : <Skeleton width={200} />}
+                                </div>
+                                <div>{user?.bio}</div>
+                            </div>
+                            <div className="mutual-only-container">
+                                {user ? (
+                                    <>
+                                        Followed by{' '}
+                                        {user?.followed_by
+                                            ?.slice(0, NUMBER_SHOW_USER_FOLLOWED)
+                                            .map((followed, index) => (
+                                                <>
+                                                    <Link
+                                                        className="user_name_link"
+                                                        to={`/${followed}`}
+                                                    >
+                                                        {followed}
+                                                    </Link>
+                                                    {index <
+                                                    // @ts-ignore: Object is possibly 'null'.
+                                                    user?.followed_by?.slice(
+                                                        0,
+                                                        NUMBER_SHOW_USER_FOLLOWED
+                                                    ) -
+                                                        1
+                                                        ? ', '
+                                                        : ''}
+                                                </>
+                                            ))}
+                                        {
+                                            // @ts-ignore: Object is possibly 'null'.
+                                            user?.followed_by?.length > NUMBER_SHOW_USER_FOLLOWED
+                                                ? // @ts-ignore: Object is possibly 'null'.
+                                                  `+${
+                                                      user.followed_by ? user.followed_by.length -
+                                                      NUMBER_SHOW_USER_FOLLOWED : 0
+                                                  } more`
+                                                : ''
+                                        }
+                                    </>
+                                ) : (
+                                    <Skeleton width={250} />
+                                )}
+                            </div>
                         </div>
-                    </div>
-                    <div className="info-contact-container">
-                        <div className="info-contact-item">
-                            {user ? (
-                                <>
-                                    <span>{user?.posts?.length} </span>
-                                    posts
-                                </>
-                            ) : (
-                                <Skeleton width={100} />
-                            )}
+                    </header>
+                    <div className="container-suggested">
+                        <div className="header-suggested">
+                            <div className="text-suggest">Suggested</div>
+                            <Link className="see-all-btn" to="aa">
+                                See All
+                            </Link>
                         </div>
-                        <div className="info-contact-item">
-                            {user ? (
-                                <>
-                                    <span>{user?.count_follower} </span>
-                                    followers
-                                </>
-                            ) : (
-                                <Skeleton width={100} />
-                            )}
-                        </div>
-                        <div className="info-contact-item">
-                            {user ? (
-                                <>
-                                    <span>{user?.count_following} </span>
-                                    following
-                                </>
-                            ) : (
-                                <Skeleton width={100} />
-                            )}
-                        </div>
-                    </div>
-                    <div className="bio-container">
-                        <div className="full_name">{user ? user.name : <Skeleton width={200} />}</div>
-                        <div>{user?.bio}</div>
-                    </div>
-                    <div className="mutual-only-container">
-                        {user ?
-                        <>
-                        Followed by{' '}
-                        {user?.followed_by
-                            ?.slice(0, NUMBER_SHOW_USER_FOLLOWED)
-                            .map((followed, index) => (
-                                <>
-                                    <Link className="user_name_link" to={`/${followed}`}>
-                                        {followed}
-                                    </Link>
-                                    {index <
-                                    // @ts-ignore: Object is possibly 'null'.
-                                    user?.followed_by?.slice(0, NUMBER_SHOW_USER_FOLLOWED) - 1
-                                        ? ', '
-                                        : ''}
-                                </>
+                        <Swiper slidesPerView={4.5} navigation={true} allowTouchMove={false}>
+                            {Array.from(Array(7).keys()).map((el, index) => (
+                                <SwiperSlide key={index}>
+                                    <SuggestFollowedItem
+                                        url={`https://picsum.photos/200/300?random=${el + 1}`}
+                                    />
+                                    {/* <Skeleton width={180} height={210}/> */}
+                                </SwiperSlide>
                             ))}
-                        {
-                            // @ts-ignore: Object is possibly 'null'.
-                            user?.followed_by?.length > NUMBER_SHOW_USER_FOLLOWED
-                                ? // @ts-ignore: Object is possibly 'null'.
-                                  `+${user?.followed_by?.length - NUMBER_SHOW_USER_FOLLOWED} more`
-                                : ''
-                        }
-                        </>
-                        : <Skeleton width={250}/>
-                        
-                        }
-
-                        
+                        </Swiper>
                     </div>
-                </div>
-            </header>
-            <div className="container-suggested">
-                <div className="header-suggested">
-                    <div className="text-suggest">Suggested</div>
-                    <Link className="see-all-btn" to="aa">
-                        See All
-                    </Link>
-                </div>
-                <Swiper slidesPerView={4.5} navigation={true} allowTouchMove={false}>
-                    {Array.from(Array(7).keys()).map((el, index) => (
-                        <SwiperSlide key={index}>
-                            <SuggestFollowedItem
-                                url={`https://picsum.photos/200/300?random=${el + 1}`}
-                            />
-                            {/* <Skeleton width={180} height={210}/> */}
-                        </SwiperSlide>
-                    ))}
-                </Swiper>
-            </div>
-            <div className="header-media-container">
-                <div
-                    onClick={() => {
-                        setTagActive(ActiveTag.POSTS);
-                    }}
-                    style={{
-                        borderTop: `${
-                            tagActive === ActiveTag.POSTS ? '1px solid rgb(38, 38, 38)' : 'none'
-                        }`,
-                        color: `${tagActive === ActiveTag.POSTS ? '#262626' : '#8e8e8e'}`,
-                    }}
-                    className="header-media-item"
-                >
-                    {tagActive === ActiveTag.POSTS ? (
-                        <MultipleSquareIcon color="black" />
-                    ) : (
-                        <MultipleSquareIcon color="gray" />
-                    )}
-                    <div className="text">POSTS</div>
-                </div>
+                    <div className="header-media-container">
+                        <div
+                            onClick={() => {
+                                setTagActive(ActiveTag.POSTS);
+                            }}
+                            style={{
+                                borderTop: `${
+                                    tagActive === ActiveTag.POSTS
+                                        ? '1px solid rgb(38, 38, 38)'
+                                        : 'none'
+                                }`,
+                                color: `${tagActive === ActiveTag.POSTS ? '#262626' : '#8e8e8e'}`,
+                            }}
+                            className="header-media-item"
+                        >
+                            {tagActive === ActiveTag.POSTS ? (
+                                <MultipleSquareIcon color="black" />
+                            ) : (
+                                <MultipleSquareIcon color="gray" />
+                            )}
+                            <div className="text">POSTS</div>
+                        </div>
 
-                <div
-                    // to={`/${user_name}/tagged`}
-                    onClick={() => {
-                        setTagActive(ActiveTag.TAGGED);
-                    }}
-                    style={{
-                        borderTop: `${
-                            tagActive === ActiveTag.TAGGED ? '1px solid rgb(38, 38, 38)' : 'none'
-                        }`,
-                        color: `${tagActive === ActiveTag.TAGGED ? '#262626' : '#8e8e8e'}`,
-                    }}
-                    className="header-media-item"
-                >
-                    {tagActive === ActiveTag.TAGGED ? (
-                        <TaggedIcon color="black" />
-                    ) : (
-                        <TaggedIcon color="gray" />
-                    )}
-                    <div className="text">TAGGED</div>
+                        <div
+                            // to={`/${user_name}/tagged`}
+                            onClick={() => {
+                                setTagActive(ActiveTag.TAGGED);
+                            }}
+                            style={{
+                                borderTop: `${
+                                    tagActive === ActiveTag.TAGGED
+                                        ? '1px solid rgb(38, 38, 38)'
+                                        : 'none'
+                                }`,
+                                color: `${tagActive === ActiveTag.TAGGED ? '#262626' : '#8e8e8e'}`,
+                            }}
+                            className="header-media-item"
+                        >
+                            {tagActive === ActiveTag.TAGGED ? (
+                                <TaggedIcon color="black" />
+                            ) : (
+                                <TaggedIcon color="gray" />
+                            )}
+                            <div className="text">TAGGED</div>
+                        </div>
+                    </div>
+                    <PostAccountList posts={user ? user.posts : undefined} />
+                </Container>
+            ) : (
+                <div style={{ padding: '20px', margin: '30% auto' }}>
+                    <h1 style={{ textAlign: 'center' }}>Sorry, this page isn't available.</h1>
+                    <h3 style={{ textAlign: 'center', color: '#0c49cc' }}>User not found</h3>
                 </div>
-            </div>
-            <PostAccountList posts={user ? user.posts : undefined} />
-        </Container>
+            )}
+        </>
     );
 }
 
