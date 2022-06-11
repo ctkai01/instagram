@@ -1,9 +1,10 @@
-import { Avatar } from '@components/common';
+import { Avatar, Modal } from '@components/common';
 import { ThereDotIcon, TickSmallIcon } from '@components/Icons';
 import { Post } from '@models/Post';
 import { Avatar as AvatarMui, AvatarGroup, Button, Tooltip } from '@mui/material';
 import * as React from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
+import ActionPostDetail from './ActionPostDetail';
 import { ActionReactPost } from './ActionReactPost';
 import CommentList from './CommentList';
 import InputPost from './InputPost';
@@ -11,15 +12,31 @@ import PhotoListDetail from './PhotoListDetail';
 
 export interface IPostContentModalProps {
     post: Post;
+    index?: number;
 }
 
-export default function PostContentModal(props: IPostContentModalProps) {
-    const { post } = props;
+const PostContentModal = React.forwardRef((props: IPostContentModalProps, refGallery: any) => {
+    const { post, index } = props;
+    const [showAction, setShowAction] = React.useState(false);
+
+    const handleShowActionModal = () => {
+        setShowAction(true);
+    };
+
+    const handleCloseActionModal = () => {
+        setShowAction(false);
+    };
+
     return (
         <>
-            <Container>
+            <Container
+                ref={(el) => {
+                    // @ts-ignore: Object is possibly 'null'.
+                    refGallery.current[index] = el;
+                }}
+            >
                 <div className="list-gallery">
-                    <PhotoListDetail media={post.media} post={post} />
+                    <PhotoListDetail media={post.media} post={post} colorNextPre="white" />
                 </div>
                 <div className="content-wrapper">
                     <div className="header-wrapper">
@@ -37,7 +54,7 @@ export default function PostContentModal(props: IPostContentModalProps) {
                                 Following
                             </div>
                         </div>
-                        <div className="action-wrapper">
+                        <div className="action-wrapper" onClick={handleShowActionModal}>
                             <ThereDotIcon />
                         </div>
                     </div>
@@ -79,11 +96,18 @@ export default function PostContentModal(props: IPostContentModalProps) {
                     </div>
                 </div>
             </Container>
+            <Modal
+                content={<ActionPostDetail handleCloseActionModal={handleCloseActionModal} />}
+                color="rgba(0, 0, 0, 0.65)"
+                showModal={showAction}
+                zIndexDepth="second"
+                onCloseModal={handleCloseActionModal}
+            />
             <GlobalStyle />
         </>
     );
-}
-
+});
+export default PostContentModal;
 const GlobalStyle = createGlobalStyle`
   body {
       overflow: hidden !important;
@@ -94,7 +118,8 @@ const Container = styled.div`
     width: 1248px;
     height: 931px;
     display: flex;
-
+    position: relative;
+    z-index: 9999999;
     .list-gallery {
         width: 59%;
         height: 100%;

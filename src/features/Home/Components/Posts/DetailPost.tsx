@@ -13,7 +13,7 @@ export interface IDetailPostProps {
 export default function DetailPost(props: IDetailPostProps) {
     const { showModalDetailPost, post, handleCloseModalDetailPost } = props;
     return (
-        <Container className='ds'>
+        <Container>
             <Modal
                 closeButton
                 content={<PostContentModal post={post}/>}

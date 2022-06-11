@@ -40,10 +40,10 @@ export function ActionReactPost(props: IActionReactPostProps) {
                     <CommentIcon ariaLabel="Comment" color="black" className="icon-black" />
                     <CommentIcon ariaLabel="Comment" color="gray" className="icon-gray" />
                 </div>
-                <div className="item">
+                {/* <div className="item">
                     <PlaneIcon ariaLabel="Share Post" color="black" className="icon-black" />
                     <PlaneIcon ariaLabel="Share Post" color="gray" className="icon-gray" />
-                </div>
+                </div> */}
             </div>
             <div className="second-list ">
                 <div className="item">

@@ -14,12 +14,14 @@ import TagPostItem from './TagPostItem';
 export interface IPhotoListDetailProps {
     media: Media[];
     post: Post;
+    colorNextPre?: 'white' | 'black'
 }
 SwiperCore.use([Navigation, Pagination]);
 
 interface StyledPhotosProps {
     urlReact?: string;
     showButton?: boolean;
+    colorNextPre?: 'white' | 'black'
 }
 
 interface ShowTag {
@@ -27,8 +29,14 @@ interface ShowTag {
     indexSlider: number;
 }
 
+const defaultProps: Partial<IPhotoListDetailProps> = {
+    colorNextPre: 'black'
+}
+
+
 export default function PhotoListDetail(props: IPhotoListDetailProps) {
-    const { media, post } = props;
+    props = {...defaultProps, ...props}
+    const { media, post,  colorNextPre} = props;
     const refVideo = React.useRef<HTMLVideoElement[]>([]);
     const [swiper, setSwiper] = React.useState<SwiperCore>();
 
@@ -117,7 +125,7 @@ export default function PhotoListDetail(props: IPhotoListDetailProps) {
 
     console.log(showTags);
     return (
-        <Container urlReact={urlReact} showButton={showButton}>
+        <Container urlReact={urlReact} showButton={showButton} colorNextPre={colorNextPre}>
             <Swiper
                 onSwiper={(swiper) => setSwiper(swiper)}
                 onSlideChange={(swiper) => {
@@ -230,6 +238,7 @@ const Container = styled.div<StyledPhotosProps>`
             width: 100%;
             height: 100%;
             object-fit: cover;
+            user-select: none;
             /* max-height: 673px; */
         }
 
@@ -292,6 +301,7 @@ const Container = styled.div<StyledPhotosProps>`
         background-position: -244px -107px;
         background-repeat: no-repeat;
         display: ${(props) => (props.showButton ? 'block' : 'none')};
+        transform: scaleX(1);
     }
 
     .swiper-button-next::after {

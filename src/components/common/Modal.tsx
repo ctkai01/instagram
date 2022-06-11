@@ -8,6 +8,7 @@ export interface IModalProps {
     onCloseModal: () => void;
     content?: JSX.Element;
     color?: string;
+    zIndexDepth?: 'first' | 'second';
     closeButton?: boolean;
 }
 
@@ -17,12 +18,19 @@ body {
 }`;
 
 export function Modal(props: IModalProps) {
-    const { showModal, onCloseModal, content, color, closeButton } = props;
+    const { showModal, onCloseModal, content, color, zIndexDepth, closeButton } = props;
+
+    let zIndex;
+    if (zIndexDepth === 'first' || !zIndexDepth) {
+        zIndex = 10000;
+    } else if (zIndexDepth === 'second') {
+        zIndex = 10001;
+    }
 
     return (
         <>
             {showModal && (
-                <Container>
+                <Container style={{ zIndex }}>
                     <div
                         className="modal"
                         onClick={onCloseModal}
@@ -47,7 +55,7 @@ const Container = styled.div<Partial<IModalProps>>`
     position: fixed;
     right: 0;
     top: 0;
-    z-index: 10000;
+    /* z-index: 10000; */
     display: flex;
     justify-content: center;
     align-items: center;

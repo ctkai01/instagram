@@ -1,10 +1,12 @@
+import { Modal } from '@components/common';
 import { CommentIcon, GalleryFull, HeartIcon } from '@components/Icons';
 import { MediaType } from '@models/commom';
 import { Post } from '@models/Post';
 import { Skeleton } from '@mui/material';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import GalleryPost from './GalleryPost';
 
 export interface IPostAccountListProps {
     posts?: Post[];
@@ -12,12 +14,23 @@ export interface IPostAccountListProps {
 
 export default function PostAccountList(props: IPostAccountListProps) {
     const { posts } = props;
+
+    const [showGalleryPost, setShowGalleryPost] = React.useState(false);
+
+    const  handleClickPostItem = (id: number) => {
+        // window.history.pushState(null, '', `/post/${id}`);
+        setShowGalleryPost(true);
+    }
+
+    const handleCLoseGalleryPost = () => {
+        setShowGalleryPost(false);
+    }
     return (
         <Container>
             {posts ? (
                 posts.map((post, index) => (
                     <div className="item-post">
-                        <Link className="link-redirect" to="a">
+                        <div className="link-redirect" onClick={() => handleClickPostItem(post.id)}>
                             <img
                                 src={
                                     post.media[0].type === MediaType.image
@@ -42,7 +55,7 @@ export default function PostAccountList(props: IPostAccountListProps) {
                                     </div>
                                 </div>
                             </div>
-                        </Link>
+                        </div>
                     </div>
                 ))
             ) : (
@@ -52,6 +65,14 @@ export default function PostAccountList(props: IPostAccountListProps) {
                     <Skeleton width={300} height={300} />
                 </div>
             )}
+
+            <Modal
+                closeButton
+                content={<GalleryPost posts={posts} handleCLoseGalleryPost={handleCLoseGalleryPost}/>}
+                color="rgba(0, 0, 0, 0.65)"
+                showModal={showGalleryPost}
+                onCloseModal={handleCLoseGalleryPost}
+            />
         </Container>
     );
 }
@@ -113,6 +134,12 @@ const Container = styled.div`
         right: 8px;
         top: 8px;
         pointer-events: none;
+    }
+
+    .link-redirect {
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
     }
 
     .link-redirect:hover .modal-container {

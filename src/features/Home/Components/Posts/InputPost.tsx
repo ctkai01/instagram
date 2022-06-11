@@ -75,7 +75,7 @@ const Container = styled.section`
         top: 0;
         transform: translateY(-100%);
         left: 2px;
-        z-index: 3;
+        z-index: 10001;
     }
 
     .form {

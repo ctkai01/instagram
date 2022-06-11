@@ -17,6 +17,7 @@ export default function VideoItem(props: IVideoItemProps) {
     const {index, post, isMute, mediaItem, refVideo, handleClickPhotoItem, getVideoRef} = props
     return (
         <video
+            draggable={false}
             ref={(ref) => {
                 if (ref) {
                     refVideo.current[index] = ref;

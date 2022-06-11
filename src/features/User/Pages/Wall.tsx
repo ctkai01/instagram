@@ -55,7 +55,7 @@ export function Wall(props: IWallProps) {
         // if (matchIndexPersonAccount?.isExact) {
         setTagActive(ActiveTag.POSTS);
         // } else if (matchIndexPersonAccountTagged?.isExact) {
-        setTagActive(ActiveTag.TAGGED);
+        // setTagActive(ActiveTag.TAGGED);
         // }
 
         const fetchUser = async () => {
@@ -212,9 +212,9 @@ export function Wall(props: IWallProps) {
                                 See All
                             </Link>
                         </div>
-                        <Swiper slidesPerView={4.5} navigation={true} allowTouchMove={false}>
+                        <Swiper slidesPerView={4.5} className='slider-suggest' navigation={true} allowTouchMove={false}>
                             {Array.from(Array(7).keys()).map((el, index) => (
-                                <SwiperSlide key={index}>
+                                <SwiperSlide  key={index}>
                                     <SuggestFollowedItem
                                         url={`https://picsum.photos/200/300?random=${el + 1}`}
                                     />
@@ -458,7 +458,7 @@ const Container = styled.div<StyledWallProps>`
         }
     }
 
-    .swiper-button-next {
+    .slider-suggest > .swiper-button-next {
         background-image: ${(props) => `url(${props.urlReact}/images/bgIcon2.png)`};
         background-repeat: no-repeat;
         background-position: -97px -333px;
@@ -471,7 +471,7 @@ const Container = styled.div<StyledWallProps>`
         display: none;
     }
 
-    .swiper-button-prev {
+    .slider-suggest > .swiper-button-prev {
         background-image: ${(props) => `url(${props.urlReact}/images/bgIcon2.png)`};
         background-repeat: no-repeat;
         background-position: -97px -333px;
