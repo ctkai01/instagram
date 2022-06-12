@@ -1,16 +1,22 @@
 // import { Avatar } from '@components/common';
 import { Api } from '@api/authApi';
-import { Avatar } from '@components/common';
+import { Avatar, Modal } from '@components/common';
 import {
     ArrowTopIcon,
     MultipleSquareIcon,
+    OptionsIcon,
     PersonIcon,
     TaggedIcon,
     ThereDotIcon,
 } from '@components/Icons';
 import { NUMBER_SHOW_USER_FOLLOWED } from '@constants/general';
+import { TypeFollow } from '@constants/type-follow';
+import { selectUserAuth } from '@features/Auth/authSlice';
+import { useFollow } from '@hooks/index';
+import { Post } from '@models/Post';
 import { User } from '@models/User';
 import { Skeleton } from '@mui/material';
+import { useAppSelector } from '@redux/hooks';
 import { PATH_PERSON_ACCOUNT } from '@routes/index';
 import * as React from 'react';
 // import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
@@ -20,8 +26,11 @@ import SwiperCore, { Navigation } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import ActionUser from '../Components/ActionUser';
+import OptionsUser from '../Components/OptionsUser';
 import PostAccountList from '../Components/PostAccountList';
 import SuggestFollowedItem from '../Components/SuggestFollowedItem';
+import UnfollowPaper from '../Components/UnfollowPaper';
 
 export interface IWallProps {}
 
@@ -42,14 +51,78 @@ enum ActiveTag {
 
 export function Wall(props: IWallProps) {
     const [showSuggested, setShowSuggested] = React.useState<boolean>(false);
+    const [showUnfollow, setShowUnfollow] = React.useState<boolean>(false);
+    const [showOptionsUser, setShowOptionsUser] = React.useState<boolean>(false);
+    const [showActionUser, setShowActionUser] = React.useState<boolean>(false);
     const [tagActive, setTagActive] = React.useState<ActiveTag>(ActiveTag.POSTS);
     const [user, setUser] = React.useState<User>();
+    const [postUser, setPostUser] = React.useState<Post[]>([]);
     const [foundUser, setFoundUser] = React.useState<boolean>(true);
+    const [dataUnfollow, loadingUnfollow, fetchUnFollowUser] = useFollow({
+        type: TypeFollow.UNFOLLOW,
+    });
+
+    const useAuth = useAppSelector(selectUserAuth);
+
+    const [dataFollow, loadingFollow, fetchFollowUser] = useFollow({
+        type: TypeFollow.FOLLOW,
+    });
+
+    const handleUnfollowUser = async (idUser: number) => {
+        handleCloseUnfollow();
+        await fetchUnFollowUser(idUser);
+    };
+
+    const handleFollowUser = async (idUser: number) => {
+        await fetchFollowUser(idUser);
+    };
+
+    React.useEffect(() => {
+        if (dataUnfollow) {
+            setUser(dataUnfollow);
+        }
+    }, [dataUnfollow]);
+
+    React.useEffect(() => {
+        if (dataFollow) {
+            setUser(dataFollow);
+        }
+    }, [dataFollow]);
+
+    console.log('loading', loadingUnfollow);
+    console.log('DataAAAA', dataUnfollow);
+
     let { user_name } = useParams<Params>();
 
     console.log(user_name);
     // let matchIndexPersonAccount = useRouteMatch(PATH_PERSON_ACCOUNT);
     // let matchIndexPersonAccountTagged = useRouteMatch(PATH_TAGGED_PERSON_ACCOUNT);
+
+    const handleShowOptionsUser = () => {
+        setShowOptionsUser(true);
+    };
+
+    const handleCloseOptionsUser = () => {
+        setShowOptionsUser(false);
+    };
+
+
+
+    const handleShowUnfollow = () => {
+        setShowUnfollow(true);
+    };
+
+    const handleShowActionUser = () => {
+        setShowActionUser(true);
+    };
+
+    const handleCloseActionUser = () => {
+        setShowActionUser(false);
+    };
+
+    const handleCloseUnfollow = () => {
+        setShowUnfollow(false);
+    };
 
     React.useEffect(() => {
         // if (matchIndexPersonAccount?.isExact) {
@@ -63,7 +136,8 @@ export function Wall(props: IWallProps) {
                 const response = await Api.getUserByUserName(user_name);
                 console.log(response);
                 setUser(response.data);
-                setFoundUser(true)
+                setPostUser(response.data.posts);
+                setFoundUser(true);
             } catch (err) {
                 console.log(err);
                 setFoundUser(false);
@@ -79,8 +153,35 @@ export function Wall(props: IWallProps) {
     };
     return (
         <>
+            <Modal
+                closeButton
+                content={
+                    <UnfollowPaper
+                        handleCloseUnfollow={handleCloseUnfollow}
+                        handleUnfollowUser={handleUnfollowUser}
+                        user={user}
+                    />
+                }
+                color="rgba(0, 0, 0, 0.65)"
+                showModal={showUnfollow}
+                onCloseModal={handleCloseUnfollow}
+            />
+            <Modal
+                closeButton
+                content={<ActionUser handleCloseActionUser={handleCloseActionUser} />}
+                color="rgba(0, 0, 0, 0.65)"
+                showModal={showActionUser}
+                onCloseModal={handleCloseActionUser}
+            />
+             <Modal
+                closeButton
+                content={<OptionsUser handleCloseOptionsUser={handleCloseOptionsUser} />}
+                color="rgba(0, 0, 0, 0.65)"
+                showModal={showOptionsUser}
+                onCloseModal={handleCloseOptionsUser}
+            />
+
             {foundUser ? (
-                // <div>1</div>
                 <Container urlReact={urlReact}>
                     <header>
                         <div className="avatar-container">
@@ -96,40 +197,109 @@ export function Wall(props: IWallProps) {
                                     {user ? user.user_name : <Skeleton width={100} />}
                                 </h2>
                                 <div className="check-container">
-                                    <div className="check-icon"></div>
-                                </div>
-                                <div className="action-container">
-                                    <button className="btn-message">Message</button>
-                                    <button className="btn-follow">
-                                        <div className="icon-container">
-                                            <PersonIcon />
-                                        </div>
-                                    </button>
-                                    <button
-                                        className="btn-show-suggest"
-                                        onClick={handleSwitchSuggested}
-                                    >
+                                    {user ? (
                                         <div
-                                            className="icon-container"
                                             style={{
-                                                transform: `${
-                                                    showSuggested ? 'rotate(180deg)' : ''
-                                                }`,
+                                                display: `${user.is_tick ? 'block' : 'none'}`,
                                             }}
-                                        >
-                                            <ArrowTopIcon size={12} />
-                                        </div>
-                                    </button>
-                                    <button className="btn-action-account">
-                                        <ThereDotIcon size={32} />
-                                    </button>
+                                            className="check-icon"
+                                        ></div>
+                                    ) : (
+                                        <Skeleton width={20} />
+                                    )}
                                 </div>
+                                {user_name !== useAuth.user_name &&
+                                    (user ? (
+                                        <div className="action-container">
+                                            <button className="btn-message">Message</button>
+                                            {user?.is_following ? (
+                                                <button
+                                                    className="btn-unfollow"
+                                                    onClick={handleShowUnfollow}
+                                                >
+                                                    <div className="icon-container">
+                                                        <PersonIcon
+                                                            color={
+                                                                loadingUnfollow ? 'gray' : 'black'
+                                                            }
+                                                        />
+                                                    </div>
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    style={{
+                                                        opacity: `${loadingFollow ? '0.5' : '1'}`,
+                                                    }}
+                                                    onClick={() => handleFollowUser(user.id)}
+                                                    className="btn-follow"
+                                                >
+                                                    Follow
+                                                </button>
+                                            )}
+
+                                            <button
+                                                className="btn-show-suggest"
+                                                onClick={handleSwitchSuggested}
+                                                style={{
+                                                    background: `${
+                                                        user?.is_following ? '#fff' : '#0095f6'
+                                                    }`,
+                                                }}
+                                            >
+                                                <div
+                                                    className="icon-container"
+                                                    style={{
+                                                        transform: `${
+                                                            showSuggested ? 'rotate(180deg)' : ''
+                                                        }`,
+                                                    }}
+                                                >
+                                                    <ArrowTopIcon
+                                                        size={12}
+                                                        color={
+                                                            user?.is_following ? 'back' : 'white'
+                                                        }
+                                                    />
+                                                </div>
+                                            </button>
+                                            <button
+                                                className="btn-action-account"
+                                                onClick={handleShowActionUser}
+                                            >
+                                                <ThereDotIcon size={32} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <Skeleton
+                                            style={{ marginLeft: '20px' }}
+                                            width={200}
+                                            height={30}
+                                        />
+                                    ))}
+
+                                {user_name === useAuth.user_name &&
+                                    (user ? (
+                                        <div className="action-container">
+                                            <button className="btn-edit-profile">
+                                                Edit profile
+                                            </button>
+                                            <button className='btn-options' onClick={handleShowOptionsUser}>
+                                                <OptionsIcon />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <Skeleton
+                                            style={{ marginLeft: '20px' }}
+                                            width={150}
+                                            height={30}
+                                        />
+                                    ))}
                             </div>
                             <div className="info-contact-container">
                                 <div className="info-contact-item">
                                     {user ? (
                                         <>
-                                            <span>{user?.posts?.length} </span>
+                                            <span>{postUser.length} </span>
                                             posts
                                         </>
                                     ) : (
@@ -170,7 +340,7 @@ export function Wall(props: IWallProps) {
                                         {user?.followed_by
                                             ?.slice(0, NUMBER_SHOW_USER_FOLLOWED)
                                             .map((followed, index) => (
-                                                <>
+                                                <div key={index}>
                                                     <Link
                                                         className="user_name_link"
                                                         to={`/${followed}`}
@@ -186,15 +356,17 @@ export function Wall(props: IWallProps) {
                                                         1
                                                         ? ', '
                                                         : ''}
-                                                </>
+                                                </div>
                                             ))}
                                         {
                                             // @ts-ignore: Object is possibly 'null'.
                                             user?.followed_by?.length > NUMBER_SHOW_USER_FOLLOWED
                                                 ? // @ts-ignore: Object is possibly 'null'.
                                                   `+${
-                                                      user.followed_by ? user.followed_by.length -
-                                                      NUMBER_SHOW_USER_FOLLOWED : 0
+                                                      user.followed_by
+                                                          ? user.followed_by.length -
+                                                            NUMBER_SHOW_USER_FOLLOWED
+                                                          : 0
                                                   } more`
                                                 : ''
                                         }
@@ -205,24 +377,31 @@ export function Wall(props: IWallProps) {
                             </div>
                         </div>
                     </header>
-                    <div className="container-suggested">
-                        <div className="header-suggested">
-                            <div className="text-suggest">Suggested</div>
-                            <Link className="see-all-btn" to="aa">
-                                See All
-                            </Link>
+                    {showSuggested && (
+                        <div className="container-suggested">
+                            <div className="header-suggested">
+                                <div className="text-suggest">Suggested</div>
+                                <Link className="see-all-btn" to="aa">
+                                    See All
+                                </Link>
+                            </div>
+                            <Swiper
+                                slidesPerView={4.5}
+                                className="slider-suggest"
+                                navigation={true}
+                                allowTouchMove={false}
+                            >
+                                {Array.from(Array(7).keys()).map((el, index) => (
+                                    <SwiperSlide key={index}>
+                                        <SuggestFollowedItem
+                                            url={`https://picsum.photos/200/300?random=${el + 1}`}
+                                        />
+                                        {/* <Skeleton width={180} height={210}/> */}
+                                    </SwiperSlide>
+                                ))}
+                            </Swiper>
                         </div>
-                        <Swiper slidesPerView={4.5} className='slider-suggest' navigation={true} allowTouchMove={false}>
-                            {Array.from(Array(7).keys()).map((el, index) => (
-                                <SwiperSlide  key={index}>
-                                    <SuggestFollowedItem
-                                        url={`https://picsum.photos/200/300?random=${el + 1}`}
-                                    />
-                                    {/* <Skeleton width={180} height={210}/> */}
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-                    </div>
+                    )}
                     <div className="header-media-container">
                         <div
                             onClick={() => {
@@ -269,7 +448,7 @@ export function Wall(props: IWallProps) {
                             <div className="text">TAGGED</div>
                         </div>
                     </div>
-                    <PostAccountList posts={user ? user.posts : undefined} />
+                    <PostAccountList posts={postUser.length ? postUser : undefined} />
                 </Container>
             ) : (
                 <div style={{ padding: '20px', margin: '30% auto' }}>
@@ -283,6 +462,15 @@ export function Wall(props: IWallProps) {
 
 const Container = styled.div<StyledWallProps>`
     padding: 30px 20px 0;
+
+    .btn-options {
+        padding: 8px;
+        border: none;
+        background-color: transparent;
+        cursor: pointer;
+        height: min-content;
+        margin-left: 5px;
+    }
 
     header {
         display: flex;
@@ -350,10 +538,11 @@ const Container = styled.div<StyledWallProps>`
             margin-left: 20px;
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
+            /* margin-bottom: 20px; */
         }
 
-        .btn-message {
+        .btn-message,
+        .btn-edit-profile {
             background-color: transparent;
             padding: 5px 9px;
             border-radius: 3px;
@@ -365,13 +554,26 @@ const Container = styled.div<StyledWallProps>`
             cursor: pointer;
         }
 
-        .btn-follow {
+        .btn-unfollow {
             padding: 0 24px;
             cursor: pointer;
             background-color: transparent;
             border-radius: 3px;
             border: 1px solid rgb(219, 219, 219);
             margin: 0 8px;
+        }
+
+        .btn-follow {
+            cursor: pointer;
+            background-color: #0095f6;
+            color: #fff;
+            padding: 7px 24px;
+            font-size: 14px;
+            border: none;
+            border-radius: 3px;
+            margin: 0 8px;
+            font-weight: 600;
+            outline: none;
         }
 
         .btn-action-account {

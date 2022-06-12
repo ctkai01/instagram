@@ -8,7 +8,8 @@ import NextBtn from './NextBtn';
 
 export interface IGalleryPostProps {
     posts?: Post[];
-    handleCLoseGalleryPost: () => void;
+    currentIndexShow: number;
+    changeCurrentIndexShow: (index: number) => void;
 }
 SwiperCore.use([Navigation]);
 
@@ -16,48 +17,49 @@ interface StyledGalleryPostProps {
     urlReact?: string;
 }
 export default function GalleryPost(props: IGalleryPostProps) {
-    const { posts, handleCLoseGalleryPost } = props;
+    const { posts, currentIndexShow, changeCurrentIndexShow } = props;
     const urlReact = process.env.REACT_APP_URL;
-    const refGallery = React.useRef<HTMLDivElement[]>([]);
-    const [swiper, setSwiper] = React.useState<SwiperCore>();
+    // const [swiper, setSwiper] = React.useState<SwiperCore>();
 
-    const handleClickGallery = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (refGallery && swiper) {
-            const { target } = e;
-            const checkTargetGallery =  refGallery.current[swiper.activeIndex]?.contains(target as Element)
-            if (!checkTargetGallery) {
-                handleCLoseGalleryPost()
-            }
-        }
+    // React.useEffect(() => {
+    //     console.log(currentIndexShow)
 
-    }
+    //     if (swiper) {
+    //         console.log(currentIndexShow)
+    //         swiper.slideTo(currentIndexShow)
+    //     }
+    // }, [])
+
     return (
         <>
-        <Container onClick={handleClickGallery}  urlReact={urlReact}>
-            <Swiper
-                onSwiper={(swiper) => setSwiper(swiper)}
-                className="slider-gallery"
-                slidesPerView={1}
-                allowTouchMove={false}
-                navigation={true}
-                // onClick={() => console.log('FUk you')}
-            >
-                {posts?.map((post, index) => (
-                    <SwiperSlide key={index}>
-                        <PostContentModal index={index} post={post} ref={refGallery}/>
-                    </SwiperSlide>
-                ))}
-            </Swiper>
-        
-        </Container>
-        {/* <div style={{width: '100vw', height: '100%'}} onClick={handleCLoseGalleryPost} className="test"></div> */}
+            <Container urlReact={urlReact}>
+                <Swiper
+                    // onSwiper={(swiper) => setSwiper(swiper)}
+                    className="slider-gallery"
+                    slidesPerView={1}
+                    allowTouchMove={false}
+                    navigation={true}
+                    onSlideChange={(swiper) => {
+                        changeCurrentIndexShow(swiper.activeIndex)
+                    }}
+                    effect={'fade'}
+                    initialSlide={currentIndexShow}
+                    // onClick={() => console.log('FUk you')}
+                >
+                    {posts?.map((post, index) => (
+                        <SwiperSlide key={index}>
+                            {currentIndexShow === index && <PostContentModal post={post} />}
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+            </Container>
         </>
     );
 }
 const Container = styled.div<StyledGalleryPostProps>`
     width: 1248px;
     height: 931px;
-    width: 100vw;
+    /* width: 100vw; */
     height: 100%;
     position: relative;
 
@@ -89,6 +91,7 @@ const Container = styled.div<StyledGalleryPostProps>`
         background-position: -244px -107px;
         background-repeat: no-repeat;
         transform: scaleX(1);
+        position: fixed;
     }
     /* -133px -101px; */
     .swiper-button-next::after {
@@ -101,7 +104,7 @@ const Container = styled.div<StyledGalleryPostProps>`
         width: 45px;
         background-position: -379px -128px;
         background-repeat: no-repeat;
-        /* position: fixed; */
+        position: fixed;
     }
 
     .swiper-button-prev::after {

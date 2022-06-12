@@ -123,14 +123,12 @@ export default function PhotoListDetail(props: IPhotoListDetailProps) {
         });
     };
 
-    console.log(showTags);
     return (
         <Container urlReact={urlReact} showButton={showButton} colorNextPre={colorNextPre}>
             <Swiper
                 onSwiper={(swiper) => setSwiper(swiper)}
                 onSlideChange={(swiper) => {
-                    console.log(refVideo);
-                    // setIsPlay(false)
+                    setIsPlay(false)
                     if (media[swiper.activeIndex].type === MediaType.image) {
                         handleAddShowTagImage(swiper.activeIndex);
                     }
@@ -142,7 +140,6 @@ export default function PhotoListDetail(props: IPhotoListDetailProps) {
                             refVideo.current[swiper.previousIndex].pause();
                             refVideo.current[swiper.previousIndex].currentTime = 0;
                         }
-                        console.log(refVideo, swiper);
                         // previousIndex
                     } else {
                         if (media[swiper.previousIndex].type === MediaType.video) {

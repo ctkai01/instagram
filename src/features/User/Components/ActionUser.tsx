@@ -1,14 +1,16 @@
+import { Avatar } from '@components/common';
 import * as React from 'react';
 import styled from 'styled-components';
 
-export interface IActionPostDetailProps {
-    handleCloseActionModal: () => void;
+export interface IActionUserProps {
+    handleCloseActionUser: () => void;
 }
 
-export default function ActionPostDetail(props: IActionPostDetailProps) {
-    const { handleCloseActionModal } = props;
+export default function ActionUser(props: IActionUserProps) {
+    const { handleCloseActionUser } = props
+    
     const [isBumpContent, setIsBumpContent] = React.useState<boolean>(false);
-    console.log('Fukk you')
+
     React.useEffect(() => {
         if (!isBumpContent) {
             setIsBumpContent(true);
@@ -22,26 +24,31 @@ export default function ActionPostDetail(props: IActionPostDetailProps) {
             };
         }
     }, []);
-
+    
     return (
-        <Container className={isBumpContent ? 'bump' : 'heheh'}>
-            <div className="action-item red">Unfollow</div>
-            <div className="action-item">Go to post</div>
-            <div className="action-item">Copy link</div>
-            <div className="action-item" onClick={handleCloseActionModal}>
-                Cancel
-            </div>
+        <Container className={isBumpContent ? 'bump' : ''}>
+            <div className="action-item red">Block</div>
+            <div className="action-item red">Restrict</div>
+            <div className="action-item" onClick={handleCloseActionUser}>Cancel</div>
         </Container>
     );
 }
 
 const Container = styled.div`
+    width: 400px;
     border-radius: 10px;
     overflow: hidden;
-    width: 400px;
+    background: #fff;
+
+    .text {
+        padding: 16px 32px;
+        color: #262626;
+        text-align: center;
+        margin-bottom: 16px;
+    }
+
     .action-item {
         min-height: 48px;
-        background-color: #fff;
         color: #262626;
         font-weight: 600;
         user-select: none;
@@ -56,7 +63,6 @@ const Container = styled.div`
 
         &:active {
             background-color: #e0dfdf;
-            /* opacity: 1; */
         }
     }
 

@@ -16,21 +16,28 @@ export default function PostAccountList(props: IPostAccountListProps) {
     const { posts } = props;
 
     const [showGalleryPost, setShowGalleryPost] = React.useState(false);
+    const [currentIndexShow, setCurrentIndexShow] = React.useState(-1);
 
-    const  handleClickPostItem = (id: number) => {
+    const  handleClickPostItem = (id: number, index: number) => {
         // window.history.pushState(null, '', `/post/${id}`);
+        setCurrentIndexShow(index)
+
         setShowGalleryPost(true);
     }
 
     const handleCLoseGalleryPost = () => {
         setShowGalleryPost(false);
     }
+
+    const changeCurrentIndexShow = (index: number) => {
+        setCurrentIndexShow(index)
+    }
     return (
         <Container>
             {posts ? (
                 posts.map((post, index) => (
-                    <div className="item-post">
-                        <div className="link-redirect" onClick={() => handleClickPostItem(post.id)}>
+                    <div className="item-post" key={index}>
+                        <div className="link-redirect" onClick={() => handleClickPostItem(post.id, index)}>
                             <img
                                 src={
                                     post.media[0].type === MediaType.image
@@ -68,7 +75,7 @@ export default function PostAccountList(props: IPostAccountListProps) {
 
             <Modal
                 closeButton
-                content={<GalleryPost posts={posts} handleCLoseGalleryPost={handleCLoseGalleryPost}/>}
+                content={<GalleryPost currentIndexShow={currentIndexShow} posts={posts} changeCurrentIndexShow={changeCurrentIndexShow}/>}
                 color="rgba(0, 0, 0, 0.65)"
                 showModal={showGalleryPost}
                 onCloseModal={handleCLoseGalleryPost}

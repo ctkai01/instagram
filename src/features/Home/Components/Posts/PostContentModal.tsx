@@ -12,29 +12,24 @@ import PhotoListDetail from './PhotoListDetail';
 
 export interface IPostContentModalProps {
     post: Post;
-    index?: number;
 }
 
-const PostContentModal = React.forwardRef((props: IPostContentModalProps, refGallery: any) => {
-    const { post, index } = props;
+const PostContentModal = (props: IPostContentModalProps) => {
+    const { post } = props;
     const [showAction, setShowAction] = React.useState(false);
 
     const handleShowActionModal = () => {
+
         setShowAction(true);
     };
 
     const handleCloseActionModal = () => {
         setShowAction(false);
     };
-
+    console.log(showAction);
     return (
         <>
-            <Container
-                ref={(el) => {
-                    // @ts-ignore: Object is possibly 'null'.
-                    refGallery.current[index] = el;
-                }}
-            >
+            <Container>
                 <div className="list-gallery">
                     <PhotoListDetail media={post.media} post={post} colorNextPre="white" />
                 </div>
@@ -100,13 +95,13 @@ const PostContentModal = React.forwardRef((props: IPostContentModalProps, refGal
                 content={<ActionPostDetail handleCloseActionModal={handleCloseActionModal} />}
                 color="rgba(0, 0, 0, 0.65)"
                 showModal={showAction}
-                zIndexDepth="second"
+                zIndexDepth='second'
                 onCloseModal={handleCloseActionModal}
             />
             <GlobalStyle />
         </>
     );
-});
+};
 export default PostContentModal;
 const GlobalStyle = createGlobalStyle`
   body {
@@ -119,7 +114,7 @@ const Container = styled.div`
     height: 931px;
     display: flex;
     position: relative;
-    z-index: 9999999;
+    z-index: 10001;
     .list-gallery {
         width: 59%;
         height: 100%;

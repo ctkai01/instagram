@@ -90,10 +90,10 @@ export default function CommentList(props: ICommentListProps) {
     return (
         <Container>
             {arr.map((el, index) => (
-                <>
-                    <CommentItem key={index} comment={el} />
+                <div  key={index}>
+                    <CommentItem comment={el} />
                     {el.replies.length > 0 && <CommentReply comments={el.replies} />}
-                </>
+                </div>
             ))}
         </Container>
     );

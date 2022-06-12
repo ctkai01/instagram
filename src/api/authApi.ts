@@ -1,8 +1,9 @@
+import { TypeFollow } from '@constants/type-follow';
 import { PayloadTransformCreatePost } from '@features/UploadPost/Components/UploadImagePost';
 import { Login, SignIn } from '@models/Auth';
 import { ListResponsePagination, Tokens } from '@models/commom';
 import { Post } from '@models/Post';
-import { User } from '@models/User';
+import { FollowUser, User } from '@models/User';
 import { lsRefreshTokenAuth } from '@utils/storage';
 import { axiosClient } from './axiousClient';
 
@@ -43,5 +44,9 @@ export const Api = {
     getUserByUserName: (userName: string) => {
         const url = `api/user/${userName}`
         return axiosClient.get(url)
+    },
+    followUser: (idUser: number, data: FollowUser) => {
+        const url = `api/relation/follow/${idUser}`
+        return axiosClient.post(url, data)
     }
 };

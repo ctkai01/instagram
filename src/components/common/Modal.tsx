@@ -19,7 +19,6 @@ body {
 
 export function Modal(props: IModalProps) {
     const { showModal, onCloseModal, content, color, zIndexDepth, closeButton } = props;
-
     let zIndex;
     if (zIndexDepth === 'first' || !zIndexDepth) {
         zIndex = 10000;

@@ -15,8 +15,6 @@ export default function CommentReply(props: ICommentReplyProps) {
       setShowReplies(showReplies => !showReplies)
     }
 
-    console.log('Comment', comments)
-    console.log('Show', showReplies)
     return (
         <Container className="view-reply-container">
             <div className="view-reply-text" onClick={handleSHowViewReply}>

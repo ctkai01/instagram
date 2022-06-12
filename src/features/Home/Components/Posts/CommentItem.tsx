@@ -11,7 +11,6 @@ export interface ICommentItemProps {
 
 export default function CommentItem(props: ICommentItemProps) {
     const { comment } = props;
-    console.log('Fukk')
     return (
         <Container>
             <div className="content-item-wrapper">
