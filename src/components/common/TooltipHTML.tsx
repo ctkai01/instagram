@@ -10,11 +10,12 @@ export interface ITooltipHTMLProps {
     placement: "bottom" | "left" | "right" | "top" | "bottom-end" | "bottom-start" | "left-end" | "left-start" | "right-end" | "right-start" | "top-end" | "top-start";
     className?: string
 }
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
     popper: {
         marginTop: '-2px !important',
     },
-}));
+
+});
 
 export function TooltipHTML(props: ITooltipHTMLProps) {
     const styles = useStyles();
@@ -25,7 +26,7 @@ export function TooltipHTML(props: ITooltipHTMLProps) {
             PopperProps={{ className: `${styles.popper} ${className}` }}
             title={content}
             enterDelay={500}
-            leaveDelay={200}
+            leaveDelay={200} 
             TransitionComponent={Fade}
         >
             {children}
@@ -34,7 +35,7 @@ export function TooltipHTML(props: ITooltipHTMLProps) {
 }
 
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} classes={{ popper: className }} />
+    <Tooltip {...props} classes={{ popper: className }}/>
 ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
         backgroundColor: '#fff',
@@ -42,6 +43,9 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
         fontSize: theme.typography.pxToRem(12),
         border: '1px solid #dadde9',
         marginTop: '0 !important',
-        borderRadius: 10
+        borderRadius: 10,
     },
+    [`&`]: {
+        zIndex: 999999
+    }
 }));

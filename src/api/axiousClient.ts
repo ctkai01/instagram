@@ -41,6 +41,7 @@ axiosClient.interceptors.response.use(
         if (response.config.url === '/api/posts') {
             return response.data.data;
         }
+
         return response.data;
     },
     async function (error) {
@@ -49,7 +50,7 @@ axiosClient.interceptors.response.use(
         const originalRequest = error.config;
         if (error.response?.status === 401) {
             if (error.response.config.url === 'api/auth/refreshToken') {
-                store.dispatch(authActions.logout())
+                store.dispatch(authActions.logout());
             } else {
                 console.log(error.response.config, 'Reposnse');
                 const { access_token, refresh_token } = await AuthApi.refreshToken();
@@ -57,7 +58,6 @@ axiosClient.interceptors.response.use(
                 lsRefreshTokenAuth.setItem(refresh_token);
                 return axiosClient(originalRequest);
             }
-            
         }
         return Promise.reject(error);
     }

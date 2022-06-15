@@ -20,12 +20,7 @@ export function SuggestItem(props: ISuggestItemProps) {
     return (
         <Container>
             <div className="account-wrapper">
-                <TooltipHTML
-                    placement="bottom-start"
-                    content={
-                        <PreviewProfile/>
-                    }
-                >
+                {/* <TooltipHTML placement="bottom-start" content={<PreviewProfile />}>
                     <div>
                         <Avatar
                             className="avatar-account"
@@ -36,24 +31,18 @@ export function SuggestItem(props: ISuggestItemProps) {
                     </div>
                 </TooltipHTML>
                 <div className="name-account-wrapper">
-                <TooltipHTML
-                    placement="bottom-start"
-                    content={
-                        <PreviewProfile/>
-                    }
-                >
-                    <Link to="username" className="username">
-                        {account.username}
-                    </Link>
-                </TooltipHTML>
+                    <TooltipHTML placement="bottom-start" content={<PreviewProfile />}>
+                        <Link to="username" className="username">
+                            {account.username}
+                        </Link>
+                    </TooltipHTML>
 
-                    
                     <div className="relate-user">
                         {relateUserName.length > 0 && 'Followed by'}
                         &nbsp;
                         {nameUserRelate}
                     </div>
-                </div>
+                </div> */}
             </div>
             <div className="follow-button">Follow</div>
         </Container>

@@ -13,7 +13,7 @@ export interface ListResponsePagination<T> {
     data: T[];
     count: number;
     nextPage: number | null;
-    currentPage: number | null;
+    currentPage: number;
     prevPage: number;
     lastPage: number;
 }

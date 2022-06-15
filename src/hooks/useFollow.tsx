@@ -22,8 +22,6 @@ export const useFollow = (
         setData(dataUser.data);
         setLoading(false);
     };
-    console.log('Fuk', data)
-    console.log('You', loading)
     // useEffect(() => {
     //     fetchFollowUser();
     // }, []);

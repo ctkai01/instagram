@@ -1,7 +1,7 @@
 import { TypeFollow } from '@constants/type-follow';
 import { PayloadTransformCreatePost } from '@features/UploadPost/Components/UploadImagePost';
 import { Login, SignIn } from '@models/Auth';
-import { ListResponsePagination, Tokens } from '@models/commom';
+import { ListResponsePagination, ResponsePagination, Tokens } from '@models/commom';
 import { Post } from '@models/Post';
 import { FollowUser, User } from '@models/User';
 import { lsRefreshTokenAuth } from '@utils/storage';
@@ -48,5 +48,17 @@ export const Api = {
     followUser: (idUser: number, data: FollowUser) => {
         const url = `api/relation/follow/${idUser}`
         return axiosClient.post(url, data)
+    },
+    userFollower: (idUser: number, page: number = 1): Promise<ResponsePagination<User>> => {
+        const url = `api/user/${idUser}/follower`
+        return axiosClient.get(url,{ params: {
+            page
+        } })
+    },
+    userFollowing: (idUser: number, page: number = 1): Promise<ResponsePagination<User>> => {
+        const url = `api/user/${idUser}/following`
+        return axiosClient.get(url,{ params: {
+            page
+        } })
     }
 };

@@ -51,7 +51,7 @@ const Wrapper = styled.div`
 `
 
 const Container = styled(Paper)`
-    z-index: 3;
+    z-index: 99999999;
     .setting-container {
         .setting-item {
             display: flex;

@@ -10,9 +10,10 @@ import {
     ThereDotIcon,
 } from '@components/Icons';
 import { NUMBER_SHOW_USER_FOLLOWED } from '@constants/general';
-import { TypeFollow } from '@constants/type-follow';
+import { TypeFollow, TypeFollowUser } from '@constants/type-follow';
 import { selectUserAuth } from '@features/Auth/authSlice';
 import { useFollow } from '@hooks/index';
+import { FollowUser, useFollowUser } from '@hooks/useFollowUser';
 import { Post } from '@models/Post';
 import { User } from '@models/User';
 import { Skeleton } from '@mui/material';
@@ -27,6 +28,8 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import ActionUser from '../Components/ActionUser';
+import FollowerPaper from '../Components/FollowerPaper';
+import FollowingPaper from '../Components/FollowingPaper';
 import OptionsUser from '../Components/OptionsUser';
 import PostAccountList from '../Components/PostAccountList';
 import SuggestFollowedItem from '../Components/SuggestFollowedItem';
@@ -49,24 +52,46 @@ enum ActiveTag {
     TAGGED = 1,
 }
 
+const defaultFollowUser: FollowUser = {
+    currentPage: 1,
+    lastPage: 1,
+    data: [],
+};
+
 export function Wall(props: IWallProps) {
     const [showSuggested, setShowSuggested] = React.useState<boolean>(false);
     const [showUnfollow, setShowUnfollow] = React.useState<boolean>(false);
     const [showOptionsUser, setShowOptionsUser] = React.useState<boolean>(false);
     const [showActionUser, setShowActionUser] = React.useState<boolean>(false);
+
+    const [showFollower, setShowFollower] = React.useState<boolean>(false);
+    const [showFollowing, setShowFollowing] = React.useState<boolean>(false);
+
     const [tagActive, setTagActive] = React.useState<ActiveTag>(ActiveTag.POSTS);
     const [user, setUser] = React.useState<User>();
+
+    const [usersFollowing, setUsersFollowing] = React.useState<FollowUser>(defaultFollowUser);
+    const [usersFollower, setUsersFollower] = React.useState<FollowUser>(defaultFollowUser);
+
     const [postUser, setPostUser] = React.useState<Post[]>([]);
     const [foundUser, setFoundUser] = React.useState<boolean>(true);
     const [dataUnfollow, loadingUnfollow, fetchUnFollowUser] = useFollow({
         type: TypeFollow.UNFOLLOW,
     });
 
-    const useAuth = useAppSelector(selectUserAuth);
-
     const [dataFollow, loadingFollow, fetchFollowUser] = useFollow({
         type: TypeFollow.FOLLOW,
     });
+
+    const [dataFollowerUser, loadingFollowerUser, fetchListFollower] = useFollowUser({
+        type: TypeFollowUser.FOLLOWER,
+    });
+
+    const [dataFollowingUser, loadingFollowingUser, fetchListFollowing] = useFollowUser({
+        type: TypeFollowUser.FOLLOWING,
+    });
+
+    const useAuth = useAppSelector(selectUserAuth);
 
     const handleUnfollowUser = async (idUser: number) => {
         handleCloseUnfollow();
@@ -76,6 +101,26 @@ export function Wall(props: IWallProps) {
     const handleFollowUser = async (idUser: number) => {
         await fetchFollowUser(idUser);
     };
+
+    React.useEffect(() => {
+        if (dataFollowerUser) {
+            setUsersFollower((usersFollower) => ({
+                currentPage: dataFollowerUser.currentPage,
+                lastPage: dataFollowerUser.lastPage,
+                data: usersFollower.data.concat(dataFollowerUser.data),
+            }));
+        }
+    }, [dataFollowerUser]);
+
+    React.useEffect(() => {
+        if (dataFollowingUser) {
+            setUsersFollowing((usersFollowing) => ({
+                currentPage: dataFollowingUser.currentPage,
+                lastPage: dataFollowingUser.lastPage,
+                data: usersFollowing.data.concat(dataFollowingUser.data),
+            }));
+        }
+    }, [dataFollowingUser]);
 
     React.useEffect(() => {
         if (dataUnfollow) {
@@ -89,14 +134,29 @@ export function Wall(props: IWallProps) {
         }
     }, [dataFollow]);
 
-    console.log('loading', loadingUnfollow);
-    console.log('DataAAAA', dataUnfollow);
-
     let { user_name } = useParams<Params>();
 
     console.log(user_name);
     // let matchIndexPersonAccount = useRouteMatch(PATH_PERSON_ACCOUNT);
     // let matchIndexPersonAccountTagged = useRouteMatch(PATH_TAGGED_PERSON_ACCOUNT);
+
+    const handleShowFollower = async (idUser: number) => {
+        fetchListFollower(idUser);
+        setShowFollower(true);
+    };
+
+    const handleCloseFollower = () => {
+        setShowFollower(false);
+    };
+
+    const handleShowFollowing = async (idUser: number) => {
+        fetchListFollowing(idUser);
+        setShowFollowing(true);
+    };
+
+    const handleCloseFollowing = () => {
+        setShowFollowing(false);
+    };
 
     const handleShowOptionsUser = () => {
         setShowOptionsUser(true);
@@ -105,8 +165,6 @@ export function Wall(props: IWallProps) {
     const handleCloseOptionsUser = () => {
         setShowOptionsUser(false);
     };
-
-
 
     const handleShowUnfollow = () => {
         setShowUnfollow(true);
@@ -173,14 +231,43 @@ export function Wall(props: IWallProps) {
                 showModal={showActionUser}
                 onCloseModal={handleCloseActionUser}
             />
-             <Modal
+            <Modal
                 closeButton
                 content={<OptionsUser handleCloseOptionsUser={handleCloseOptionsUser} />}
                 color="rgba(0, 0, 0, 0.65)"
                 showModal={showOptionsUser}
                 onCloseModal={handleCloseOptionsUser}
             />
-
+            <Modal
+                closeButton
+                content={
+                    <FollowerPaper
+                        idUser={1}
+                        usersFollower={usersFollower}
+                        loadingFollowerUser={loadingFollowerUser}
+                        fetchListFollower={fetchListFollower}
+                        handleCloseFollower={handleCloseFollower}
+                    />
+                }
+                color="rgba(0, 0, 0, 0.65)"
+                showModal={showFollower}
+                onCloseModal={handleCloseFollower}
+            />
+            <Modal
+                closeButton
+                content={
+                    <FollowingPaper
+                        idUser={1}
+                        usersFollowing={usersFollowing}
+                        loadingFollowingUser={loadingFollowingUser}
+                        fetchListFollowing={fetchListFollowing}
+                        handleCloseFollowing={handleCloseFollowing}
+                    />
+                }
+                color="rgba(0, 0, 0, 0.65)"
+                showModal={showFollowing}
+                onCloseModal={handleCloseFollowing}
+            />
             {foundUser ? (
                 <Container urlReact={urlReact}>
                     <header>
@@ -283,7 +370,10 @@ export function Wall(props: IWallProps) {
                                             <button className="btn-edit-profile">
                                                 Edit profile
                                             </button>
-                                            <button className='btn-options' onClick={handleShowOptionsUser}>
+                                            <button
+                                                className="btn-options"
+                                                onClick={handleShowOptionsUser}
+                                            >
                                                 <OptionsIcon />
                                             </button>
                                         </div>
@@ -306,7 +396,14 @@ export function Wall(props: IWallProps) {
                                         <Skeleton width={100} />
                                     )}
                                 </div>
-                                <div className="info-contact-item">
+                                <div
+                                    className="info-contact-item"
+                                    onClick={() => {
+                                        // @ts-ignore: Object is possibly 'null'.
+
+                                        handleShowFollower(user?.id);
+                                    }}
+                                >
                                     {user ? (
                                         <>
                                             <span>{user?.count_follower} </span>
@@ -316,7 +413,14 @@ export function Wall(props: IWallProps) {
                                         <Skeleton width={100} />
                                     )}
                                 </div>
-                                <div className="info-contact-item">
+                                <div
+                                    className="info-contact-item"
+                                    onClick={() => {
+                                        // @ts-ignore: Object is possibly 'null'.
+
+                                        handleShowFollowing(user.id);
+                                    }}
+                                >
                                     {user ? (
                                         <>
                                             <span>{user?.count_following} </span>
@@ -505,6 +609,7 @@ const Container = styled.div<StyledWallProps>`
             margin-bottom: 20px;
             .info-contact-item {
                 margin-right: 40px;
+                cursor: pointer;
 
                 span {
                     color: rgb(38, 38, 38);
