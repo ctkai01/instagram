@@ -1,4 +1,4 @@
-import { Avatar, Button, TooltipHTML } from '@components/common';
+import { Avatar, Button, Modal, TooltipHTML } from '@components/common';
 import LoadingSpecify from '@components/common/LoadingSpecify';
 import { CloseIcon, TickIcon } from '@components/Icons';
 import { PreviewProfile } from '@features/Home/Components/Sidebar/PreviewProfile';
@@ -8,13 +8,18 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 // import InfiniteScroll from 'react-infinite-scroller';
-import InfiniteScroll from "react-infinite-scroll-component";
+import InfiniteScroll from 'react-infinite-scroll-component';
 import InfoUser from './InfoUser';
+import { TypeFollow, TypeFollowUser } from '@constants/type-follow';
+import { useFollow } from '@hooks/useFollow';
+import UnfollowPaper from './UnfollowPaper';
+import LoadingWhite from '@components/common/LoadingWhite';
 
 export interface IFollowingPaperProps {
     idUser: number;
     loadingFollowingUser: boolean;
     usersFollowing: FollowUser;
+    handleChangeUserFollowingFollower: (user: User, type: TypeFollowUser) => void;
     fetchListFollowing: (idUser: number, page?: number) => Promise<void>;
     handleCloseFollowing: () => void;
 }
@@ -24,20 +29,62 @@ export default function FollowingPaper(props: IFollowingPaperProps) {
         idUser,
         usersFollowing,
         loadingFollowingUser,
+        handleChangeUserFollowingFollower,
         handleCloseFollowing,
         fetchListFollowing,
     } = props;
     console.log('Data', usersFollowing);
-    
-    const [moreLoading, setMoreLoading] = React.useState<boolean>(true)
+    const [showUnfollow, setShowUnfollow] = React.useState<boolean>(false);
+
+    const [moreLoading, setMoreLoading] = React.useState<boolean>(true);
+
+    const [dataUnfollow, loadingUnfollow, fetchUnFollowUser] = useFollow({
+        type: TypeFollow.UNFOLLOW,
+    });
+
+    const [dataFollow, loadingFollow, fetchFollowUser] = useFollow({
+        type: TypeFollow.FOLLOW,
+    });
+
+    const [currentUser, setCurrentUser] = React.useState<User>();
+
+    React.useEffect(() => {
+        if (dataUnfollow) {
+            handleChangeUserFollowingFollower(dataUnfollow, TypeFollowUser.FOLLOWING);
+        }
+    }, [dataUnfollow]);
+
+    React.useEffect(() => {
+        if (dataFollow) {
+            handleChangeUserFollowingFollower(dataFollow, TypeFollowUser.FOLLOWING);
+        }
+    }, [dataFollow]);
+
+    const handleCloseUnfollow = () => {
+        setShowUnfollow(false);
+    };
+
+    const handleShowUnfollow = (user: User) => {
+        setCurrentUser(user);
+        setShowUnfollow(true);
+    };
 
     const fetchMoreData = async () => {
         if (usersFollowing.currentPage !== usersFollowing.lastPage && !loadingFollowingUser) {
             await fetchListFollowing(idUser, usersFollowing.currentPage + 1);
         } else {
-            setMoreLoading(false)
+            setMoreLoading(false);
         }
-    }
+    };
+
+    const handleUnfollowUser = async (idUser: number) => {
+        handleCloseUnfollow();
+        await fetchUnFollowUser(idUser);
+    };
+
+    const handleFollowUser = async (idUser: number) => {
+        await fetchFollowUser(idUser);
+    };
 
     return (
         <Container>
@@ -46,31 +93,53 @@ export default function FollowingPaper(props: IFollowingPaperProps) {
                     <LoadingSpecify />
                 </div>
             )} */}
-
-            {true && (
-                <>
-                    <div className="header">
-                        <div className="text">Following</div>
-                        <button className="btn-close" onClick={handleCloseFollowing}>
-                            <CloseIcon size={18} color="black" />
-                        </button>
-                    </div>
-                    <div className="list-user">
-                        <InfiniteScroll
-                            style={{ overflow: 'hidden', overflowY: 'scroll' }}
-                            next={fetchMoreData}
-                            height={338}
-                            hasMore={moreLoading}
-                            dataLength={usersFollowing.data.length}
-                            loader={<LoadingSpecify key={0} size="small" />}
-                        >
-                            {usersFollowing.data.map((user, index) => (
-                                <InfoUser key={index} index={index} user={user}/>
-                            ))}
-                        </InfiniteScroll>
-                    </div>
-                </>
+            {currentUser && (
+                <Modal
+                    content={
+                        <UnfollowPaper
+                            handleCloseUnfollow={handleCloseUnfollow}
+                            handleUnfollowUser={handleUnfollowUser}
+                            user={currentUser}
+                        />
+                    }
+                    zIndexDepth="second"
+                    color="rgba(0, 0, 0, 0.65)"
+                    showModal={showUnfollow}
+                    onCloseModal={handleCloseUnfollow}
+                />
             )}
+            <>
+                <div className="header">
+                    <div className="text">Following</div>
+                    <button className="btn-close" onClick={handleCloseFollowing}>
+                        <CloseIcon size={18} color="black" />
+                    </button>
+                </div>
+                <div className="list-user">
+                    <InfiniteScroll
+                        style={{ overflow: 'hidden', overflowY: 'scroll' }}
+                        next={fetchMoreData}
+                        height={338}
+                        hasMore={moreLoading}
+                        dataLength={usersFollowing.data.length}
+                        loader={<LoadingSpecify key={0} size="small" />}
+                    >
+                        {usersFollowing.data.map((user, index) => (
+                            <InfoUser
+                                handleShowUnfollow={handleShowUnfollow}
+                                handleUnfollowUser={handleUnfollowUser}
+                                handleFollowUser={handleFollowUser}
+                                loadingUnfollow={loadingUnfollow}
+                                loadingFollow={loadingFollow}
+                                key={index}
+                                index={index}
+                                user={user}
+                                currentUser={currentUser}
+                            />
+                        ))}
+                    </InfiniteScroll>
+                </div>
+            </>
         </Container>
     );
 }

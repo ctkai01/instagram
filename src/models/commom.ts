@@ -24,6 +24,12 @@ export interface ResponseAuthPagination<T> {
     statusCode: number;
 }
 
+export interface ResponseNoPagination<T> {
+    data: T[];
+    message: string;
+    statusCode: number;
+}
+
 export interface ResponsePagination<T> {
     data: ListResponsePagination<T>;
     message: string;

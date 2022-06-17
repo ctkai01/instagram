@@ -1,7 +1,7 @@
 import { TypeFollow } from '@constants/type-follow';
 import { PayloadTransformCreatePost } from '@features/UploadPost/Components/UploadImagePost';
 import { Login, SignIn } from '@models/Auth';
-import { ListResponsePagination, ResponsePagination, Tokens } from '@models/commom';
+import { ListResponsePagination, ResponseNoPagination, ResponsePagination, Tokens } from '@models/commom';
 import { Post } from '@models/Post';
 import { FollowUser, User } from '@models/User';
 import { lsRefreshTokenAuth } from '@utils/storage';
@@ -60,5 +60,9 @@ export const Api = {
         return axiosClient.get(url,{ params: {
             page
         } })
+    },
+    usersSimilar: (userName: string): Promise<ResponseNoPagination<User>> => {
+        const url = `api/user/${userName}/similar_accounts`
+        return axiosClient.get(url)
     }
 };

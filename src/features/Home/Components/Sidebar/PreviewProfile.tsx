@@ -1,6 +1,7 @@
-import { Avatar } from '@components/common';
+import { Avatar, Button } from '@components/common';
+import LoadingWhite from '@components/common/LoadingWhite';
 import { CameraIcon } from '@components/Icons';
-import { Button } from '@material-ui/core';
+// import { Button } from '@material-ui/core';
 import { User } from '@models/User';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
@@ -8,10 +9,15 @@ import styled from 'styled-components';
 
 export interface IPreviewProfileProps {
     user: User;
+    index: number;
+    loadingUnfollow: boolean;
+    loadingFollow: boolean;
+    handleFollowUser: (idUser: number) => Promise<void>;
+    handleUnfollowUser: (idUser: number) => Promise<void>;
 }
 
 export function PreviewProfile(props: IPreviewProfileProps) {
-    const { user } = props;
+    const { user, loadingUnfollow, loadingFollow, handleFollowUser, handleUnfollowUser } = props;
 
     return (
         <Container>
@@ -48,21 +54,39 @@ export function PreviewProfile(props: IPreviewProfileProps) {
                         </div>
                     ))
                 ) : (
-                    <div className='none-post-container'>
-                            <div className="camera-icon-container">
-                                <CameraIcon/>
-                            </div>
-                            <div className="text-no-post">
-                            No Posts Yet
-                            </div>
-                            <div className="remind-text">
+                    <div className="none-post-container">
+                        <div className="camera-icon-container">
+                            <CameraIcon />
+                        </div>
+                        <div className="text-no-post">No Posts Yet</div>
+                        <div className="remind-text">
                             {`When ${user.user_name} posts, you'll see their photos and videos here.`}
-                            </div>
+                        </div>
                     </div>
                 )}
             </div>
             <div className="follow-wrapper">
-                <Button className="follow-button">Follow</Button>
+                {user.is_following ? (
+                    <div className="wrapper-message-unfollow">
+                        <Button style="border" className="message-button">
+                            Message
+                        </Button>
+                        <Button
+                            handleOnClick={() => handleUnfollowUser(user.id)}
+                            style="border"
+                            className="unfollow-button"
+                        >
+                            {loadingUnfollow ? <LoadingWhite /> : 'Following'}
+                        </Button>
+                    </div>
+                ) : (
+                    <Button
+                        handleOnClick={() => handleFollowUser(user.id)}
+                        className="follow-button"
+                    >
+                        {loadingFollow ? <LoadingWhite /> : 'Follow'}
+                    </Button>
+                )}
             </div>
         </Container>
     );
@@ -101,7 +125,7 @@ const Container = styled.div`
         justify-content: space-between;
         align-items: center;
         padding: 16px 0;
-        border-bottom: 1px solid rgba(219,219,219,1);
+        border-bottom: 1px solid rgba(219, 219, 219, 1);
         .item-statistical {
             flex: 1;
             display: flex;
@@ -161,7 +185,7 @@ const Container = styled.div`
             }
 
             .remind-text {
-                color:  rgb(142, 142, 142);
+                color: rgb(142, 142, 142);
                 font-size: 12px;
             }
         }
@@ -169,12 +193,28 @@ const Container = styled.div`
 
     .follow-wrapper {
         padding: 16px;
+
+        .wrapper-message-unfollow {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .message-button,
+        .unfollow-button {
+            width: 48%;
+        }
+
         .follow-button {
             background-color: #0095f6;
             height: 30px;
             color: #fff;
             width: 100%;
             text-transform: capitalize;
+
+            &:active {
+                opacity: 0.7;
+            }
         }
     }
 `;

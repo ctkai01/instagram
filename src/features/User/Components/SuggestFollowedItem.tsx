@@ -1,10 +1,19 @@
 import { Avatar, Button } from '@components/common';
+import LoadingWhite from '@components/common/LoadingWhite';
+import { User } from '@models/User';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 export interface ISuggestFollowedItemProps {
-    url: string;
+    user: User;
+    loadingFollow: boolean;
+    idUserClick?: number;
+    loadingUnfollow: boolean;
+    handleCloseUnfollow: () => void;
+    handleShowUnfollow: (user: User) => void;
+    handleUnfollowUser: (idUser: number) => Promise<void>;
+    handleFollowUser: (idUser: number) => Promise<void>;
 }
 
 interface StyledWallProps {
@@ -12,28 +21,47 @@ interface StyledWallProps {
 }
 
 export default function SuggestFollowedItem(props: ISuggestFollowedItemProps) {
-    const { url } = props;
+    const {
+        user,
+        loadingFollow,
+        loadingUnfollow,
+        idUserClick,
+        handleShowUnfollow,
+        handleCloseUnfollow,
+        handleUnfollowUser,
+        handleFollowUser,
+    } = props;
 
     const urlReact = process.env.REACT_APP_URL;
 
     return (
         <Container urlReact={urlReact}>
             <div className="inner-content">
-                <Avatar className="avatar" border="none" size="medium" url={url} />
+                <Avatar className="avatar" border="none" size="medium" url={user.avatar} />
                 <div className="info">
                     <div className="user_name-container">
-                        <Link className="user_name" to="s">
-                            why_not_me
+                        <Link className="user_name" to={`/${user.user_name}`}>
+                            {user.user_name}
                         </Link>
-                        <div className="check-container">
-                            <div className="check-icon"></div>
-                        </div>
+                        {user.is_tick && (
+                            <div className="check-container">
+                                <div className="check-icon"></div>
+                            </div>
+                        )}
                     </div>
                     <div className="full_name_container">
-                        <span className="full_name">Chao ʕ •̀ ω •́ ʔ</span>
+                        <span className="full_name">{user.name}</span>
                     </div>
                 </div>
-                <Button>Follow</Button>
+                {user.is_following ? (
+                    <Button handleOnClick={() => handleShowUnfollow(user)} style="border">
+                        {loadingUnfollow && idUserClick === user.id ? <LoadingWhite /> : 'Following'}
+                    </Button>
+                ) : (
+                    <Button handleOnClick={() => handleFollowUser(user.id)}>
+                        {loadingFollow && idUserClick === user.id ? <LoadingWhite /> : 'Follow'}
+                    </Button>
+                )}
             </div>
         </Container>
     );
@@ -58,16 +86,18 @@ const Container = styled.div<StyledWallProps>`
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            color: #8e8e8e;
         }
     }
 
     .avatar {
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
 
     .user_name-container {
         display: flex;
         margin-bottom: 4px;
+        justify-content: center;
         .user_name {
             color: #262626;
             text-decoration: none;

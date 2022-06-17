@@ -1,49 +1,95 @@
-import { Avatar, Button, TooltipHTML } from '@components/common';
+import { Avatar, Button, Modal, TooltipHTML } from '@components/common';
+import LoadingWhite from '@components/common/LoadingWhite';
 import { TickIcon } from '@components/Icons';
+import { TypeFollow, TypeFollowUser } from '@constants/type-follow';
+import { selectUserAuth } from '@features/Auth/authSlice';
 import { PreviewProfile } from '@features/Home/Components/Sidebar/PreviewProfile';
+import { useFollow } from '@hooks/useFollow';
 import { User } from '@models/User';
+import { useAppSelector } from '@redux/hooks';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import UnfollowPaper from './UnfollowPaper';
 
 export interface IInfoUserProps {
+    currentUser?: User;
     user: User;
     index: number;
+    loadingUnfollow: boolean;
+    loadingFollow: boolean;
+    handleShowUnfollow: (user: User) => void;
+    handleFollowUser: (idUser: number) => Promise<void>;
+    handleUnfollowUser: (idUser: number) => Promise<void>;
 }
 
 export default function InfoUser(props: IInfoUserProps) {
-    const { user, index } = props;
-    return (
-        <Container>
-            <div className="info-container">
-                <TooltipHTML placement="bottom-start" content={<PreviewProfile key={`${index}@`}  user={user}/>}>
-                    <Avatar
-                        className="avatar"
-                        size="small-medium"
-                        // url="https://picsum.photos/200/300?random=3"
-                        url={user.avatar}
-                    />
-                </TooltipHTML>
+    const {
+        user,
+        currentUser,
+        index,
+        loadingFollow,
+        loadingUnfollow,
+        handleFollowUser,
+        handleUnfollowUser,
+        handleShowUnfollow,
+    } = props;
+    // const [userInfo, setUserInfo] = React.us
+    const useAuth = useAppSelector(selectUserAuth);
 
-                <div className="info-name">
-                    <TooltipHTML placement="bottom-start" content={<PreviewProfile key={`${index}@`} user={user}/>}>
-                        <div className="user_name-container">
-                            <Link className="user_name" to={`/${user.user_name}`}>
-                                {user.user_name}
-                            </Link>
-                            <TickIcon />
-                        </div>
+    return (
+        <>
+            <Container>
+                <div className="info-container">
+                    <TooltipHTML
+                        placement="bottom-start"
+                        content={<PreviewProfile index={index} loadingUnfollow={loadingUnfollow} loadingFollow={loadingFollow} handleFollowUser={handleFollowUser} handleUnfollowUser={handleUnfollowUser} key={`${index}@`} user={user} />}
+                    >
+                        <Avatar
+                            className="avatar"
+                            size="small-medium"
+                            // url="https://picsum.photos/200/300?random=3"
+                            url={user.avatar}
+                        />
                     </TooltipHTML>
 
-                    <div className="name-user">{user.name}</div>
+                    <div className="info-name">
+                        <TooltipHTML
+                            placement="bottom-start"
+                            content={<PreviewProfile index={index} loadingUnfollow={loadingUnfollow} loadingFollow={loadingFollow} handleFollowUser={handleFollowUser} handleUnfollowUser={handleUnfollowUser} key={`${index}@`} user={user} />}
+                        >
+                            <div className="user_name-container">
+                                <Link className="user_name" to={`/${user.user_name}`}>
+                                    {user.user_name}
+                                </Link>
+                                <TickIcon />
+                            </div>
+                        </TooltipHTML>
+
+                        <div className="name-user">{user.name}</div>
+                    </div>
                 </div>
-            </div>
-            {user.is_following ? (
-                <Button style="border">Following</Button>
-            ) : (
-                <Button>Follower</Button>
-            )}
-        </Container>
+
+                {!!(useAuth.id !== user.id && user.is_following) && (
+                    <Button handleOnClick={() => handleShowUnfollow(user)} style="border">
+                        {loadingUnfollow && currentUser?.id === user.id ? (
+                            <LoadingWhite />
+                        ) : (
+                            'Following'
+                        )}
+                    </Button>
+                )}
+                {(useAuth.id !== user.id && !user.is_following) && (
+                    <Button handleOnClick={() => handleFollowUser(user.id)}>
+                        {loadingFollow && currentUser?.id === user.id ? (
+                            <LoadingWhite />
+                        ) : (
+                            'Follow'
+                        )}
+                    </Button>
+                )}
+            </Container>
+        </>
     );
 }
 

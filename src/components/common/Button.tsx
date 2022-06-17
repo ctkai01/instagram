@@ -2,15 +2,16 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 export interface IButtonProps {
+    className?: string;
     children?: React.ReactNode;
     style?: 'primary' | 'border';
-    handleOnClick?: () => void
+    handleOnClick?: () => void;
 }
 
 interface ButtonStyledProps {
     color: string;
     backGround: string;
-    border: boolean
+    border: boolean;
 }
 
 const defaultProps: Partial<IButtonProps> = {
@@ -19,22 +20,22 @@ const defaultProps: Partial<IButtonProps> = {
 export function Button(props: IButtonProps) {
     props = { ...defaultProps, ...props };
 
-    const { children, style, handleOnClick } = props;
+    const { children, style, className, handleOnClick } = props;
 
     let color = '#fff';
     let backGround = '#000';
-    let border = false
+    let border = false;
     if (style === 'primary') {
         color = '#fff';
         backGround = '#0095f6';
     } else if ('border') {
         color = '#262626';
         backGround = '#fff';
-        border = true
+        border = true;
     }
 
     return (
-        <Container onClick={handleOnClick} backGround={backGround} color={color} border={border}>
+        <Container className={className} onClick={handleOnClick} backGround={backGround} color={color} border={border}>
             {children}
         </Container>
     );
@@ -44,7 +45,7 @@ const Container = styled.button<ButtonStyledProps>`
     color: ${(props) => `${props.color}`};
     background-color: ${(props) => `${props.backGround}`};
     font-weight: 600;
-    border: ${(props) => `${props.border ? '1px solid rgb(219, 219, 219)' : 'none'}`};;
+    border: ${(props) => `${props.border ? '1px solid rgb(219, 219, 219)' : 'none'}`};
     border-radius: 4px;
     padding: 5px 9px;
     font-size: 14px;
