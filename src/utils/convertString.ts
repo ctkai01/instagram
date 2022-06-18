@@ -1,4 +1,4 @@
-export const convertStringUsernameRelate = (relateUserName: string[] | []): string => {
+export const convertStringUsernameRelate = (relateUserName: string[]): string => {
     let nameUserRelate = '';
 
     if (relateUserName.length === 1 || relateUserName.length === 2) {

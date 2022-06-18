@@ -218,6 +218,8 @@ export function Wall(props: IWallProps) {
         // }
 
         const fetchUser = async () => {
+            setShowFollower(false)
+            setShowFollowing(false)
             try {
                 const [responseUser, usersSimilar] = await Promise.all([
                     Api.getUserByUserName(user_name),
@@ -228,7 +230,7 @@ export function Wall(props: IWallProps) {
                 setUser(responseUser.data);
                 setUsersSimilar(usersSimilar.data)
                 setPostUser(responseUser.data.posts);
-
+               
                 
                 setFoundUser(true);
                 // const userList =

@@ -1,48 +1,47 @@
 import { Avatar, TooltipHTML } from '@components/common';
+import { User } from '@models/User';
 import { convertStringUsernameRelate } from '@utils/index';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { PreviewProfile } from './PreviewProfile';
-interface SuggestUser {
-    url: string;
-    username: string;
-}
 export interface ISuggestItemProps {
-    account: SuggestUser;
-    relateUserName: string[] | [];
+    user: User;
+    index: number;
 }
 
 export function SuggestItem(props: ISuggestItemProps) {
-    const { account, relateUserName } = props;
-    const nameUserRelate = convertStringUsernameRelate(relateUserName);
+    const { user, index } = props;
+
+    const userRelated: string[] = user.followed_by ? user.followed_by : [];
+    const nameUserRelate = convertStringUsernameRelate(userRelated);
 
     return (
         <Container>
             <div className="account-wrapper">
-                {/* <TooltipHTML placement="bottom-start" content={<PreviewProfile />}>
+                {/* <TooltipHTML placement="bottom-start" content={<PreviewProfile index={index} />}> */}
                     <div>
                         <Avatar
                             className="avatar-account"
                             border="none"
                             size="small-medium"
-                            url={account.url}
+                            url={user.avatar}
                         />
                     </div>
-                </TooltipHTML>
+                {/* </TooltipHTML> */}
                 <div className="name-account-wrapper">
-                    <TooltipHTML placement="bottom-start" content={<PreviewProfile />}>
-                        <Link to="username" className="username">
-                            {account.username}
+                    {/* <TooltipHTML placement="bottom-start" content={<PreviewProfile index={index} />}> */}
+                        <Link to={`/${user.user_name}`} className="username">
+                            {user.user_name}
                         </Link>
-                    </TooltipHTML>
+                    {/* </TooltipHTML> */}
 
                     <div className="relate-user">
-                        {relateUserName.length > 0 && 'Followed by'}
+                        {userRelated.length > 0 && 'Followed by'}
                         &nbsp;
-                        {nameUserRelate}
+                        {nameUserRelate ? nameUserRelate :  'Popular'}
                     </div>
-                </div> */}
+                </div>
             </div>
             <div className="follow-button">Follow</div>
         </Container>
@@ -89,6 +88,7 @@ const Container = styled.div`
             overflow: hidden;
             white-space: nowrap;
             max-width: 210px;
+            font-size: 12px;
         }
     }
 

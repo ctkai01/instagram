@@ -33,23 +33,24 @@ export default function FormRegister(props: IFormRegisterProps) {
 
     const { errors, dirtyFields } = form.formState
     useEffect(() => {
-        if (
-            !Object.keys(errors).length &&
-            dirtyFields.password &&
-            dirtyFields.account &&
-            dirtyFields.full_name &&
-            dirtyFields.user_name &&
-            form.getValues('password').length >=8 &&
-            form.getValues('account').length > 1 &&
-            form.getValues('full_name').length > 1 &&
-            form.getValues('user_name').length > 1
-        ) {
-            setActiveButtonRegister(true);
-        } else {
-            setActiveButtonRegister(false);
-        }
+        // console.log(1)
+        // if (
+        //     !Object.keys(errors).length &&
+        //     dirtyFields.password &&
+        //     dirtyFields.account &&
+        //     dirtyFields.full_name &&
+        //     dirtyFields.user_name &&
+        //     form.getValues('password').length >=8 &&
+        //     form.getValues('account').length > 1 &&
+        //     form.getValues('full_name').length >= 1 &&
+        //     form.getValues('user_name').length > 1
+        // ) {
+        //     setActiveButtonRegister(true);
+        // } else {
+        //     setActiveButtonRegister(false);
+        // }
     }, [form, dirtyFields, errors]); 
-
+    console.log(errors)
     return (
         <Container elevation={0}>
             <InstagramTitle />
@@ -92,9 +93,10 @@ export default function FormRegister(props: IFormRegisterProps) {
                     labelInput="Password"
                 />
                 <button
-                    className={`buttonRegister ${activeButtonRegister ? 'active' : ''}`}
+                    className={`buttonRegister active`}
+                    // className={`buttonRegister ${activeButtonRegister ? 'active' : ''}`}
                     type="submit"
-                    disabled={!activeButtonRegister}
+                    // disabled={!activeButtonRegister}
                 >
                     Sign up
                 </button>

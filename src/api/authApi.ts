@@ -64,5 +64,9 @@ export const Api = {
     usersSimilar: (userName: string): Promise<ResponseNoPagination<User>> => {
         const url = `api/user/${userName}/similar_accounts`
         return axiosClient.get(url)
+    },
+    usersSuggested: (count: number): Promise<ResponseNoPagination<User>> => {
+        const url = `api/user/suggest-for-you/?count=${count}`
+        return axiosClient.get(url)
     }
 };

@@ -78,8 +78,9 @@ export default function FollowerPaper(props: IFollowerPaperProps) {
         await fetchUnFollowUser(idUser);
     };
 
-    const handleFollowUser = async (idUser: number) => {
-        await fetchFollowUser(idUser);
+    const handleFollowUser = async (user: User) => {
+        setCurrentUser(user)
+        await fetchFollowUser(user.id);
     };
     return (
         <Container>

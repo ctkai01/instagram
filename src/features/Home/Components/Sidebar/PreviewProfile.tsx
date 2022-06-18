@@ -12,7 +12,7 @@ export interface IPreviewProfileProps {
     index: number;
     loadingUnfollow: boolean;
     loadingFollow: boolean;
-    handleFollowUser: (idUser: number) => Promise<void>;
+    handleFollowUser: (user: User) => Promise<void>;
     handleUnfollowUser: (idUser: number) => Promise<void>;
 }
 
@@ -81,7 +81,7 @@ export function PreviewProfile(props: IPreviewProfileProps) {
                     </div>
                 ) : (
                     <Button
-                        handleOnClick={() => handleFollowUser(user.id)}
+                        handleOnClick={() => handleFollowUser(user)}
                         className="follow-button"
                     >
                         {loadingFollow ? <LoadingWhite /> : 'Follow'}

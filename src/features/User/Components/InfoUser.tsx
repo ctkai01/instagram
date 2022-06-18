@@ -19,7 +19,7 @@ export interface IInfoUserProps {
     loadingUnfollow: boolean;
     loadingFollow: boolean;
     handleShowUnfollow: (user: User) => void;
-    handleFollowUser: (idUser: number) => Promise<void>;
+    handleFollowUser: (user: User) => Promise<void>;
     handleUnfollowUser: (idUser: number) => Promise<void>;
 }
 
@@ -80,7 +80,7 @@ export default function InfoUser(props: IInfoUserProps) {
                     </Button>
                 )}
                 {(useAuth.id !== user.id && !user.is_following) && (
-                    <Button handleOnClick={() => handleFollowUser(user.id)}>
+                    <Button handleOnClick={() => handleFollowUser(user)}>
                         {loadingFollow && currentUser?.id === user.id ? (
                             <LoadingWhite />
                         ) : (

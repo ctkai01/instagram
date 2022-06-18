@@ -1,10 +1,14 @@
+import { User } from '@models/User';
 import * as React from 'react';
 import styled from 'styled-components';
 import { SuggestItem } from './SuggestItem';
 
-export interface ISuggestForYouProps {}
+export interface ISuggestForYouProps {
+    usersSuggest: User[];
+}
 
 export function SuggestForYou(props: ISuggestForYouProps) {
+    const { usersSuggest } = props;
     const suggestList = [
         {
             account: {
@@ -49,8 +53,12 @@ export function SuggestForYou(props: ISuggestForYouProps) {
                 <div className="suggest-title">Suggestions For You</div>
                 <div className="see-all-text">See All</div>
             </div>
-            {suggestList.map((suggest) => (
-                <SuggestItem account={suggest.account} relateUserName={suggest.relateUserName} />
+            {usersSuggest.map((user, index) => (
+                <SuggestItem
+                    key={index}
+                    index={index}
+                    user={user}
+                />
             ))}
         </Container>
     );
