@@ -1,3 +1,4 @@
+import { Status } from '@constants/status';
 import { convertISOTime, convertTime } from '@utils/index';
 import * as React from 'react';
 import Moment from 'react-moment';
@@ -9,16 +10,20 @@ export interface IContentPostProps {
     content?: string;
     author: string;
     time: string;
+    countLike: number;
+    isLike: Status;
+    loadingUnLikePost: boolean;
+    loadingLikePost: boolean;
 }
 
 export function ContentPost(props: IContentPostProps) {
     const [showMoreButton, setShowMoreButton] = React.useState<boolean>(true);
-    const { content, time, author } = props;
+    const { content, time, author, countLike, isLike, loadingUnLikePost, loadingLikePost } = props;
     // const content = 'Nguyễn Thúc Thuỳ Tiên em nghe nỗi lòng chị không<br>CỐ LÊN 🇻🇳🇻🇳🇻🇳💪🏽💪🏽💪🏽💪🏽';
     // const content = '';
     // const time = '2022-01-18 09:37:19';
     const timeCreated = convertISOTime(time);
-    console.log(timeCreated, time);
+    // console.log(timeCreated, time);
     let contentArr;
     let contentAuthor;
     let allContent;
@@ -61,7 +66,15 @@ export function ContentPost(props: IContentPostProps) {
     return (
         <Container>
             <div className="content-wrapper">
-                <div className="count-like">38, 467 likes</div>
+                {!!((loadingUnLikePost || loadingLikePost) ? loadingUnLikePost ? countLike - 1 : countLike +1 : countLike) && <div className="count-like">
+                {(loadingUnLikePost || loadingLikePost) ? 
+                loadingUnLikePost ? `${countLike - 1} ${countLike - 1 > 0 ? 'likes' : 'like'}` : `${countLike + 1} ${countLike + 1 > 0 ? 'likes' : 'like'}`
+                : 
+                `${countLike} ${countLike > 0 ? 'likes' : 'like'}`
+                }
+                    {/* {countLike} likes */}
+                
+                </div>}
                 <div className="title-wrapper">
                     <span className="author-username">
                         <Link to={`/${author}`}>{content && author}</Link>
@@ -85,11 +98,11 @@ export function ContentPost(props: IContentPostProps) {
                     <span>View all 216 comments</span>
                 </div>
                 <div className="time-publish-wrapper">
-                    <Link to="time" className="time-text">
+                    <div className="time-text">
                         <Moment format={format} fromNow={fromNow}>
                             {timeCreated}
                         </Moment>
-                    </Link>
+                    </div>
                 </div>
             </div>
             <InputPost />
@@ -150,5 +163,6 @@ const Container = styled.div`
         letter-spacing: 0.2px;
         color: #8e8e8e;
         text-decoration: none;
+        text-transform: uppercase;
     }
 `;

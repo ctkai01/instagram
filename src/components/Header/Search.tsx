@@ -1,3 +1,5 @@
+import LoadingWhite from '@components/common/LoadingWhite';
+import { User } from '@models/User';
 import * as React from 'react';
 import styled from 'styled-components';
 import { CloseCircleIcon, SearchIcon } from '../Icons';
@@ -8,6 +10,8 @@ export interface ISearchProps {
     showRecentSearch: boolean;
     valueSearch: string;
     selectInput: boolean;
+    isLoading: boolean;
+    usersSearch: User[];
     onChangeSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleCloseSearch: () => void;
     handleShowSearchRecent: () => void;
@@ -20,6 +24,8 @@ export function Search(props: ISearchProps) {
         showRecentSearch,
         valueSearch,
         selectInput,
+        isLoading,
+        usersSearch,
         onChangeSearch,
         handleShowSearchRecent,
         handleCloseSearch,
@@ -48,16 +54,21 @@ export function Search(props: ISearchProps) {
                     style={{ color: `${showRecentSearch ? '#8e8e8e' : '#efefef'}` }}
                 />
                 <div className="input-text">
-                    {!showRecentSearch ? <SearchIcon ariaLabel='Search' className="iconSearch" /> : ''}
+                    {!showRecentSearch ? (
+                        <SearchIcon ariaLabel="Search" className="iconSearch" />
+                    ) : (
+                        ''
+                    )}
                     {!showRecentSearch ? <span>{valueSearch ? valueSearch : 'Search'}</span> : ''}
                 </div>
             </Container>
             {showRecentSearch ? (
                 <>
                     <div className="box-close" onClick={handleCloseSearch}>
-                        <CloseCircleIcon className="icon-close" />
+                        {isLoading ? <LoadingWhite/> : <CloseCircleIcon className="icon-close" />}
                     </div>
                     <ExpandSearch
+                        usersSearch={usersSearch}
                         showRecentSearch={showRecentSearch}
                         handleOutsideSearch={handleOutsideSearch}
                     />
@@ -83,7 +94,7 @@ const Wrapper = styled.div`
         position: absolute;
         cursor: pointer;
         right: 2px;
-        z-index: 999;
+        z-index: 10002;
 
         top: 50%;
         transform: translateY(-50%);
@@ -97,7 +108,7 @@ const Container = styled.div`
     background-color: #efefef;
     border-radius: 8px;
     position: relative;
-    /* z-index: 99; */
+    z-index: 10002;
 
     .iconSearch {
         margin-right: 10px;

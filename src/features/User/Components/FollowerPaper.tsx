@@ -89,7 +89,6 @@ export default function FollowerPaper(props: IFollowerPaperProps) {
                     <LoadingSpecify />
                 </div>
             )} */}
-            {true && (
                 <>
                     <div className="header">
                         <div className="text">Follower</div>
@@ -122,7 +121,6 @@ export default function FollowerPaper(props: IFollowerPaperProps) {
                         </InfiniteScroll>
                     </div>
                 </>
-            )}
         </Container>
     );
 }

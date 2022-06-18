@@ -4,12 +4,14 @@ import styled from 'styled-components';
 
 export interface IActionPostProps {
     className?: string;
+    handleShowActionModal: () => void;
+
 }
 
 export function ActionPost (props: IActionPostProps) {
-    const { className } = props
+    const { className, handleShowActionModal } = props
   return (
-    <Container className={className}>
+    <Container onClick={handleShowActionModal} className={className}>
         <ThereDotIcon ariaLabel='More options'/>
     </Container>
   );

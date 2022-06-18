@@ -106,7 +106,6 @@ export default function PhotoList(props: IPhotoListProps) {
         })
     }
 
-    console.log(showTags)
     return (
         <Container urlReact={urlReact} showButton={showButton}>
             <Swiper

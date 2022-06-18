@@ -1,6 +1,7 @@
 import { Api } from '@api/authApi';
 import { Status } from '@constants/status';
 import { TypeFollow } from '@constants/type-follow';
+import { Post } from '@models/Post';
 import { User } from '@models/User';
 import { useState, useEffect } from 'react';
 
@@ -9,24 +10,18 @@ interface IuseReactPostProps {
 }
 export const useReactPost = (
     props: IuseReactPostProps
-): [User | undefined, boolean, (idUser: number) => Promise<void>] => {
+): [Post | undefined, boolean, (idPost: number) => Promise<void>] => {
     const { type } = props;
     const [loading, setLoading] = useState(false);
-    const [data, setData] = useState<User>();
+    const [data, setData] = useState<Post>();
 
-    const fetchFollowUser = async (idUser: number) => {
+    const fetchReactPost = async (idPost: number) => {
         setLoading(true);
-        // const dataUser = await Api.followUser(idUser, {
-        //     type,
-        // });
-        // console.log('Data', dataUser.data)
-        // setData(dataUser.data);
+        const dataUser = await Api.reactPost(idPost, type);
+        setData(dataUser.data);
         setLoading(false);
     };
-    // useEffect(() => {
-    //     fetchFollowUser();
-    // }, []);
-    return [data, loading, fetchFollowUser];
+
+    return [data, loading, fetchReactPost];
 };
 
-//  useFollow

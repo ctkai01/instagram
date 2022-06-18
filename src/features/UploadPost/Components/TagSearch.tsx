@@ -1,9 +1,8 @@
 import { Api } from '@api/authApi';
-import Loading from '@components/common/Loading';
 import LoadingSpecify from '@components/common/LoadingSpecify';
 import SearchItem from '@components/common/SearchItem';
 import { Status } from '@constants/status';
-import { debounce, StringIterator } from 'lodash';
+import { debounce } from 'lodash';
 import * as React from 'react';
 import styled from 'styled-components';
 import { ActiveSearchUser, TagUserPost } from './EditPost';

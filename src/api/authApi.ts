@@ -1,3 +1,4 @@
+import { Status } from '@constants/status';
 import { TypeFollow } from '@constants/type-follow';
 import { PayloadTransformCreatePost } from '@features/UploadPost/Components/UploadImagePost';
 import { Login, SignIn } from '@models/Auth';
@@ -41,6 +42,10 @@ export const Api = {
         const url = `api/user?search=${search}`;
         return axiosClient.get(url)
     },
+    searchUserHome: (search: string) => {
+        const url = `api/user/home?search=${search}`;
+        return axiosClient.get(url)
+    },
     getUserByUserName: (userName: string) => {
         const url = `api/user/${userName}`
         return axiosClient.get(url)
@@ -72,5 +77,9 @@ export const Api = {
     checkHasFollowing: (): Promise<ResponseNoPaginationNoList<boolean>> => {
         const url = `api/user/check-has-following`
         return axiosClient.get(url)
+    },
+    reactPost: (idPost: number, type: Status): Promise<ResponseNoPaginationNoList<Post>> => {
+        const url = `api/posts/${idPost}/react`
+        return axiosClient.post(url, { type })
     }
 };

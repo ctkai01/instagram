@@ -7,6 +7,8 @@ import { useAppDispatch, useAppSelector } from '@redux/hooks';
 import * as React from 'react';
 import styled from 'styled-components';
 import { Search } from './Search';
+import { debounce } from 'lodash';
+import { Api } from '@api/authApi';
 
 export interface IHeaderProps {
 }
@@ -16,7 +18,9 @@ export function Header(props: IHeaderProps) {
     const [valueSearch, setValueSearch] = React.useState<string>('');
     const [selectInput, setSelectInput] = React.useState<boolean>(false);
     const userAuth = useAppSelector(selectUserAuth);
-
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [usersSearch, setUsersSearch] = React.useState<User[]>([]);
+    
     const dispatch = useAppDispatch();
 
     const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,11 +28,27 @@ export function Header(props: IHeaderProps) {
         setSelectInput(false);
     };
 
+    const searchUserHome = async (value: string) => {
+        setIsLoading(true);
+        const response = await Api.searchUserHome(value);
+        setIsLoading(false);
+        console.log(response)
+        setUsersSearch(response.data);
+    };
+
+    const debounceSearch = React.useCallback(debounce(searchUserHome, 1000), []);
+
+    React.useEffect(() => {
+        debounceSearch(valueSearch);
+    }, [valueSearch]);
+
+
     const handleLogout = () => {
         dispatch(authActions.logout());
     };
 
     const handleCloseSearch = () => {
+        setUsersSearch([])
         setShowRecentSearch(false);
         setSelectInput(false);
         setValueSearch('');
@@ -50,6 +70,8 @@ export function Header(props: IHeaderProps) {
         }
     };
 
+    
+
     return (
         <Container>
             <LayoutScreen className="content-header">
@@ -58,8 +80,10 @@ export function Header(props: IHeaderProps) {
                     className="search-bar"
                     onChangeSearch={handleChangeSearch}
                     showRecentSearch={showRecentSearch}
+                    usersSearch={usersSearch}
                     valueSearch={valueSearch}
                     selectInput={selectInput}
+                    isLoading={isLoading}
                     handleCloseSearch={handleCloseSearch}
                     handleOutsideSearch={handleOutsideSearch}
                     handleShowSearchRecent={handleShowSearchRecent}

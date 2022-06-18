@@ -1,8 +1,20 @@
 import { Avatar, Modal } from '@components/common';
+import LoadingWhite from '@components/common/LoadingWhite';
 import { ThereDotIcon, TickSmallIcon } from '@components/Icons';
+import { Status } from '@constants/status';
+import { TypeFollow } from '@constants/type-follow';
+import { selectUserAuth } from '@features/Auth/authSlice';
+import UnfollowPaper from '@features/User/Components/UnfollowPaper';
+import { useFollow } from '@hooks/useFollow';
 import { Post } from '@models/Post';
+import { User } from '@models/User';
 import { Avatar as AvatarMui, AvatarGroup, Button, Tooltip } from '@mui/material';
+import { useAppSelector } from '@redux/hooks';
+import { convertISOTime, convertTime } from '@utils/time';
+import { userInfo } from 'os';
 import * as React from 'react';
+import Moment from 'react-moment';
+import { Link } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
 import ActionPostDetail from './ActionPostDetail';
 import { ActionReactPost } from './ActionReactPost';
@@ -11,22 +23,83 @@ import InputPost from './InputPost';
 import PhotoListDetail from './PhotoListDetail';
 
 export interface IPostContentModalProps {
+    loadingUnLikePost: boolean;
+    loadingLikePost: boolean;
+    isLike: Status;
     post: Post;
+    fetchLikePost: (idPost: number) => Promise<void>;
+    fetchUnLikePost: (idPost: number) => Promise<void>;
+    handleChangeIsLike: (type: Status) => void;
+    handleFollowUserPost: (post: Post, userChange: User) => void;
 }
 
 const PostContentModal = (props: IPostContentModalProps) => {
-    const { post } = props;
+    const {
+        post,
+        loadingUnLikePost,
+        isLike,
+        loadingLikePost,
+        handleFollowUserPost,
+        handleChangeIsLike,
+        fetchLikePost,
+        fetchUnLikePost,
+    } = props;
     const [showAction, setShowAction] = React.useState(false);
 
-    const handleShowActionModal = () => {
+    const [dataUnfollow, loadingUnfollow, fetchUnFollowUser] = useFollow({
+        type: TypeFollow.UNFOLLOW,
+    });
 
+    const [dataFollow, loadingFollow, fetchFollowUser] = useFollow({
+        type: TypeFollow.FOLLOW,
+    });
+
+    const [showUnfollow, setShowUnfollow] = React.useState<boolean>(false);
+
+    React.useEffect(() => {
+        if (dataFollow) {
+            handleFollowUserPost(post, dataFollow);
+        }
+    }, [dataFollow]);
+
+    const userAuth = useAppSelector(selectUserAuth);
+
+    React.useEffect(() => {
+        if (dataUnfollow) {
+            handleFollowUserPost(post, dataUnfollow);
+        }
+    }, [dataUnfollow]);
+
+    const countLike = post.like_count;
+    const handleShowActionModal = () => {
         setShowAction(true);
     };
 
     const handleCloseActionModal = () => {
         setShowAction(false);
     };
-    console.log(showAction);
+
+    const handleUnfollowUser = async (idUser: number) => {
+        handleCloseUnfollow();
+        await fetchUnFollowUser(idUser);
+    };
+
+    const handleCloseUnfollow = () => {
+        setShowUnfollow(false);
+        setShowAction(false);
+    };
+
+    const handleFollowUser = async (user: User) => {
+        await fetchFollowUser(user.id);
+    };
+
+    const handleShowUnfollow = () => {
+        setShowUnfollow(true);
+    };
+    // console.log(showAction);
+    const timeCreated = convertISOTime(post.created_at);
+    const { format, fromNow } = convertTime(post.created_at, 7);
+
     return (
         <>
             <Container>
@@ -36,18 +109,32 @@ const PostContentModal = (props: IPostContentModalProps) => {
                 <div className="content-wrapper">
                     <div className="header-wrapper">
                         <div className="header-content">
-                            <Avatar
+                            <Avatar 
                                 size="small-medium"
-                                url="http://localhost:5000/uploads/posts/4b25b28a-953b-4ac6-aac9-35450d7f4fe4.png"
+                                url={post.created_by.avatar}
                             />
-                            <div className="user_name">
-                                ctkaino1
-                                {true && <TickSmallIcon className="tick" />}
+                            <div className="user_name_wrapper">
+                                 <Link className='user_name' to={`/${post.created_by.user_name}`}>{post.created_by.user_name}</Link>
+
+                                {post.created_by.is_tick && <TickSmallIcon className="tick" />}
                             </div>
-                            <div className="following-text-wrapper">
-                                <span></span>
-                                Following
-                            </div>
+                            {userAuth.id !== post.created_by.id && (
+                                <div className="following-text-wrapper">
+                                    <span></span>
+                                    {post.created_by.is_following ? (
+                                        <div>
+                                            {loadingUnfollow ? <LoadingWhite /> : 'Following'}
+                                        </div>
+                                    ) : (
+                                        <div
+                                            onClick={() => handleFollowUser(post.created_by)}
+                                            style={{ cursor: 'pointer', color: '#0095f6' }}
+                                        >
+                                            {loadingFollow ? <LoadingWhite /> : 'Follow'}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                         <div className="action-wrapper" onClick={handleShowActionModal}>
                             <ThereDotIcon />
@@ -63,7 +150,17 @@ const PostContentModal = (props: IPostContentModalProps) => {
                             <CommentList />
                         </div>
                         <div className="action-post-wrapper">
-                            <ActionReactPost post={post} activeShowDetailPost={false} />
+                            <ActionReactPost
+                                handleChangeIsLike={handleChangeIsLike}
+                                fetchUnLikePost={fetchUnLikePost}
+                                fetchLikePost={fetchLikePost}
+                                handleFollowUserPost={handleFollowUserPost}
+                                isLike={isLike}
+                                loadingLikePost={loadingLikePost}
+                                loadingUnLikePost={loadingUnLikePost}
+                                post={post}
+                                activeShowDetailPost={false}
+                            />
                         </div>
                         <div className="like-wrapper">
                             <div className="list-avatar">
@@ -82,9 +179,33 @@ const PostContentModal = (props: IPostContentModalProps) => {
                                     />
                                 </AvatarGroup>
                             </div>
-                            <div className="text-like">Liked by may__lily and 31,612 others</div>
+                            {/* <div className='text-like'> */}
+                            {!!(loadingUnLikePost || loadingLikePost
+                                ? loadingUnLikePost
+                                    ? countLike - 1
+                                    : countLike + 1
+                                : countLike) && (
+                                <div className="text-like">
+                                    {loadingUnLikePost || loadingLikePost
+                                        ? loadingUnLikePost
+                                            ? `${countLike - 1} ${
+                                                  countLike - 1 > 0 ? 'likes' : 'like'
+                                              }`
+                                            : `${countLike + 1} ${
+                                                  countLike + 1 > 0 ? 'likes' : 'like'
+                                              }`
+                                        : `${countLike} ${countLike > 0 ? 'likes' : 'like'}`}
+                                    {/* {countLike} likes */}
+                                </div>
+                            )}
+                            {/* </div> */}
+                            {/* <div className="text-like">Liked by may__lily and 31,612 others</div> */}
                         </div>
-                        <div className="time-wrapper">14 HOURS AGO</div>
+                        <div className="time-wrapper">
+                            <Moment format={format} fromNow={fromNow}>
+                                {timeCreated}
+                            </Moment>
+                        </div>
                         <div className="input-wrapper">
                             <InputPost />
                         </div>
@@ -92,11 +213,30 @@ const PostContentModal = (props: IPostContentModalProps) => {
                 </div>
             </Container>
             <Modal
-                content={<ActionPostDetail handleCloseActionModal={handleCloseActionModal} />}
+                content={
+                    <ActionPostDetail
+                        userCreate={post.created_by}
+                        handleShowUnfollow={handleShowUnfollow}
+                        handleCloseActionModal={handleCloseActionModal}
+                    />
+                }
                 color="rgba(0, 0, 0, 0.65)"
                 showModal={showAction}
-                zIndexDepth='second'
+                zIndexDepth="second"
                 onCloseModal={handleCloseActionModal}
+            />
+            <Modal
+                content={
+                    <UnfollowPaper
+                        handleCloseUnfollow={handleCloseUnfollow}
+                        handleUnfollowUser={handleUnfollowUser}
+                        user={post.created_by}
+                    />
+                }
+                zIndexDepth="second"
+                color="rgba(0, 0, 0, 0.65)"
+                showModal={showUnfollow}
+                onCloseModal={handleCloseUnfollow}
             />
             <GlobalStyle />
         </>
@@ -125,6 +265,11 @@ const Container = styled.div`
         order: 6;
     }
 
+    .text-like {
+        color: #262626;
+        font-weight: 600;
+    }
+
     .action-post-wrapper {
         order: 3;
         border-top: 1px solid rgb(239, 239, 239);
@@ -136,6 +281,7 @@ const Container = styled.div`
         letter-spacing: 0.2px;
         font-size: 10px;
         color: rgb(142, 142, 142);
+        text-transform: uppercase;
     }
 
     .like-wrapper {
@@ -164,12 +310,18 @@ const Container = styled.div`
             align-items: center;
             padding: 10px 4px 10px 16px;
             flex: 1;
-            .user_name {
+            .user_name_wrapper {
                 margin-left: 14px;
                 font-weight: 600;
                 color: #262626;
                 display: flex;
                 align-items: center;
+               
+            }
+
+            .user_name {
+                text-decoration: none;
+                color: #262626;
             }
 
             .tick {

@@ -48,7 +48,7 @@ export default function GalleryPost(props: IGalleryPostProps) {
                 >
                     {posts?.map((post, index) => (
                         <SwiperSlide key={index}>
-                            {currentIndexShow === index && <PostContentModal post={post} />}
+                            {/* {currentIndexShow === index && <PostContentModal post={post} />} */}
                         </SwiperSlide>
                     ))}
                 </Swiper>

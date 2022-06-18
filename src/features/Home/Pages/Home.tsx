@@ -1,6 +1,6 @@
 import { Api, AuthApi } from '@api/authApi';
 import { selectUserAuth } from '@features/Auth/authSlice';
-import { postActions, selectPosts } from '@features/UploadPost/postSlice';
+import { postActions, selectPosts, UserPost } from '@features/UploadPost/postSlice';
 import { Grid } from '@material-ui/core';
 import { Post } from '@models/Post';
 import { User } from '@models/User';
@@ -64,6 +64,19 @@ export function Home(props: IHomeProps) {
             }
         })
     }
+
+    const handleChangeReactPost = (post: Post) => {
+        dispatch(postActions.changeDataPost(post));
+    }
+
+    const handleFollowUserPost = (post: Post, userChange: User) => {
+        const data: UserPost = {
+            post,
+            user: userChange
+        }
+        dispatch(postActions.changeDataUserPost(data));
+    }
+
     return (
         <Grid
             container
@@ -74,7 +87,7 @@ export function Home(props: IHomeProps) {
                 <>
                     <Grid item lg={8}>
                         <StoriesList />
-                        <PostList posts={posts} />
+                        <PostList handleChangeReactPost={handleChangeReactPost} handleFollowUserPost={handleFollowUserPost} posts={posts} />
                     </Grid>
                     <Grid item lg={4} style={{ position: 'fixed', right: '20.1%' }}>
                         <SwitchAccount />

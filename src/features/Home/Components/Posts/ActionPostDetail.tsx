@@ -1,14 +1,17 @@
+import { User } from '@models/User';
 import * as React from 'react';
 import styled from 'styled-components';
 
 export interface IActionPostDetailProps {
+    userCreate: User;
     handleCloseActionModal: () => void;
+    handleShowUnfollow: () => void;
 }
 
 export default function ActionPostDetail(props: IActionPostDetailProps) {
-    const { handleCloseActionModal } = props;
+    const { userCreate, handleCloseActionModal, handleShowUnfollow } = props;
     const [isBumpContent, setIsBumpContent] = React.useState<boolean>(false);
-    console.log('Fukk you')
+    console.log('Fukk you');
     React.useEffect(() => {
         if (!isBumpContent) {
             setIsBumpContent(true);
@@ -25,7 +28,8 @@ export default function ActionPostDetail(props: IActionPostDetailProps) {
 
     return (
         <Container className={isBumpContent ? 'bump' : 'heheh'}>
-            <div className="action-item red">Unfollow</div>
+            {userCreate.is_following && <div onClick={handleShowUnfollow} className="action-item red">Unfollow</div>}
+
             <div className="action-item">Go to post</div>
             <div className="action-item">Copy link</div>
             <div className="action-item" onClick={handleCloseActionModal}>

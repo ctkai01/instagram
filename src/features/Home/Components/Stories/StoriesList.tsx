@@ -46,7 +46,7 @@ export default function StoriesList(props: IStoriesListProps) {
                     allowTouchMove={false}
                 >
                     {listStories.map((story, index) => (
-                        <SwiperSlide>
+                        <SwiperSlide key={index}>
                             <StoriesItem
                                 key={index}
                                 username={story}

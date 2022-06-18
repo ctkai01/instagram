@@ -51,7 +51,6 @@ export function ModalPost(props: IModalPostProps) {
     const handleCloseModalDiscard = () => {
         setShowModalDiscard(false);
     };
-    console.log(step, 'step');
     return (
         <>
             <Modal
