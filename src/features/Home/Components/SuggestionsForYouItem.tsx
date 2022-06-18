@@ -1,4 +1,5 @@
 import { Avatar, Button, TooltipHTML } from '@components/common';
+import LoadingWhite from '@components/common/LoadingWhite';
 import { User } from '@models/User';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
@@ -8,21 +9,32 @@ import { PreviewProfile } from './Sidebar/PreviewProfile';
 export interface ISuggestionsForYouItemProps {
     user: User;
     index: number;
+    currentUser?: User;
     loadingUnfollow: boolean;
     loadingFollow: boolean;
     handleFollowUser: (user: User) => Promise<void>;
+    handleShowUnfollow: (user: User) => void;
     handleUnfollowUser: (idUser: number) => Promise<void>;
 }
 
 export default function SuggestionsForYouItem(props: ISuggestionsForYouItemProps) {
-    const { user, index, loadingUnfollow, loadingFollow, handleUnfollowUser, handleFollowUser } =
-        props;
+    const {
+        user,
+        index,
+        currentUser,
+        loadingUnfollow,
+        loadingFollow,
+        handleShowUnfollow,
+        handleUnfollowUser,
+        handleFollowUser,
+    } = props;
     return (
         <Container>
             <TooltipHTML
                 placement="bottom-start"
                 content={
                     <PreviewProfile
+                        currentUser={currentUser}
                         handleUnfollowUser={handleUnfollowUser}
                         handleFollowUser={handleFollowUser}
                         loadingFollow={loadingFollow}
@@ -41,6 +53,7 @@ export default function SuggestionsForYouItem(props: ISuggestionsForYouItemProps
                     placement="bottom-start"
                     content={
                         <PreviewProfile
+                            currentUser={currentUser}
                             handleUnfollowUser={handleUnfollowUser}
                             handleFollowUser={handleFollowUser}
                             loadingFollow={loadingFollow}
@@ -58,14 +71,27 @@ export default function SuggestionsForYouItem(props: ISuggestionsForYouItemProps
                 <div className="full_name">{user.name}</div>
                 <div className="related">Popular</div>
             </div>
-            <Button className="btn-follow">Follow</Button>
+
+            {user.is_following ? (
+                <Button handleOnClick={() => handleShowUnfollow(user)} style="border" className="btn-unfollow">
+                    {loadingUnfollow && currentUser?.id === user.id ? (
+                        <LoadingWhite />
+                    ) : (
+                        'Following'
+                    )}
+                </Button>
+            ) : (
+                <Button handleOnClick={() => handleFollowUser(user)} className="btn-follow">
+                    {loadingFollow && currentUser?.id === user.id ? <LoadingWhite /> : 'Follow'}
+                </Button>
+            )}
         </Container>
     );
 }
 
 const Container = styled.div`
     display: flex;
-    padding: 8px 16px;
+    padding: 8px 0;
     flex: 0 0 auto;
     align-items: center;
 

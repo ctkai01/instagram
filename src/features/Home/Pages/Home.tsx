@@ -17,16 +17,22 @@ export interface IHomeProps {}
 
 export function Home(props: IHomeProps) {
     const [usersSuggest, setUsersSuggest] = React.useState<User[]>([]);
+    const [checkShowSuggestion, setCheckShowSuggestion] = React.useState<boolean>(false);
     const dispatch = useAppDispatch();
     const posts = useAppSelector(selectPosts);
     const userAuth = useAppSelector(selectUserAuth);
-    const checkPostUser = posts.find((post) => post.created_by.id === userAuth.id);
+    // const checkShowSuggestion = 
 
     React.useEffect(() => {
         dispatch(postActions.fetchData());
 
         const fetchUserSuggested = async () => {
-            if (checkPostUser) {
+            const responseCheckFollowing = await Api.checkHasFollowing()
+
+            const checkShowSuggest = !posts.find((post) => post.created_by.id === userAuth.id) && !responseCheckFollowing.data
+
+            setCheckShowSuggestion(checkShowSuggest)
+            if (!checkShowSuggest) {
                 const response = await Api.usersSuggested(5);
                 setUsersSuggest(response.data);
             } else {
@@ -40,13 +46,31 @@ export function Home(props: IHomeProps) {
 
     console.log('SUGGEST', usersSuggest);
 
+    console.log('checkShowSuggestion', checkShowSuggestion);
+    const handleChangeUserSuggested = (userChanged: User) => {
+        setUsersSuggest(usersSuggest => {
+            const cloneUsersSuggest= [...usersSuggest];
+            const checkUserExist = cloneUsersSuggest.find(cloneUserSuggest => cloneUserSuggest.id === userChanged.id)
+            if (checkUserExist) {
+                checkUserExist.is_following = userChanged.is_following;
+                checkUserExist.count_follower = userChanged.count_follower;
+                checkUserExist.count_following = userChanged.count_following;
+                cloneUsersSuggest[cloneUsersSuggest.findIndex(cloneUserSuggest => cloneUserSuggest.id === userChanged.id)] = checkUserExist
+
+                return cloneUsersSuggest
+
+            } else {
+                return cloneUsersSuggest
+            }
+        })
+    }
     return (
         <Grid
             container
-            justifyContent={checkPostUser ? 'space-between' : 'center'}
+            justifyContent={!checkShowSuggestion ? 'space-between' : 'center'}
             style={{ paddingTop: '30px' }}
         >
-            {checkPostUser ? (
+            {!checkShowSuggestion ? (
                 <>
                     <Grid item lg={8}>
                         <StoriesList />
@@ -60,7 +84,7 @@ export function Home(props: IHomeProps) {
                 </>
             ) : (
                 <Grid item lg={7}>
-                    <SuggestionsForYou usersSuggest={usersSuggest}/>
+                    <SuggestionsForYou handleChangeUserSuggested={handleChangeUserSuggested} usersSuggest={usersSuggest}/>
                 </Grid>
             )}
         </Grid>

@@ -9,6 +9,7 @@ import styled from 'styled-components';
 
 export interface IPreviewProfileProps {
     user: User;
+    currentUser?: User;
     index: number;
     loadingUnfollow: boolean;
     loadingFollow: boolean;
@@ -17,7 +18,7 @@ export interface IPreviewProfileProps {
 }
 
 export function PreviewProfile(props: IPreviewProfileProps) {
-    const { user, loadingUnfollow, loadingFollow, handleFollowUser, handleUnfollowUser } = props;
+    const { user, currentUser, loadingUnfollow, loadingFollow, handleFollowUser, handleUnfollowUser } = props;
 
     return (
         <Container>
@@ -76,7 +77,8 @@ export function PreviewProfile(props: IPreviewProfileProps) {
                             style="border"
                             className="unfollow-button"
                         >
-                            {loadingUnfollow ? <LoadingWhite /> : 'Following'}
+                            {loadingUnfollow && currentUser?.id === user.id ? <LoadingWhite /> : 'Following'}
+
                         </Button>
                     </div>
                 ) : (
@@ -84,7 +86,7 @@ export function PreviewProfile(props: IPreviewProfileProps) {
                         handleOnClick={() => handleFollowUser(user)}
                         className="follow-button"
                     >
-                        {loadingFollow ? <LoadingWhite /> : 'Follow'}
+                        {loadingFollow && currentUser?.id === user.id ? <LoadingWhite /> : 'Follow'}
                     </Button>
                 )}
             </div>

@@ -1,7 +1,7 @@
 import { TypeFollow } from '@constants/type-follow';
 import { PayloadTransformCreatePost } from '@features/UploadPost/Components/UploadImagePost';
 import { Login, SignIn } from '@models/Auth';
-import { ListResponsePagination, ResponseNoPagination, ResponsePagination, Tokens } from '@models/commom';
+import { ListResponsePagination, ResponseNoPagination, ResponseNoPaginationNoList, ResponsePagination, Tokens } from '@models/commom';
 import { Post } from '@models/Post';
 import { FollowUser, User } from '@models/User';
 import { lsRefreshTokenAuth } from '@utils/storage';
@@ -67,6 +67,10 @@ export const Api = {
     },
     usersSuggested: (count: number): Promise<ResponseNoPagination<User>> => {
         const url = `api/user/suggest-for-you/?count=${count}`
+        return axiosClient.get(url)
+    },
+    checkHasFollowing: (): Promise<ResponseNoPaginationNoList<boolean>> => {
+        const url = `api/user/check-has-following`
         return axiosClient.get(url)
     }
 };

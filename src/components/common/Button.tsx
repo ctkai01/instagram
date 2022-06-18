@@ -51,4 +51,9 @@ const Container = styled.button<ButtonStyledProps>`
     font-size: 14px;
     height: min-content;
     cursor: pointer;
+
+    &:active {
+        opacity: 0.7;
+    }
+
 `;

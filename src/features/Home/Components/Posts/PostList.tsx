@@ -76,6 +76,7 @@ export function PostList(props: IPostListProps) {
         // setPostInViewport(post)
     }
 
+    
 
     // React.useEffect(() => {
     //     if (!currentPost) return
