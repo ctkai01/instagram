@@ -1,40 +1,51 @@
 import { Avatar } from '@components/common';
 import { HeartIcon, TickSmallIcon } from '@components/Icons';
+import { Comment } from '@models/Comment';
+import { convertISOTime, convertTime } from '@utils/time';
 import * as React from 'react';
+import Moment from 'react-moment';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { CommentRep } from './CommentList';
 
 export interface ICommentItemProps {
-    comment: CommentRep;
+    comment: Comment;
 }
 
 export default function CommentItem(props: ICommentItemProps) {
     const { comment } = props;
+
+    const timeCreated = convertISOTime(comment.created_at);
+    const { format, fromNow } = convertTime(comment.created_at, 7);
+
     return (
         <Container>
             <div className="content-item-wrapper">
                 <div className="content-wrapper">
-                    <Avatar
-                        size="small-medium"
-                        border="none"
-                        url="http://localhost:5000/uploads/posts/9f8f7b21-521d-42f7-a813-542a21e18c71.jpg"
-                    />
+                    <Avatar size="small-medium" border="none" url={comment.created_by.avatar} />
                     <div className="content-comment-wrapper">
                         <div className="info-wrapper">
                             <span className="info-person">
                                 <span className="text">
                                     <Link to="aa" className="user_name">
-                                        {comment.user_name}
+                                        {comment.created_by.user_name}
                                     </Link>
                                     <TickSmallIcon className="tick-icon" />
-                                    {comment.comment}
+                                    {comment.content}
                                 </span>
                             </span>
                         </div>
                         <div className="info-status">
-                            <div className="time">2d</div>
-                            <div className="count_like">4 likes</div>
+                            <div className="time">
+                                <Moment format={format} fromNow={fromNow}>
+                                    {timeCreated}
+                                </Moment>
+                            </div>
+                            <div className="count_like">
+                                {!!comment.like_count &&
+                                    (comment.like_count > 1
+                                        ? `${comment.like_count} likes`
+                                        : '1 like')}
+                            </div>
                             <div className="reply-btn">Reply</div>
                         </div>
                     </div>

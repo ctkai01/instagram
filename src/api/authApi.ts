@@ -2,6 +2,7 @@ import { Status } from '@constants/status';
 import { TypeFollow } from '@constants/type-follow';
 import { PayloadTransformCreatePost } from '@features/UploadPost/Components/UploadImagePost';
 import { Login, SignIn } from '@models/Auth';
+import { Comment } from '@models/Comment';
 import { ListResponsePagination, ResponseNoPagination, ResponseNoPaginationNoList, ResponsePagination, Tokens } from '@models/commom';
 import { Post } from '@models/Post';
 import { FollowUser, User } from '@models/User';
@@ -81,5 +82,11 @@ export const Api = {
     reactPost: (idPost: number, type: Status): Promise<ResponseNoPaginationNoList<Post>> => {
         const url = `api/posts/${idPost}/react`
         return axiosClient.post(url, { type })
+    },
+    commentsByIdPost: (idPost: number, page: number = 1): Promise<ResponsePagination<Comment>> => {
+        const url = `api/comments/${idPost}/post`
+        return axiosClient.get(url,{ params: {
+            page
+        } })
     }
 };

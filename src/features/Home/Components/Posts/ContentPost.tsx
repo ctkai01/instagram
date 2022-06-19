@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import InputPost from './InputPost';
 
 export interface IContentPostProps {
+    countComment: number;
     content?: string;
     author: string;
     time: string;
@@ -14,11 +15,22 @@ export interface IContentPostProps {
     isLike: Status;
     loadingUnLikePost: boolean;
     loadingLikePost: boolean;
+    handleShowModalDetailPost: (activeShowDetailPost?: boolean) => Promise<void>;
 }
 
 export function ContentPost(props: IContentPostProps) {
     const [showMoreButton, setShowMoreButton] = React.useState<boolean>(true);
-    const { content, time, author, countLike, isLike, loadingUnLikePost, loadingLikePost } = props;
+    const {
+        content,
+        countComment,
+        time,
+        author,
+        countLike,
+        isLike,
+        loadingUnLikePost,
+        loadingLikePost,
+        handleShowModalDetailPost
+    } = props;
     // const content = 'Nguyễn Thúc Thuỳ Tiên em nghe nỗi lòng chị không<br>CỐ LÊN 🇻🇳🇻🇳🇻🇳💪🏽💪🏽💪🏽💪🏽';
     // const content = '';
     // const time = '2022-01-18 09:37:19';
@@ -66,15 +78,20 @@ export function ContentPost(props: IContentPostProps) {
     return (
         <Container>
             <div className="content-wrapper">
-                {!!((loadingUnLikePost || loadingLikePost) ? loadingUnLikePost ? countLike - 1 : countLike +1 : countLike) && <div className="count-like">
-                {(loadingUnLikePost || loadingLikePost) ? 
-                loadingUnLikePost ? `${countLike - 1} ${countLike - 1 > 0 ? 'likes' : 'like'}` : `${countLike + 1} ${countLike + 1 > 0 ? 'likes' : 'like'}`
-                : 
-                `${countLike} ${countLike > 0 ? 'likes' : 'like'}`
-                }
-                    {/* {countLike} likes */}
-                
-                </div>}
+                {!!(loadingUnLikePost || loadingLikePost
+                    ? loadingUnLikePost
+                        ? countLike - 1
+                        : countLike + 1
+                    : countLike) && (
+                    <div className="count-like">
+                        {loadingUnLikePost || loadingLikePost
+                            ? loadingUnLikePost
+                                ? `${countLike - 1} ${countLike - 1 > 0 ? 'likes' : 'like'}`
+                                : `${countLike + 1} ${countLike + 1 > 0 ? 'likes' : 'like'}`
+                            : `${countLike} ${countLike > 0 ? 'likes' : 'like'}`}
+                        {/* {countLike} likes */}
+                    </div>
+                )}
                 <div className="title-wrapper">
                     <span className="author-username">
                         <Link to={`/${author}`}>{content && author}</Link>
@@ -95,7 +112,7 @@ export function ContentPost(props: IContentPostProps) {
                     )}
                 </div>
                 <div className="comment-wrapper">
-                    <span>View all 216 comments</span>
+                    {!!countComment && <span>{`View all ${countComment} comments`}</span>}
                 </div>
                 <div className="time-publish-wrapper">
                     <div className="time-text">
@@ -156,6 +173,7 @@ const Container = styled.div`
     .comment-wrapper {
         margin-bottom: 4px;
         color: rgba(142, 142, 142, 1);
+        cursor: pointer;
     }
 
     .time-text {

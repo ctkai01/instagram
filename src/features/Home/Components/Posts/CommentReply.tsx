@@ -1,10 +1,10 @@
+import { Comment } from '@models/Comment';
 import * as React from 'react';
 import styled from 'styled-components';
 import CommentItem from './CommentItem';
-import { CommentRep } from './CommentList';
 
 export interface ICommentReplyProps {
-    comments: CommentRep[]
+    comments: Comment[]
 }
 
 export default function CommentReply(props: ICommentReplyProps) {

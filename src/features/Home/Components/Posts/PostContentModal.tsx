@@ -21,12 +21,18 @@ import { ActionReactPost } from './ActionReactPost';
 import CommentList from './CommentList';
 import InputPost from './InputPost';
 import PhotoListDetail from './PhotoListDetail';
+import { CommentPost } from './PostItem';
 
 export interface IPostContentModalProps {
     loadingUnLikePost: boolean;
     loadingLikePost: boolean;
     isLike: Status;
     post: Post;
+    dataComment: CommentPost;
+    isLoadingComment: boolean;
+    showModalDetailPost: boolean;
+    handleCloseModalDetailPost: () => void;
+    handleShowModalDetailPost: (activeShowDetailPost?: boolean) => Promise<void>;
     fetchLikePost: (idPost: number) => Promise<void>;
     fetchUnLikePost: (idPost: number) => Promise<void>;
     handleChangeIsLike: (type: Status) => void;
@@ -39,6 +45,11 @@ const PostContentModal = (props: IPostContentModalProps) => {
         loadingUnLikePost,
         isLike,
         loadingLikePost,
+        dataComment,
+        isLoadingComment,
+        showModalDetailPost,
+        handleCloseModalDetailPost,
+        handleShowModalDetailPost,
         handleFollowUserPost,
         handleChangeIsLike,
         fetchLikePost,
@@ -109,12 +120,11 @@ const PostContentModal = (props: IPostContentModalProps) => {
                 <div className="content-wrapper">
                     <div className="header-wrapper">
                         <div className="header-content">
-                            <Avatar 
-                                size="small-medium"
-                                url={post.created_by.avatar}
-                            />
+                            <Avatar size="small-medium" url={post.created_by.avatar} />
                             <div className="user_name_wrapper">
-                                 <Link className='user_name' to={`/${post.created_by.user_name}`}>{post.created_by.user_name}</Link>
+                                <Link className="user_name" to={`/${post.created_by.user_name}`}>
+                                    {post.created_by.user_name}
+                                </Link>
 
                                 {post.created_by.is_tick && <TickSmallIcon className="tick" />}
                             </div>
@@ -142,12 +152,19 @@ const PostContentModal = (props: IPostContentModalProps) => {
                     </div>
                     <div className="body-wrapper">
                         <div className="comment-wrapper">
-                            {/* <div className="text-empty-comment-wrapper">
-                                <h2 className="text-comment">No comments yet.</h2>
-                                <div className="text">Start the conversation.</div>
-                            </div> */}
-
-                            <CommentList />
+                            {!dataComment.lastPage && isLoadingComment ? (
+                                <LoadingWhite />
+                            ) : !dataComment.data.length ? (
+                                <div className="text-empty-comment-wrapper">
+                                    <h2 className="text-comment">No comments yet.</h2>
+                                    <div className="text">Start the conversation.</div>
+                                </div>
+                            ) : (
+                                <CommentList
+                                    isLoadingComment={isLoadingComment}
+                                    dataComment={dataComment}
+                                />
+                            )}
                         </div>
                         <div className="action-post-wrapper">
                             <ActionReactPost
@@ -155,6 +172,12 @@ const PostContentModal = (props: IPostContentModalProps) => {
                                 fetchUnLikePost={fetchUnLikePost}
                                 fetchLikePost={fetchLikePost}
                                 handleFollowUserPost={handleFollowUserPost}
+                                showModalDetailPost={showModalDetailPost}
+                                handleCloseModalDetailPost={handleCloseModalDetailPost}
+                                handleShowModalDetailPost={handleShowModalDetailPost}
+                                isLoadingComment={isLoadingComment}
+                                dataComment={dataComment}
+
                                 isLike={isLike}
                                 loadingLikePost={loadingLikePost}
                                 loadingUnLikePost={loadingUnLikePost}
@@ -316,7 +339,6 @@ const Container = styled.div`
                 color: #262626;
                 display: flex;
                 align-items: center;
-               
             }
 
             .user_name {

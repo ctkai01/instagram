@@ -1,19 +1,18 @@
 import { Status } from '@constants/status';
 import { ActiveStatus } from './commom';
 import { Media } from './Media';
+import { Post } from './Post';
 import { User } from './User';
 
-export interface Post {
+export interface Comment {
     id: number;
-    caption?: string;
-    location?: string;
+    content: string;
     created_by: User;
-    is_off_comment?: ActiveStatus;
-    is_hide_like_view?: ActiveStatus;
-    media: Media[];
+    parent_id?: number;
+    post: Post;
+    childComments: Comment[];
     like_count: number;
     is_like: Status;
-    comment_count: number;
     created_at: string;
     updated_at: string;
 }
