@@ -21,7 +21,7 @@ export interface User {
     count_follower?: number;
     count_following?: number;
     status_story?: number;
-    followed_by?: string[];
+    followed_by: string[];
     created_at?: string
     updated_at?: string
 }

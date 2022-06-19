@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 interface ILogoInstagram {
@@ -8,13 +9,13 @@ interface ILogoInstagram {
 export function LogoInstagram(props: ILogoInstagram) {
     const { className } = props;
     return (
-        <Container className={className}>
+        <Container to={'/'} className={className}>
             <img src={`${process.env.REACT_APP_URL}/images/logo-insta.png`} alt='logo'/>
         </Container>
     );
 }
 
-const Container = styled.div`
+const Container = styled(Link)`
     display: flex;
     align-items: center;
 `;
