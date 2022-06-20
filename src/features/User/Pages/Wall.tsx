@@ -59,7 +59,6 @@ const defaultFollowUser: FollowUser = {
     data: [],
 };
 
-
 export function Wall(props: IWallProps) {
     const [showSuggested, setShowSuggested] = React.useState<boolean>(false);
     const [showUnfollow, setShowUnfollow] = React.useState<boolean>(false);
@@ -103,11 +102,9 @@ export function Wall(props: IWallProps) {
     };
 
     const handleFollowUser = async (idUser: number) => {
-        setIdUserClick(idUser)
+        setIdUserClick(idUser);
         await fetchFollowUser(idUser);
     };
-
-
 
     React.useEffect(() => {
         if (dataFollowerUser) {
@@ -137,21 +134,22 @@ export function Wall(props: IWallProps) {
 
     React.useEffect(() => {
         if (dataFollow && user) {
-
             if (dataFollow.id != user.id) {
-                setUsersSimilar(usersSimilar => {
-                    const newUsersSimilar = [...usersSimilar]
-                    const checkUserExist = newUsersSimilar.findIndex(user => user.id === dataFollow.id)
+                setUsersSimilar((usersSimilar) => {
+                    const newUsersSimilar = [...usersSimilar];
+                    const checkUserExist = newUsersSimilar.findIndex(
+                        (user) => user.id === dataFollow.id
+                    );
 
                     if (checkUserExist !== -1) {
-                        const userChange = newUsersSimilar[checkUserExist]
-                        userChange.is_following = dataFollow.is_following
-                        newUsersSimilar[checkUserExist] = userChange
-                        return newUsersSimilar
+                        const userChange = newUsersSimilar[checkUserExist];
+                        userChange.is_following = dataFollow.is_following;
+                        newUsersSimilar[checkUserExist] = userChange;
+                        return newUsersSimilar;
                     } else {
-                        return newUsersSimilar
+                        return newUsersSimilar;
                     }
-                })
+                });
             } else {
                 setUser(dataFollow);
             }
@@ -218,23 +216,21 @@ export function Wall(props: IWallProps) {
         // }
 
         const fetchUser = async () => {
-            setShowFollower(false)
-            setShowFollowing(false)
+            setShowFollower(false);
+            setShowFollowing(false);
             try {
                 const [responseUser, usersSimilar] = await Promise.all([
                     Api.getUserByUserName(user_name),
                     Api.usersSimilar(user_name),
-                ])   
+                ]);
                 // console.log(responseUser);
                 console.log(usersSimilar);
                 setUser(responseUser.data);
-                setUsersSimilar(usersSimilar.data)
+                setUsersSimilar(usersSimilar.data);
                 setPostUser(responseUser.data.posts);
-               
-                
+
                 setFoundUser(true);
                 // const userList =
-
             } catch (err) {
                 console.log(err);
                 setFoundUser(false);
@@ -251,55 +247,65 @@ export function Wall(props: IWallProps) {
 
     const handleChangeUserFollowingFollower = (user: User, type: TypeFollowUser) => {
         if (type === TypeFollowUser.FOLLOWING) {
-            setUsersFollowing(usersFollowing => {
-                const cloneUsersFollowing = {...usersFollowing};
-                const checkUserExist = cloneUsersFollowing.data.find(cloneUserFollowing => cloneUserFollowing.id === user.id)
+            setUsersFollowing((usersFollowing) => {
+                const cloneUsersFollowing = { ...usersFollowing };
+                const checkUserExist = cloneUsersFollowing.data.find(
+                    (cloneUserFollowing) => cloneUserFollowing.id === user.id
+                );
                 if (checkUserExist) {
                     checkUserExist.is_following = user.is_following;
                     checkUserExist.count_follower = user.count_follower;
                     checkUserExist.count_following = user.count_following;
-                    cloneUsersFollowing.data[cloneUsersFollowing.data.findIndex(cloneUserFollowing => cloneUserFollowing.id === user.id)] = checkUserExist
+                    cloneUsersFollowing.data[
+                        cloneUsersFollowing.data.findIndex(
+                            (cloneUserFollowing) => cloneUserFollowing.id === user.id
+                        )
+                    ] = checkUserExist;
 
-                    return cloneUsersFollowing
- 
+                    return cloneUsersFollowing;
                 } else {
-                    return cloneUsersFollowing
+                    return cloneUsersFollowing;
                 }
-            })
+            });
         } else if (type === TypeFollowUser.FOLLOWER) {
-            setUsersFollower(usersFollower => {
-                const cloneUsersFollower = {...usersFollower};
-                const checkUserExist = cloneUsersFollower.data.find(cloneUserFollower => cloneUserFollower.id === user.id)
+            setUsersFollower((usersFollower) => {
+                const cloneUsersFollower = { ...usersFollower };
+                const checkUserExist = cloneUsersFollower.data.find(
+                    (cloneUserFollower) => cloneUserFollower.id === user.id
+                );
                 if (checkUserExist) {
                     checkUserExist.is_following = user.is_following;
                     checkUserExist.count_follower = user.count_follower;
                     checkUserExist.count_following = user.count_following;
-                    cloneUsersFollower.data[cloneUsersFollower.data.findIndex(cloneUserFollower => cloneUserFollower.id === user.id)] = checkUserExist
+                    cloneUsersFollower.data[
+                        cloneUsersFollower.data.findIndex(
+                            (cloneUserFollower) => cloneUserFollower.id === user.id
+                        )
+                    ] = checkUserExist;
 
-                    return cloneUsersFollower
- 
+                    return cloneUsersFollower;
                 } else {
-                    return cloneUsersFollower
+                    return cloneUsersFollower;
                 }
-            })
+            });
         }
-    }
+    };
 
     const handleChangeUserSimilarUnfollow = (dataUnfollow: User) => {
-        setUsersSimilar(usersSimilar => {
-            const newUsersSimilar = [...usersSimilar]
-            const checkUserExist = newUsersSimilar.findIndex(user => user.id === dataUnfollow.id)
+        setUsersSimilar((usersSimilar) => {
+            const newUsersSimilar = [...usersSimilar];
+            const checkUserExist = newUsersSimilar.findIndex((user) => user.id === dataUnfollow.id);
 
             if (checkUserExist !== -1) {
-                const userChange = newUsersSimilar[checkUserExist]
-                userChange.is_following = dataUnfollow.is_following
-                newUsersSimilar[checkUserExist] = userChange
-                return newUsersSimilar
+                const userChange = newUsersSimilar[checkUserExist];
+                userChange.is_following = dataUnfollow.is_following;
+                newUsersSimilar[checkUserExist] = userChange;
+                return newUsersSimilar;
             } else {
-                return newUsersSimilar
+                return newUsersSimilar;
             }
-        })
-    }
+        });
+    };
     return (
         <>
             <Modal
@@ -533,7 +539,7 @@ export function Wall(props: IWallProps) {
                             <div className="mutual-only-container">
                                 {user ? (
                                     <>
-                                        Followed by{' '}
+                                        {!!user.followed_by.length && 'Followed by'}
                                         {user?.followed_by
                                             ?.slice(0, NUMBER_SHOW_USER_FOLLOWED)
                                             .map((followed, index) => (
@@ -582,36 +588,14 @@ export function Wall(props: IWallProps) {
                                     See All
                                 </Link>
                             </div>
-                            {/* <Swiper
-                                slidesPerView={4.5}
-                                className="slider-suggest"
-                                navigation={true}
-                                allowTouchMove={false}
-                            >
-                                {usersSimilar.map((user, index) => (
-                                    <SwiperSlide key={index}>
-                                        <SuggestFollowedItem
-                                            user={user}
-                                            idUserClick={idUserClick}
-                                            loadingFollow={loadingFollow}
-                                            loadingUnfollow={loadingUnfollow}
-                                            handleUnfollowUser={handleUnfollowUser}
-                                            handleFollowUser={handleFollowUser}
-                                        />
-                                        
-                                    </SwiperSlide>
-                                    
-                                ))}
-                            </Swiper> */}
                             <SuggestFollowedList
-                            usersSimilar={usersSimilar}
-                            className='slider-suggest'
-                            idUserClick={idUserClick}
-                            loadingFollow={loadingFollow}
-                            handleChangeUserSimilarUnfollow={handleChangeUserSimilarUnfollow}
-                            handleFollowUser={handleFollowUser}
+                                usersSimilar={usersSimilar}
+                                className="slider-suggest"
+                                idUserClick={idUserClick}
+                                loadingFollow={loadingFollow}
+                                handleChangeUserSimilarUnfollow={handleChangeUserSimilarUnfollow}
+                                handleFollowUser={handleFollowUser}
                             />
-
                         </div>
                     )}
                     <div className="header-media-container">

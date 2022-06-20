@@ -2,7 +2,7 @@ import { Status } from '@constants/status';
 import { TypeFollow } from '@constants/type-follow';
 import { PayloadTransformCreatePost } from '@features/UploadPost/Components/UploadImagePost';
 import { Login, SignIn } from '@models/Auth';
-import { Comment } from '@models/Comment';
+import { Comment, CreateComment } from '@models/Comment';
 import { ListResponsePagination, ResponseNoPagination, ResponseNoPaginationNoList, ResponsePagination, Tokens } from '@models/commom';
 import { Post } from '@models/Post';
 import { FollowUser, User } from '@models/User';
@@ -88,5 +88,17 @@ export const Api = {
         return axiosClient.get(url,{ params: {
             page
         } })
-    }
+    },
+    reactComment: (idComment: number, type: Status): Promise<ResponseNoPaginationNoList<Comment>> => {
+        const url = `api/comments/${idComment}/react`
+        return axiosClient.post(url, { type })
+    },
+    createComment: (idComment: number, data: CreateComment): Promise<ResponseNoPaginationNoList<Comment>> => {
+        const url = `api/comments/${idComment}`
+        return axiosClient.post(url, data)
+    },
+    deleteComment: (idComment: number) => {
+        const url = `api/comments/${idComment}`
+        return axiosClient.delete(url)
+    },
 };

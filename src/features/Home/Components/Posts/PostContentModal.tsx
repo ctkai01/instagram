@@ -6,6 +6,7 @@ import { TypeFollow } from '@constants/type-follow';
 import { selectUserAuth } from '@features/Auth/authSlice';
 import UnfollowPaper from '@features/User/Components/UnfollowPaper';
 import { useFollow } from '@hooks/useFollow';
+import { Comment } from '@models/Comment';
 import { Post } from '@models/Post';
 import { User } from '@models/User';
 import { Avatar as AvatarMui, AvatarGroup, Button, Tooltip } from '@mui/material';
@@ -17,6 +18,7 @@ import Moment from 'react-moment';
 import { Link } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
 import ActionPostDetail from './ActionPostDetail';
+import { ActionReactDetailPost } from './ActionReactDetailPost';
 import { ActionReactPost } from './ActionReactPost';
 import CommentList from './CommentList';
 import InputPost from './InputPost';
@@ -30,13 +32,13 @@ export interface IPostContentModalProps {
     post: Post;
     dataComment: CommentPost;
     isLoadingComment: boolean;
-    showModalDetailPost: boolean;
-    handleCloseModalDetailPost: () => void;
-    handleShowModalDetailPost: (activeShowDetailPost?: boolean) => Promise<void>;
     fetchLikePost: (idPost: number) => Promise<void>;
     fetchUnLikePost: (idPost: number) => Promise<void>;
     handleChangeIsLike: (type: Status) => void;
     handleFollowUserPost: (post: Post, userChange: User) => void;
+    handleChangeDataComment: (commentChange: Comment) => void;
+    handlePostComment: (content: string) => Promise<void>
+    handleDeleteCommentPost: (isComment: number) => Promise<void>
 }
 
 const PostContentModal = (props: IPostContentModalProps) => {
@@ -47,9 +49,9 @@ const PostContentModal = (props: IPostContentModalProps) => {
         loadingLikePost,
         dataComment,
         isLoadingComment,
-        showModalDetailPost,
-        handleCloseModalDetailPost,
-        handleShowModalDetailPost,
+        handleDeleteCommentPost,
+        handlePostComment,
+        handleChangeDataComment,
         handleFollowUserPost,
         handleChangeIsLike,
         fetchLikePost,
@@ -126,9 +128,9 @@ const PostContentModal = (props: IPostContentModalProps) => {
                                     {post.created_by.user_name}
                                 </Link>
 
-                                {post.created_by.is_tick && <TickSmallIcon className="tick" />}
+                                {!!post.created_by.is_tick && <TickSmallIcon className="tick" />}
                             </div>
-                            {userAuth.id !== post.created_by.id && (
+                            {(userAuth.id !== post.created_by.id) && (
                                 <div className="following-text-wrapper">
                                     <span></span>
                                     {post.created_by.is_following ? (
@@ -152,7 +154,7 @@ const PostContentModal = (props: IPostContentModalProps) => {
                     </div>
                     <div className="body-wrapper">
                         <div className="comment-wrapper">
-                            {!dataComment.lastPage && isLoadingComment ? (
+                            {Boolean(!dataComment.lastPage) && isLoadingComment ? (
                                 <LoadingWhite />
                             ) : !dataComment.data.length ? (
                                 <div className="text-empty-comment-wrapper">
@@ -163,26 +165,20 @@ const PostContentModal = (props: IPostContentModalProps) => {
                                 <CommentList
                                     isLoadingComment={isLoadingComment}
                                     dataComment={dataComment}
+                                    handleDeleteCommentPost={handleDeleteCommentPost}
+                                    handleChangeDataComment={handleChangeDataComment}
                                 />
                             )}
                         </div>
                         <div className="action-post-wrapper">
-                            <ActionReactPost
+                              <ActionReactDetailPost
                                 handleChangeIsLike={handleChangeIsLike}
                                 fetchUnLikePost={fetchUnLikePost}
                                 fetchLikePost={fetchLikePost}
-                                handleFollowUserPost={handleFollowUserPost}
-                                showModalDetailPost={showModalDetailPost}
-                                handleCloseModalDetailPost={handleCloseModalDetailPost}
-                                handleShowModalDetailPost={handleShowModalDetailPost}
-                                isLoadingComment={isLoadingComment}
-                                dataComment={dataComment}
-
                                 isLike={isLike}
                                 loadingLikePost={loadingLikePost}
                                 loadingUnLikePost={loadingUnLikePost}
                                 post={post}
-                                activeShowDetailPost={false}
                             />
                         </div>
                         <div className="like-wrapper">
@@ -230,7 +226,7 @@ const PostContentModal = (props: IPostContentModalProps) => {
                             </Moment>
                         </div>
                         <div className="input-wrapper">
-                            <InputPost />
+                            <InputPost handlePostComment={handlePostComment}/>
                         </div>
                     </div>
                 </div>

@@ -16,3 +16,8 @@ export interface Comment {
     created_at: string;
     updated_at: string;
 }
+
+export interface CreateComment {
+    content: string,
+    parent_id?: number 
+}

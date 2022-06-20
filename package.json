@@ -45,6 +45,7 @@
         "react-scripts": "^5.0.0",
         "react-spring": "^9.4.3",
         "react-tabs": "^5.1.0",
+        "react-toastify": "^9.0.5",
         "react-twemoji-picker": "github:brianhung/emojipicker",
         "react-waypoint": "^10.1.0",
         "redux-logger": "^3.0.6",

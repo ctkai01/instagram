@@ -2,14 +2,14 @@ import { User } from '@models/User';
 import * as React from 'react';
 import styled from 'styled-components';
 
-export interface IActionPostDetailProps {
-    userCreate: User;
+export interface IActionCommentProps {
+    // userCreate: User;
+    handleDeleteComment: () => void;
     handleCloseActionModal: () => void;
-    handleShowUnfollow: () => void;
 }
 
-export default function ActionPostDetail(props: IActionPostDetailProps) {
-    const { userCreate, handleCloseActionModal, handleShowUnfollow } = props;
+export default function ActionComment(props: IActionCommentProps) {
+    const { handleCloseActionModal, handleDeleteComment } = props;
     const [isBumpContent, setIsBumpContent] = React.useState<boolean>(false);
     console.log('Fukk you');
     React.useEffect(() => {
@@ -27,11 +27,9 @@ export default function ActionPostDetail(props: IActionPostDetailProps) {
     }, []);
 
     return (
-        <Container className={isBumpContent ? 'bump' : 'heheh'}>
-            {!!userCreate.is_following && <div onClick={handleShowUnfollow} className="action-item red">Unfollow</div>}
+        <Container className={isBumpContent ? 'bump' : ''}>
 
-            <div className="action-item">Go to post</div>
-            <div className="action-item">Copy link</div>
+            <div className="action-item red" onClick={handleDeleteComment}>Delete</div>
             <div className="action-item" onClick={handleCloseActionModal}>
                 Cancel
             </div>

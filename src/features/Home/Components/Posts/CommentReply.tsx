@@ -4,11 +4,16 @@ import styled from 'styled-components';
 import CommentItem from './CommentItem';
 
 export interface ICommentReplyProps {
-    comments: Comment[]
+    comments: Comment[],
+    loadingUnLikeComment: boolean;
+    loadingLikeComment: boolean;
+    handleUnLikeComment: (idComment: number) => Promise<void>,
+    handleLikeComment: (idComment: number) => Promise<void>,
+    handleDeleteCommentPost: (isComment: number) => Promise<void>
 }
 
 export default function CommentReply(props: ICommentReplyProps) {
-    const {comments} =  props
+    const {comments, loadingLikeComment, loadingUnLikeComment, handleUnLikeComment, handleLikeComment, handleDeleteCommentPost} =  props
     const [showReplies, setShowReplies] = React.useState(false)
 
     const handleSHowViewReply = () => {
@@ -23,8 +28,7 @@ export default function CommentReply(props: ICommentReplyProps) {
             </div>
             {showReplies && (
                   comments.map((comment, index) => (
-                      <CommentItem key={index} comment={comment}/>
-                    // <div className='DUCK'>111</div>
+                      <CommentItem handleDeleteCommentPost={handleDeleteCommentPost} key={index} loadingLikeComment={loadingLikeComment} loadingUnLikeComment={loadingUnLikeComment} comment={comment} handleUnLikeComment={handleUnLikeComment} handleLikeComment={handleLikeComment}/>
                   ))
                 )}
         </Container>

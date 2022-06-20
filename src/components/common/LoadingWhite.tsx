@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 interface LoadingWhiteProps {
     className?: string;
-    size?: 'big' | 'normal' |'small'
+    size?: 'big' | 'normal' |'small' | 'vr-small'
 
 }
 
@@ -21,6 +21,8 @@ export default function LoadingWhite(props: LoadingWhiteProps) {
         sizeWidthHeight = 40
     } else if (size === 'normal') {
         sizeWidthHeight = 20
+    } else if (size === 'vr-small') {
+        sizeWidthHeight = 15
     }
     return (
         <Container className={className}>

@@ -15,6 +15,7 @@ export interface IContentPostProps {
     isLike: Status;
     loadingUnLikePost: boolean;
     loadingLikePost: boolean;
+    handlePostComment: (content: string) => Promise<void>
     handleShowModalDetailPost: (activeShowDetailPost?: boolean) => Promise<void>;
 }
 
@@ -29,6 +30,7 @@ export function ContentPost(props: IContentPostProps) {
         isLike,
         loadingUnLikePost,
         loadingLikePost,
+        handlePostComment,
         handleShowModalDetailPost
     } = props;
     // const content = 'Nguyễn Thúc Thuỳ Tiên em nghe nỗi lòng chị không<br>CỐ LÊN 🇻🇳🇻🇳🇻🇳💪🏽💪🏽💪🏽💪🏽';
@@ -111,7 +113,7 @@ export function ContentPost(props: IContentPostProps) {
                         </span>
                     )}
                 </div>
-                <div className="comment-wrapper">
+                <div className="comment-wrapper" onClick={() => handleShowModalDetailPost(true)}>
                     {!!countComment && <span>{`View all ${countComment} comments`}</span>}
                 </div>
                 <div className="time-publish-wrapper">
@@ -122,7 +124,7 @@ export function ContentPost(props: IContentPostProps) {
                     </div>
                 </div>
             </div>
-            <InputPost />
+            <InputPost handlePostComment={handlePostComment}/>
         </Container>
     );
 }

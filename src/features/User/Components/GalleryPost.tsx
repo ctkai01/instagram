@@ -29,7 +29,7 @@ export default function GalleryPost(props: IGalleryPostProps) {
     //         swiper.slideTo(currentIndexShow)
     //     }
     // }, [])
-
+    console.log('Post', posts)
     return (
         <>
             <Container urlReact={urlReact}>

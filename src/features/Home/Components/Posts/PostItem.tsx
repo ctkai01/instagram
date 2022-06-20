@@ -6,12 +6,13 @@ import { selectUserAuth } from '@features/Auth/authSlice';
 import UnfollowPaper from '@features/User/Components/UnfollowPaper';
 import { useFollow } from '@hooks/useFollow';
 import { useReactPost } from '@hooks/useReactPost';
-import { Comment } from '@models/Comment';
+import { Comment, CreateComment } from '@models/Comment';
 import { MediaType } from '@models/commom';
 import { Post } from '@models/Post';
 import { User } from '@models/User';
 import { useAppSelector } from '@redux/hooks';
 import * as React from 'react';
+import { toast } from 'react-toastify';
 import { Waypoint } from 'react-waypoint';
 import styled from 'styled-components';
 import ActionPostDetail from './ActionPostDetail';
@@ -36,6 +37,7 @@ export interface CommentPost {
     currentPage: number;
     lastPage: number;
     data: Comment[];
+    isCall: boolean;
 }
 
 export default function PostItem(props: IPostItemProps) {
@@ -60,6 +62,7 @@ export default function PostItem(props: IPostItemProps) {
         currentPage: 0,
         lastPage: 0,
         data: [],
+        isCall: false,
     });
 
     const [dataUnfollow, loadingUnfollow, fetchUnFollowUser] = useFollow({
@@ -137,27 +140,77 @@ export default function PostItem(props: IPostItemProps) {
 
     const userAuth = useAppSelector(selectUserAuth);
 
+    const handleChangeDataComment = (commentChange: Comment) => {
+        setDataComment((dataComment) => {
+            const cloneDataComment = { ...dataComment };
+            const checkDataComment = cloneDataComment.data.find(
+                (comment) => comment.id === commentChange.id
+            );
+            if (checkDataComment) {
+                checkDataComment.like_count = commentChange.like_count;
+                checkDataComment.is_like = commentChange.is_like;
+                cloneDataComment.data[
+                    cloneDataComment.data.findIndex((comment) => comment.id === commentChange.id)
+                ] = checkDataComment;
+                return cloneDataComment;
+            } else {
+                return cloneDataComment;
+            }
+        });
+    };
+
     const handleShowModalDetailPost = async (activeShowDetailPost?: boolean) => {
-        console.log('WTF')
         if (!showModalDetailPost && activeShowDetailPost) {
             setShowModalDetailPost(true);
-            setIsLoadingComment(true);
 
-            const responseComment = await Api.commentsByIdPost(post.id);
+            if (!dataComment.isCall) {
+                setIsLoadingComment(true);
 
-            setDataComment({
-                currentPage: responseComment.data.currentPage,
-                data: responseComment.data.data,
-                lastPage: responseComment.data.lastPage,
-            });
+                const responseComment = await Api.commentsByIdPost(post.id);
 
- 
-            setIsLoadingComment(false);
+                setDataComment({
+                    currentPage: responseComment.data.currentPage,
+                    data: responseComment.data.data,
+                    lastPage: responseComment.data.lastPage,
+                    isCall: true,
+                });
+
+                setIsLoadingComment(false);
+            }
         }
     };
 
     const handleCloseModalDetailPost = () => {
         setShowModalDetailPost(false);
+    };
+
+    const handlePostComment = async (content: string) => {
+        const data: CreateComment = {
+            content: content,
+        };
+        const responseCreateComment = await Api.createComment(post.id, data);
+
+        setDataComment((dataComment) => {
+            const cloneDataComment = { ...dataComment };
+            cloneDataComment.data.push(responseCreateComment.data)
+            return cloneDataComment;
+        });
+    };
+
+    const handleDeleteCommentPost = async (idComment: number) => {
+        setDataComment((dataComment) => {
+            const cloneDataComment = { ...dataComment };
+            const checkIndexDataComment = cloneDataComment.data.findIndex(
+                (comment) => comment.id === idComment
+            );
+            if (checkIndexDataComment !== -1) {
+                cloneDataComment.data.splice(checkIndexDataComment, 1)
+                return cloneDataComment;
+            } else {
+                return cloneDataComment;
+            }
+        });
+        await Api.deleteComment(idComment);
     };
 
     return (
@@ -195,6 +248,9 @@ export default function PostItem(props: IPostItemProps) {
                     fetchLikePost={fetchLikePost}
                     fetchUnLikePost={fetchUnLikePost}
                     handleFollowUserPost={handleFollowUserPost}
+                    handleChangeDataComment={handleChangeDataComment}
+                    handlePostComment={handlePostComment}
+                    handleDeleteCommentPost={handleDeleteCommentPost}
                     post={post}
                 />
                 <ContentPost
@@ -206,6 +262,7 @@ export default function PostItem(props: IPostItemProps) {
                     isLike={isLike}
                     loadingUnLikePost={loadingUnLikePost}
                     loadingLikePost={loadingLikePost}
+                    handlePostComment={handlePostComment}
                     handleShowModalDetailPost={handleShowModalDetailPost}
                 />
 

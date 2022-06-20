@@ -9,50 +9,25 @@ import styled from 'styled-components';
 import DetailPost from './DetailPost';
 import { CommentPost } from './PostItem';
 
-export interface IActionReactPostProps {
+export interface IActionReactDetailPostProps {
     post: Post;
     loadingUnLikePost: boolean;
     loadingLikePost: boolean;
     isLike: Status;
-    isLoadingComment: boolean;
-    showModalDetailPost: boolean;
-    dataComment: CommentPost;
-    activeShowDetailPost?: boolean;
-    handleCloseModalDetailPost: () => void;
-    handleShowModalDetailPost: (activeShowDetailPost?: boolean) => Promise<void>;
     handleChangeIsLike: (type: Status) => void;
     fetchLikePost: (idPost: number) => Promise<void>;
     fetchUnLikePost: (idPost: number) => Promise<void>;
-    handleFollowUserPost: (post: Post, userChange: User) => void;
-    handleChangeDataComment: (commentChange: Comment) => void;
-    handlePostComment: (content: string) => Promise<void>
-    handleDeleteCommentPost: (isComment: number) => Promise<void>
 }
 
-const defaultProps: Partial<IActionReactPostProps> = {
-    activeShowDetailPost: true,
-};
 
-
-export function ActionReactPost(props: IActionReactPostProps) {
-    props = { ...defaultProps, ...props };
+export function ActionReactDetailPost(props: IActionReactDetailPostProps) {
 
     const {
         post,
         isLike,
-        dataComment,
         loadingUnLikePost,
         loadingLikePost,
-        isLoadingComment,
-        showModalDetailPost,
-        activeShowDetailPost,
-        handleDeleteCommentPost,
-        handlePostComment,
-        handleChangeDataComment,
-        handleCloseModalDetailPost,
         handleChangeIsLike,
-        handleFollowUserPost,
-        handleShowModalDetailPost,
         fetchLikePost,
         fetchUnLikePost,
     } = props;
@@ -145,7 +120,7 @@ export function ActionReactPost(props: IActionReactPostProps) {
                             </>
                         )} */}
                     </div>
-                    <div className="item" onClick={() => handleShowModalDetailPost(activeShowDetailPost)}>
+                    <div className="item">
                         <CommentIcon ariaLabel="Comment" color="black" className="icon-black" />
                         <CommentIcon ariaLabel="Comment" color="gray" className="icon-gray" />
                     </div>
@@ -161,24 +136,6 @@ export function ActionReactPost(props: IActionReactPostProps) {
                     </div>
                 </div>
             </Container>
-
-            <DetailPost
-                post={post}
-                dataComment={dataComment}
-                isLoadingComment={isLoadingComment}
-                loadingUnLikePost={loadingUnLikePost}
-                loadingLikePost={loadingLikePost}
-                isLike={isLike}
-                showModalDetailPost={showModalDetailPost}
-                handleDeleteCommentPost={handleDeleteCommentPost}
-                handlePostComment={handlePostComment}
-                handleChangeDataComment={handleChangeDataComment}
-                handleFollowUserPost={handleFollowUserPost}
-                handleChangeIsLike={handleChangeIsLike}
-                fetchLikePost={fetchLikePost}
-                fetchUnLikePost={fetchUnLikePost}
-                handleCloseModalDetailPost={handleCloseModalDetailPost}
-            />
         </>
     );
 }

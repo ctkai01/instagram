@@ -1,3 +1,6 @@
+import { Status } from '@constants/status';
+import { useReactComment } from '@hooks/useReactComment';
+import { Comment } from '@models/Comment';
 import * as React from 'react';
 import styled from 'styled-components';
 import CommentItem from './CommentItem';
@@ -6,6 +9,8 @@ import { CommentPost } from './PostItem';
 export interface ICommentListProps {
     dataComment: CommentPost;
     isLoadingComment: boolean;
+    handleChangeDataComment: (commentChange: Comment) => void;
+    handleDeleteCommentPost: (isComment: number) => Promise<void>
 }
 
 // export interface Comment {
@@ -21,85 +26,44 @@ export interface ICommentListProps {
 // }
 
 export default function CommentList(props: ICommentListProps) {
-    const { dataComment, isLoadingComment } = props;
-    // const arr: Comment[] = [
-    //     {
-    //         user_name: 'a__dang_',
-    //         comment: 'Phản biện gì nữa không',
-    //         replies: [
-    //             {
-    //                 user_name: 'kinglnd',
-    //                 comment: '@a__dang_ làm ziệc đi',
-    //             },
-    //         ],
-    //     },
-    //     {
-    //         user_name: 'yau.yau.26',
-    //         comment: 'cho xin miếng thuốc lun anh ơi',
-    //         replies: [],
-    //     },
-    //     {
-    //         user_name: 'a.nguyendinhduy',
-    //         comment: 'Perfect',
-    //         replies: [
-    //             {
-    //                 user_name: 'kinglnd',
-    //                 comment: '@a.nguyendinhduy hahaha',
-    //             },
-    //             {
-    //                 user_name: 'a.nguyendinhduy',
-    //                 comment: '@kinglnd wow so beautiful!',
-    //             },
-    //         ],
-    //     },
-    //     {
-    //         user_name: 'thanhtuyen9231',
-    //         comment: 'Chúc chị Linhhh sinh nhật vuiiiii vẻeeeeee ạaaaaa🎊🥳🎉🎂😍😍',
-    //         replies: [],
-    //     },
-    //     {
-    //         user_name: 'bling_bling.girl',
-    //         comment: 'Giày xinh, túi đẹp ghé shop ạ❣🍒🌷🍒🌷',
-    //         replies: [],
-    //     },
-    //     {
-    //         user_name: 'namlq',
-    //         comment: 'wow so cute',
-    //         replies: [
-    //             {
-    //                 user_name: 'kinglnd',
-    //                 comment: '@namlq hi em',
-    //             },
-    //         ],
-    //     },
-    //     {
-    //         user_name: 'dvh_a',
-    //         comment: 'Hay qua chi oi',
-    //         replies: [],
-    //     },
-    //     {
-    //         user_name: 'dvh_a',
-    //         comment: 'Hay qua chi oi',
-    //         replies: [],
-    //     },
-    //     {
-    //         user_name: 'dvh_a',
-    //         comment: 'Hay qua chi oi',
-    //         replies: [],
-    //     },
-    //     {
-    //         user_name: 'dvh_a',
-    //         comment: 'Hay qua chi oi',
-    //         replies: [],
-    //     },
-    // ];
+    const { dataComment, isLoadingComment, handleChangeDataComment, handleDeleteCommentPost } = props;
+    
+    const [dataLikeComment, loadingLikeComment, fetchLikeComment] = useReactComment({
+        type: Status.ACTIVE,
+    });
+
+    const [dataUnLikeComment, loadingUnLikeComment, fetchUnLikeComment] = useReactComment({
+        type: Status.NO_ACTIVE,
+    });
+
+    React.useEffect(() => {
+        if (dataUnLikeComment) {
+            handleChangeDataComment(dataUnLikeComment)
+        }
+    }, [dataUnLikeComment]);
+
+    React.useEffect(() => {
+        if (dataLikeComment) {
+            handleChangeDataComment(dataLikeComment)
+        }
+
+    }, [dataLikeComment]);
+
+    const handleLikeComment = async (idComment: number) => {
+        await fetchLikeComment(idComment);
+    };
+
+    const handleUnLikeComment = async (idComment: number) => {
+        await fetchUnLikeComment(idComment);
+    };
+
     return (
         <Container>
             {dataComment.data.length && !isLoadingComment ? (
                 dataComment.data.map((comment, index) => (
                     <div key={index}>
-                        <CommentItem comment={comment} />
-                        {comment.childComments.length > 0 && <CommentReply comments={comment.childComments} />}
+                        <CommentItem handleDeleteCommentPost={handleDeleteCommentPost} loadingUnLikeComment={loadingUnLikeComment} loadingLikeComment={loadingLikeComment} handleUnLikeComment={handleUnLikeComment} handleLikeComment={handleLikeComment} comment={comment} />
+                        {comment.childComments.length > 0 && <CommentReply handleDeleteCommentPost={handleDeleteCommentPost} loadingUnLikeComment={loadingUnLikeComment} loadingLikeComment={loadingLikeComment} handleUnLikeComment={handleUnLikeComment} handleLikeComment={handleLikeComment} comments={comment.childComments} />}
                     </div>
                 ))
             ) : (

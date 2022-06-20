@@ -1,5 +1,6 @@
 import { Modal } from '@components/common';
 import { Status } from '@constants/status';
+import { Comment } from '@models/Comment';
 import { Post } from '@models/Post';
 import { User } from '@models/User';
 import * as React from 'react';
@@ -20,8 +21,9 @@ export interface IDetailPostProps {
     fetchUnLikePost: (idPost: number) => Promise<void>;
     handleCloseModalDetailPost: () => void;
     handleFollowUserPost: (post: Post, userChange: User) => void;
-    handleShowModalDetailPost: (activeShowDetailPost?: boolean) => Promise<void>;
-
+    handleChangeDataComment: (commentChange: Comment) => void;
+    handlePostComment: (content: string) => Promise<void>;
+    handleDeleteCommentPost: (isComment: number) => Promise<void>
 }
 
 export default function DetailPost(props: IDetailPostProps) {
@@ -33,13 +35,17 @@ export default function DetailPost(props: IDetailPostProps) {
         isLike,
         dataComment,
         isLoadingComment,
-        handleShowModalDetailPost,
+        handleDeleteCommentPost,
+        handlePostComment,
+        handleChangeDataComment,
         handleFollowUserPost,
         fetchLikePost,
         fetchUnLikePost,
         handleCloseModalDetailPost,
         handleChangeIsLike,
     } = props;
+
+    console.log('Show', showModalDetailPost);
     return (
         <Container>
             <Modal
@@ -48,16 +54,16 @@ export default function DetailPost(props: IDetailPostProps) {
                     <PostContentModal
                         dataComment={dataComment}
                         isLoadingComment={isLoadingComment}
-                        showModalDetailPost={showModalDetailPost}
-                        handleCloseModalDetailPost={handleCloseModalDetailPost}
-                        handleShowModalDetailPost={handleShowModalDetailPost}
                         handleFollowUserPost={handleFollowUserPost}
                         handleChangeIsLike={handleChangeIsLike}
                         fetchUnLikePost={fetchUnLikePost}
                         fetchLikePost={fetchLikePost}
+                        handleChangeDataComment={handleChangeDataComment}
                         isLike={isLike}
                         loadingLikePost={loadingLikePost}
                         loadingUnLikePost={loadingUnLikePost}
+                        handlePostComment={handlePostComment}
+                        handleDeleteCommentPost={handleDeleteCommentPost}
                         post={post}
                     />
                 }
