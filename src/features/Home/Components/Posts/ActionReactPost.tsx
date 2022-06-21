@@ -25,8 +25,8 @@ export interface IActionReactPostProps {
     fetchUnLikePost: (idPost: number) => Promise<void>;
     handleFollowUserPost: (post: Post, userChange: User) => void;
     handleChangeDataComment: (commentChange: Comment) => void;
-    handlePostComment: (content: string) => Promise<void>
-    handleDeleteCommentPost: (isComment: number) => Promise<void>
+    handlePostComment: (content: string, parentId?: number) => Promise<void>
+    handleDeleteCommentPost: (isComment: number, idParentComment: number | null) => Promise<void>
 }
 
 const defaultProps: Partial<IActionReactPostProps> = {

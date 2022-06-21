@@ -10,15 +10,19 @@ import { Modal } from '@components/common';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LoadingWhite from '@components/common/LoadingWhite';
+import { ReplyInput } from './PostContentModal';
 export interface IInputPostProps {
-    handlePostComment: (content: string) => Promise<void>;
+    statusReply?: ReplyInput;
+    handleDefaultStatusReply?: () => void;
+    handlePostComment: (content: string, parentId?: number) => Promise<void>;
 }
 
 export default function InputPost(props: IInputPostProps) {
-    const { handlePostComment } = props;
+    const { statusReply, handlePostComment, handleDefaultStatusReply } = props;
     const [input, setInput] = React.useState('');
     const [showEmoji, setShowEmoji] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
+    let refInput = React.useRef<HTMLTextAreaElement>(null);
 
     const handleChangeInput = (e: any) => {
         setInput(e.target.value);
@@ -46,11 +50,25 @@ export default function InputPost(props: IInputPostProps) {
             toast('Content comment not larger 250 characters');
         } else {
             setIsLoading(true)
-            await handlePostComment(input);
+            if (statusReply?.text) {
+                await handlePostComment(input, statusReply.parentIdComment);
+                if (handleDefaultStatusReply) {
+                    handleDefaultStatusReply()
+                }
+            } else {
+                await handlePostComment(input);
+            }
             setIsLoading(false)
             setInput('');
         }
     };
+
+    React.useEffect(() => {
+        if (refInput.current && statusReply?.text) {
+            refInput.current.focus()
+            setInput(statusReply?.text)
+        }
+    }, [statusReply])
     return (
         <>
             <Container>
@@ -71,6 +89,7 @@ export default function InputPost(props: IInputPostProps) {
                             placeholder="Add a comment..."
                             className="text-input"
                             value={input}
+                            ref={refInput}
                             onChange={handleChangeInput}
                         />
                     </div>    

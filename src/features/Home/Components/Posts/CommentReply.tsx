@@ -7,13 +7,15 @@ export interface ICommentReplyProps {
     comments: Comment[],
     loadingUnLikeComment: boolean;
     loadingLikeComment: boolean;
+    currentIdComment: number;
     handleUnLikeComment: (idComment: number) => Promise<void>,
     handleLikeComment: (idComment: number) => Promise<void>,
-    handleDeleteCommentPost: (isComment: number) => Promise<void>
+    handleDeleteCommentPost: (isComment: number, idParentComment: number | null) => Promise<void>,
+    handleReplyComment: (userName: string, idCommentParent: number) => void
 }
 
 export default function CommentReply(props: ICommentReplyProps) {
-    const {comments, loadingLikeComment, loadingUnLikeComment, handleUnLikeComment, handleLikeComment, handleDeleteCommentPost} =  props
+    const {comments, currentIdComment, loadingLikeComment, loadingUnLikeComment, handleUnLikeComment, handleReplyComment, handleLikeComment, handleDeleteCommentPost} =  props
     const [showReplies, setShowReplies] = React.useState(false)
 
     const handleSHowViewReply = () => {
@@ -28,7 +30,7 @@ export default function CommentReply(props: ICommentReplyProps) {
             </div>
             {showReplies && (
                   comments.map((comment, index) => (
-                      <CommentItem handleDeleteCommentPost={handleDeleteCommentPost} key={index} loadingLikeComment={loadingLikeComment} loadingUnLikeComment={loadingUnLikeComment} comment={comment} handleUnLikeComment={handleUnLikeComment} handleLikeComment={handleLikeComment}/>
+                      <CommentItem  currentIdComment={currentIdComment} handleReplyComment={handleReplyComment} handleDeleteCommentPost={handleDeleteCommentPost} key={index} loadingLikeComment={loadingLikeComment} loadingUnLikeComment={loadingUnLikeComment} comment={comment} handleUnLikeComment={handleUnLikeComment} handleLikeComment={handleLikeComment}/>
                   ))
                 )}
         </Container>

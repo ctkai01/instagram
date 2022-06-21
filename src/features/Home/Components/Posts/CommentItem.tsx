@@ -8,14 +8,16 @@ import Moment from 'react-moment';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import ActionComment from './ActionComment';
-
+// import ReactHtmlParser, { processNodes, convertNodeToElement } from 'react-html-parser';
 export interface ICommentItemProps {
     comment: Comment;
     loadingUnLikeComment: boolean;
     loadingLikeComment: boolean;
+    currentIdComment: number;
     handleUnLikeComment: (idComment: number) => Promise<void>;
     handleLikeComment: (idComment: number) => Promise<void>;
-    handleDeleteCommentPost: (isComment: number) => Promise<void>
+    handleDeleteCommentPost: (isComment: number, idParentComment: number | null) => Promise<void>;
+    handleReplyComment: (userName: string, idCommentParent: number) => void;
 }
 
 export default function CommentItem(props: ICommentItemProps) {
@@ -23,29 +25,31 @@ export default function CommentItem(props: ICommentItemProps) {
         comment,
         loadingUnLikeComment,
         loadingLikeComment,
+        currentIdComment,
         handleDeleteCommentPost,
         handleUnLikeComment,
         handleLikeComment,
+        handleReplyComment,
     } = props;
 
     const timeCreated = convertISOTime(comment.created_at);
     const { format, fromNow } = convertTime(comment.created_at, 7);
 
-    const [showModalActionComment, setShowModalActionComment] = React.useState(false)
+    const [showModalActionComment, setShowModalActionComment] = React.useState(false);
 
     const handleCloseActionModal = () => {
-        setShowModalActionComment(false)
-    }
+        setShowModalActionComment(false);
+    };
 
     const handleShowActionModal = () => {
-        setShowModalActionComment(true)
-    }
+        setShowModalActionComment(true);
+    };
 
     const handleDeleteComment = () => {
-        console.log(comment.id)
-        handleCloseActionModal()
-        handleDeleteCommentPost(comment.id)
-    }
+        console.log(comment.id);
+        handleCloseActionModal();
+        handleDeleteCommentPost(comment.id, comment.parent_id);
+    };
     return (
         <>
             <Container>
@@ -63,7 +67,25 @@ export default function CommentItem(props: ICommentItemProps) {
                                             {comment.created_by.user_name}
                                         </Link>
                                         <TickSmallIcon className="tick-icon" />
-                                        {comment.content}
+                                        {/* {comment.content} */}
+                                        {comment.content.split(' ').map((item) => {
+                                            if (item.startsWith('@')) {
+                                                const userName = item.slice(1);
+                                                return (
+                                                    <Link
+                                                        style={{
+                                                            textDecoration: 'none',
+                                                            color: 'rgb(0, 55, 107)',
+                                                        }}
+                                                        to={`/${userName}`}
+                                                    >
+                                                        {item}
+                                                    </Link>
+                                                );
+                                            } else {
+                                                return ' ' + item;
+                                            }
+                                        })}
                                     </span>
                                 </span>
                             </div>
@@ -79,30 +101,47 @@ export default function CommentItem(props: ICommentItemProps) {
                                             ? `${comment.like_count} likes`
                                             : '1 like')}
                                 </div>
-                                <div className="reply-btn">Reply</div>
-                                <ThereDotIcon onClick={handleShowActionModal} className="icon-action-comment" />
+                                <div
+                                    onClick={() => {
+                                        const parentId = comment.parent_id
+                                            ? comment.parent_id
+                                            : comment.id;
+                                        handleReplyComment(comment.created_by.user_name, parentId);
+                                    }}
+                                    className="reply-btn"
+                                >
+                                    Reply
+                                </div>
+                                <ThereDotIcon
+                                    onClick={handleShowActionModal}
+                                    className="icon-action-comment"
+                                />
                             </div>
                         </div>
                     </div>
                     <div className="tym-wrapper">
                         {comment.is_like ? (
-                            loadingUnLikeComment ? (
+                            loadingUnLikeComment && currentIdComment === comment.id ? (
                                 <LoadingWhite size="vr-small" />
                             ) : (
                                 <HeartIcon
-                                    onClick={() => handleUnLikeComment(comment.id)}
+                                    onClick={() => {
+                                        handleUnLikeComment(comment.id);
+                                    }}
                                     className="tym-icon-red"
                                     size={12}
                                     color="red"
                                 />
                             )
-                        ) : loadingLikeComment ? (
+                        ) : loadingLikeComment && currentIdComment === comment.id ? (
                             <LoadingWhite size="vr-small" />
                         ) : (
                             <>
                                 <HeartIcon className="tym-icon-black" size={12} />
                                 <HeartIcon
-                                    onClick={() => handleLikeComment(comment.id)}
+                                    onClick={() => {
+                                        handleLikeComment(comment.id);
+                                    }}
                                     className="tym-icon-gray"
                                     color="gray"
                                     size={12}

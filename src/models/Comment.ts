@@ -8,7 +8,7 @@ export interface Comment {
     id: number;
     content: string;
     created_by: User;
-    parent_id?: number;
+    parent_id: number | null;
     post: Post;
     childComments: Comment[];
     like_count: number;

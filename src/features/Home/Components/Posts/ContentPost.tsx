@@ -15,7 +15,7 @@ export interface IContentPostProps {
     isLike: Status;
     loadingUnLikePost: boolean;
     loadingLikePost: boolean;
-    handlePostComment: (content: string) => Promise<void>
+    handlePostComment: (content: string, parentId?: number) => Promise<void>
     handleShowModalDetailPost: (activeShowDetailPost?: boolean) => Promise<void>;
 }
 

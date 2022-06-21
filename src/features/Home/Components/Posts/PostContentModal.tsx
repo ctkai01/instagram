@@ -37,8 +37,14 @@ export interface IPostContentModalProps {
     handleChangeIsLike: (type: Status) => void;
     handleFollowUserPost: (post: Post, userChange: User) => void;
     handleChangeDataComment: (commentChange: Comment) => void;
-    handlePostComment: (content: string) => Promise<void>
-    handleDeleteCommentPost: (isComment: number) => Promise<void>
+    handlePostComment: (content: string, parentId?: number) => Promise<void>
+    handleDeleteCommentPost: (isComment: number, idParentComment: number | null) => Promise<void>
+}
+
+export interface ReplyInput {
+    text: string;
+    status: boolean;
+    parentIdComment: number
 }
 
 const PostContentModal = (props: IPostContentModalProps) => {
@@ -75,6 +81,12 @@ const PostContentModal = (props: IPostContentModalProps) => {
         }
     }, [dataFollow]);
 
+    const [statusReply, setStatusReply] = React.useState<ReplyInput>({
+        status: false,
+        text: '',
+        parentIdComment: 0
+    })
+
     const userAuth = useAppSelector(selectUserAuth);
 
     React.useEffect(() => {
@@ -102,6 +114,14 @@ const PostContentModal = (props: IPostContentModalProps) => {
         setShowAction(false);
     };
 
+    const handleDefaultStatusReply = () => {
+        setStatusReply({
+            status: false,
+            text: '',
+            parentIdComment: 0
+        })
+    }
+
     const handleFollowUser = async (user: User) => {
         await fetchFollowUser(user.id);
     };
@@ -112,6 +132,14 @@ const PostContentModal = (props: IPostContentModalProps) => {
     // console.log(showAction);
     const timeCreated = convertISOTime(post.created_at);
     const { format, fromNow } = convertTime(post.created_at, 7);
+
+    const handleReplyComment = (userName: string, idCommentParent: number) => {
+        setStatusReply({
+            status: true,
+            text: `@${userName} `,
+            parentIdComment: idCommentParent
+        })
+    }
 
     return (
         <>
@@ -167,6 +195,7 @@ const PostContentModal = (props: IPostContentModalProps) => {
                                     dataComment={dataComment}
                                     handleDeleteCommentPost={handleDeleteCommentPost}
                                     handleChangeDataComment={handleChangeDataComment}
+                                    handleReplyComment={handleReplyComment}
                                 />
                             )}
                         </div>
@@ -226,7 +255,7 @@ const PostContentModal = (props: IPostContentModalProps) => {
                             </Moment>
                         </div>
                         <div className="input-wrapper">
-                            <InputPost handlePostComment={handlePostComment}/>
+                            <InputPost handleDefaultStatusReply={handleDefaultStatusReply} statusReply={statusReply} handlePostComment={handlePostComment}/>
                         </div>
                     </div>
                 </div>

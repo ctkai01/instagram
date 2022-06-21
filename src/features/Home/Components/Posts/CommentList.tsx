@@ -10,23 +10,14 @@ export interface ICommentListProps {
     dataComment: CommentPost;
     isLoadingComment: boolean;
     handleChangeDataComment: (commentChange: Comment) => void;
-    handleDeleteCommentPost: (isComment: number) => Promise<void>
+    handleDeleteCommentPost: (isComment: number, idParentComment: number | null) => Promise<void>
+    handleReplyComment: (userName: string, idCommentParent: number) => void;
 }
 
-// export interface Comment {
-//     user_name: string;
-//     comment: string;
-//     replies: CommentRep[];
-
-// }
-
-// export interface CommentRep {
-//     user_name: string;
-//     comment: string;
-// }
 
 export default function CommentList(props: ICommentListProps) {
-    const { dataComment, isLoadingComment, handleChangeDataComment, handleDeleteCommentPost } = props;
+    const { dataComment, isLoadingComment, handleChangeDataComment, handleDeleteCommentPost, handleReplyComment } = props;
+    const [currentIdComment, setCurrentIdComment] = React.useState<number>(0);
     
     const [dataLikeComment, loadingLikeComment, fetchLikeComment] = useReactComment({
         type: Status.ACTIVE,
@@ -50,10 +41,12 @@ export default function CommentList(props: ICommentListProps) {
     }, [dataLikeComment]);
 
     const handleLikeComment = async (idComment: number) => {
+        setCurrentIdComment(idComment)
         await fetchLikeComment(idComment);
     };
 
     const handleUnLikeComment = async (idComment: number) => {
+        setCurrentIdComment(idComment)
         await fetchUnLikeComment(idComment);
     };
 
@@ -62,8 +55,8 @@ export default function CommentList(props: ICommentListProps) {
             {dataComment.data.length && !isLoadingComment ? (
                 dataComment.data.map((comment, index) => (
                     <div key={index}>
-                        <CommentItem handleDeleteCommentPost={handleDeleteCommentPost} loadingUnLikeComment={loadingUnLikeComment} loadingLikeComment={loadingLikeComment} handleUnLikeComment={handleUnLikeComment} handleLikeComment={handleLikeComment} comment={comment} />
-                        {comment.childComments.length > 0 && <CommentReply handleDeleteCommentPost={handleDeleteCommentPost} loadingUnLikeComment={loadingUnLikeComment} loadingLikeComment={loadingLikeComment} handleUnLikeComment={handleUnLikeComment} handleLikeComment={handleLikeComment} comments={comment.childComments} />}
+                        <CommentItem currentIdComment={currentIdComment} handleReplyComment={handleReplyComment} handleDeleteCommentPost={handleDeleteCommentPost} loadingUnLikeComment={loadingUnLikeComment} loadingLikeComment={loadingLikeComment} handleUnLikeComment={handleUnLikeComment} handleLikeComment={handleLikeComment} comment={comment} />
+                        {comment.childComments.length > 0 && <CommentReply currentIdComment={currentIdComment}  handleReplyComment={handleReplyComment} handleDeleteCommentPost={handleDeleteCommentPost} loadingUnLikeComment={loadingUnLikeComment} loadingLikeComment={loadingLikeComment} handleUnLikeComment={handleUnLikeComment} handleLikeComment={handleLikeComment} comments={comment.childComments} />}
                     </div>
                 ))
             ) : (

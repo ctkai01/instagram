@@ -143,18 +143,53 @@ export default function PostItem(props: IPostItemProps) {
     const handleChangeDataComment = (commentChange: Comment) => {
         setDataComment((dataComment) => {
             const cloneDataComment = { ...dataComment };
-            const checkDataComment = cloneDataComment.data.find(
-                (comment) => comment.id === commentChange.id
-            );
-            if (checkDataComment) {
-                checkDataComment.like_count = commentChange.like_count;
-                checkDataComment.is_like = commentChange.is_like;
-                cloneDataComment.data[
-                    cloneDataComment.data.findIndex((comment) => comment.id === commentChange.id)
-                ] = checkDataComment;
-                return cloneDataComment;
+
+            if (commentChange.parent_id) {
+                const checkIndexDataCommentParent = cloneDataComment.data.findIndex(
+                    (comment) => comment.id === commentChange.parent_id
+                );
+
+                if (checkIndexDataCommentParent !== -1) {
+                    const checkDataCommentChild = cloneDataComment.data[
+                        checkIndexDataCommentParent
+                    ].childComments.find((comment) => comment.id === commentChange.id);
+
+                    if (checkDataCommentChild) {
+                        checkDataCommentChild.like_count = commentChange.like_count;
+                        checkDataCommentChild.is_like = commentChange.is_like;
+
+                        cloneDataComment.data[checkIndexDataCommentParent].childComments[
+                            cloneDataComment.data[checkIndexDataCommentParent].childComments.findIndex(
+                                (comment) => comment.id === commentChange.id
+                            )
+                        ] = checkDataCommentChild;
+                        console.log('CHil', checkDataCommentChild)
+                        console.log('DataALl', cloneDataComment)
+                        return cloneDataComment;
+                    } else {
+                        return cloneDataComment;
+                    }
+                } else {
+                    return cloneDataComment;
+                }
             } else {
-                return cloneDataComment;
+                console.log('FUCKKds', commentChange)
+
+                const checkDataComment = cloneDataComment.data.find(
+                    (comment) => comment.id === commentChange.id
+                );
+                if (checkDataComment) {
+                    checkDataComment.like_count = commentChange.like_count;
+                    checkDataComment.is_like = commentChange.is_like;
+                    cloneDataComment.data[
+                        cloneDataComment.data.findIndex(
+                            (comment) => comment.id === commentChange.id
+                        )
+                    ] = checkDataComment;
+                    return cloneDataComment;
+                } else {
+                    return cloneDataComment;
+                }
             }
         });
     };
@@ -184,30 +219,62 @@ export default function PostItem(props: IPostItemProps) {
         setShowModalDetailPost(false);
     };
 
-    const handlePostComment = async (content: string) => {
+    const handlePostComment = async (content: string, parentId?: number) => {
         const data: CreateComment = {
             content: content,
+            parent_id: parentId,
         };
         const responseCreateComment = await Api.createComment(post.id, data);
 
         setDataComment((dataComment) => {
             const cloneDataComment = { ...dataComment };
-            cloneDataComment.data.push(responseCreateComment.data)
+            if (parentId) {
+                cloneDataComment.data
+                    .find((comment) => comment.id === parentId)
+                    ?.childComments.push(responseCreateComment.data);
+            } else {
+                cloneDataComment.data.push(responseCreateComment.data);
+            }
             return cloneDataComment;
         });
     };
 
-    const handleDeleteCommentPost = async (idComment: number) => {
+    const handleDeleteCommentPost = async (idComment: number, idParentComment: number | null) => {
         setDataComment((dataComment) => {
-            const cloneDataComment = { ...dataComment };
-            const checkIndexDataComment = cloneDataComment.data.findIndex(
-                (comment) => comment.id === idComment
-            );
-            if (checkIndexDataComment !== -1) {
-                cloneDataComment.data.splice(checkIndexDataComment, 1)
-                return cloneDataComment;
+            if (idParentComment) {
+                const cloneDataComment = { ...dataComment };
+                const checkIndexDataCommentParent = cloneDataComment.data.findIndex(
+                    (comment) => comment.id === idParentComment
+                );
+                if (checkIndexDataCommentParent !== -1) {
+                    const checkIndexDataChildComment = cloneDataComment.data[
+                        checkIndexDataCommentParent
+                    ].childComments.findIndex((comment) => comment.id === idComment);
+
+                    if (checkIndexDataChildComment !== -1) {
+                        cloneDataComment.data[checkIndexDataCommentParent].childComments.splice(
+                            checkIndexDataChildComment,
+                            1
+                        );
+                        return cloneDataComment;
+                    } else {
+                        return cloneDataComment;
+                    }
+                } else {
+                    return cloneDataComment;
+                }
             } else {
-                return cloneDataComment;
+                const cloneDataComment = { ...dataComment };
+
+                const checkIndexDataComment = cloneDataComment.data.findIndex(
+                    (comment) => comment.id === idComment
+                );
+                if (checkIndexDataComment !== -1) {
+                    cloneDataComment.data.splice(checkIndexDataComment, 1);
+                    return cloneDataComment;
+                } else {
+                    return cloneDataComment;
+                }
             }
         });
         await Api.deleteComment(idComment);
