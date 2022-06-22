@@ -3,13 +3,15 @@ import { selectUserAuth } from '@features/Auth/authSlice';
 import { Footer } from '@features/Auth/Components/Footer';
 import { IRoute } from '@models/index';
 import { useAppSelector } from '@redux/hooks';
-import { routeApp } from '@routes/index';
+import { PATH_MESSAGE_LIST, routeApp } from '@routes/index';
+import { isNull } from 'lodash';
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import { LayoutScreen } from '.';
 
 export function AppLayout() {
+    let matchRouterNotFooter = useRouteMatch(PATH_MESSAGE_LIST);
     return (
         <Wrapper>  
             <LayoutScreen>
@@ -24,7 +26,8 @@ export function AppLayout() {
                         </Route>
                     </Switch>
                 </Content>
-                <Footer/>
+                {isNull(matchRouterNotFooter) ? <Footer/> : ''}
+                
             </LayoutScreen>
         </Wrapper>
     );
