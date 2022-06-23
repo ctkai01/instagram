@@ -6,16 +6,22 @@ import HeaderSideBar from './HeaderSideBar';
 import UserChatList from './UserChatList';
 
 export interface ISideBarMessageProps {
-    handleAddConversation: (user: User) => void;
-    conversations: Conversation[]
+    conversations: Conversation[];
+    activeConversation: number;
+    authUser: User;
+    handleChangeActiveConversation: (idConversation: number) => void;
 }
 
 export default function SideBarMessage(props: ISideBarMessageProps) {
-    const { conversations, handleAddConversation } = props;
+    const { conversations, authUser, activeConversation, handleChangeActiveConversation } = props;
     return (
         <Container>
-            <HeaderSideBar handleAddConversation={handleAddConversation}/>
-            <UserChatList conversations={conversations}/>
+            <HeaderSideBar authUser={authUser} />
+            <UserChatList
+                activeConversation={activeConversation}
+                conversations={conversations}
+                handleChangeActiveConversation={handleChangeActiveConversation}
+            />
         </Container>
     );
 }

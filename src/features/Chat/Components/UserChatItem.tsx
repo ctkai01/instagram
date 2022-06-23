@@ -4,20 +4,23 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 export interface IUserChatItemProps {
-  conversation: Conversation
+    conversation: Conversation;
+    activeConversation: number;
+    handleChangeActiveConversation: (idConversation: number) => void;
 }
 
 export default function UserChatItem(props: IUserChatItemProps) {
-  const { conversation } = props
-  console.log('User', conversation)
+    const { conversation, activeConversation, handleChangeActiveConversation } = props;
+    console.log('User', conversation);
 
     return (
-        <Container>
-            <Avatar
-                className="avatar"
-                size="medium"
-                url={conversation.users[0].avatar}
-            />
+        <Container
+            onClick={() => handleChangeActiveConversation(conversation.id)}
+            style={{
+                background: `${activeConversation === conversation.id ? 'rgb(239, 239, 239)' : ''}`,
+            }}
+        >
+            <Avatar border='none' className="avatar" size="medium" url={conversation.users[0].avatar} />
             <div className="info-container">
                 <div className="name">{conversation.users[0].name}</div>
                 <div className="comment_lasted">My english is a bit poor</div>
@@ -27,12 +30,16 @@ export default function UserChatItem(props: IUserChatItemProps) {
 }
 
 const Container = styled.div`
-    padding: 8px 12px;
+    padding: 8px 20px;
     display: flex;
     align-items: center;
     cursor: pointer;
-    
-      .avatar {
+
+    &:active {
+        background-color: rgb(239, 239, 239);
+    }
+
+    .avatar {
         margin-right: 10px;
     }
 
