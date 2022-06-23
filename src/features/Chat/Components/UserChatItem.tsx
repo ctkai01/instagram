@@ -1,19 +1,25 @@
 import { Avatar } from '@components/common';
+import { Conversation } from '@models/Conversation';
 import * as React from 'react';
 import styled from 'styled-components';
 
-export interface IUserChatItemProps {}
+export interface IUserChatItemProps {
+  conversation: Conversation
+}
 
 export default function UserChatItem(props: IUserChatItemProps) {
+  const { conversation } = props
+  console.log('User', conversation)
+
     return (
         <Container>
             <Avatar
                 className="avatar"
                 size="medium"
-                url="https://vtv1.mediacdn.vn/thumb_w/640/2018/11/29/photo-1-154348431990377584420.jpg"
+                url={conversation.users[0].avatar}
             />
             <div className="info-container">
-                <div className="name">Tran Manh Hung</div>
+                <div className="name">{conversation.users[0].name}</div>
                 <div className="comment_lasted">My english is a bit poor</div>
             </div>
         </Container>
