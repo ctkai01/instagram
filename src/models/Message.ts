@@ -1,10 +1,12 @@
-import { Status } from '@constants/status';
-import { Post } from './Post';
+import { Conversation } from './Conversation';
 import { User } from './User';
 
 export interface Message {
     id: number;
     user: User;
-    message: string
+    message?: string;
+    image?: string;
+    conversation?: Conversation;
+
 }
 

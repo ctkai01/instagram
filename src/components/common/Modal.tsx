@@ -35,7 +35,8 @@ export function Modal(props: IModalProps) {
                         onClick={onCloseModal}
                         style={{ backgroundColor: color ? color : '' }}
                     />
-                    <div className="content">{content}</div>
+                    {content && <div className="content">{content}</div>}
+
                     <GlobalStyle color={color} showModal={showModal} />
                     {closeButton && (
                         <div className="button-close" onClick={onCloseModal}>

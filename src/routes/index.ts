@@ -7,7 +7,8 @@ import MainMessage from '@features/Chat/Pages/MainMessage';
 export const PATH_BASE = '/';
 export const PATH_REGISTER = '/accounts/emailsignup/';
 export const PATH_PERSON_ACCOUNT = '/:user_name';
-export const PATH_MESSAGE_LIST = '/message/:id_chat';
+export const PATH_MESSAGE_LIST = '/message/me';
+export const PATH_MESSAGE_DIRECT_LIST = '/message/:user_name';
 // export const PATH_TAGGED_PERSON_ACCOUNT = '/:user_name/tagged';
 export const authPath = [PATH_BASE, PATH_REGISTER];
 
@@ -26,10 +27,16 @@ export const routeApp: IRoute[] = [
         exact: true,
     },
     {
+        path: PATH_MESSAGE_DIRECT_LIST,
+        component: MainMessage,
+        exact: true,
+    },
+    {
         path: PATH_PERSON_ACCOUNT,
         component: Wall,
         exact: true,
     },
+
   
     // {
     //     path: PATH_TAGGED_PERSON_ACCOUNT,

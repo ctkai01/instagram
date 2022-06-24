@@ -13,11 +13,14 @@ import MessageList from './MessageList';
 export interface IContentChatProps {
     conversations: Conversation[];
     activeConversation: number;
-    messages: Message[];
+    // messages: Message[];
     authUser: User;
     loading: boolean;
     messageEnd: React.MutableRefObject<HTMLDivElement | null>;
+    messageList: React.MutableRefObject<HTMLDivElement | null>;
     handleSubmitMessage: (text: string) => void;
+    handleSendImage: (base64: string) => void;
+    handleDeleteMessage: (message: Message) => void;
 }
 
 export default function ContentChat(props: IContentChatProps) {
@@ -25,10 +28,13 @@ export default function ContentChat(props: IContentChatProps) {
         conversations,
         loading,
         messageEnd,
+        messageList,
         authUser,
         activeConversation,
-        messages,
+        // messages,
         handleSubmitMessage,
+        handleSendImage,
+        handleDeleteMessage,
     } = props;
 
     const [isDetail, setIsDetail] = React.useState(false);
@@ -56,7 +62,12 @@ export default function ContentChat(props: IContentChatProps) {
     };
     return (
         <Wrapper>
-            <HeaderContent isDetail={isDetail} user={user} handleShowDetail={handleShowDetail} handleCloseDetail={handleCloseDetail}/>
+            <HeaderContent
+                isDetail={isDetail}
+                user={user}
+                handleShowDetail={handleShowDetail}
+                handleCloseDetail={handleCloseDetail}
+            />
             {isDetail ? (
                 <div className="member-wrapper">
                     <div className="title">Members</div>
@@ -68,8 +79,8 @@ export default function ContentChat(props: IContentChatProps) {
                             size="medium"
                         />
                         <div className="info-name">
-                            <div className="user-name">manka_ka</div>
-                            <div className="name">Tran Khanh Hung</div>
+                            <div className="user-name">{user?.user_name}</div>
+                            <div className="name">{user?.name}</div>
                         </div>
                     </div>
                     <div className="action-chat">
@@ -80,13 +91,21 @@ export default function ContentChat(props: IContentChatProps) {
             ) : (
                 <div className="content">
                     <MessageList
+                        handleDeleteMessage={handleDeleteMessage}
                         loading={loading}
                         messageEnd={messageEnd}
+                        messageList={messageList}
                         authUser={authUser}
-                        className="message-list"
-                        messages={messages}
+                        conversations={conversations}
+                        activeConversation={activeConversation}
+                        className='message-list'
+                        // messages={messages}
                     />
-                    <InputChat handleSubmitMessage={handleSubmitMessage} className="input-chat" />
+                    <InputChat
+                        handleSendImage={handleSendImage}
+                        handleSubmitMessage={handleSubmitMessage}
+                        className="input-chat"
+                    />
                 </div>
             )}
         </Wrapper>
@@ -100,7 +119,7 @@ const Wrapper = styled.div`
     height: 860px;
 
     .action-chat {
-        border-bottom: 1px solid rgb(219,219,219);
+        border-bottom: 1px solid rgb(219, 219, 219);
 
         .action-item {
             padding: 16px;
@@ -122,7 +141,7 @@ const Wrapper = styled.div`
             display: flex;
             align-items: center;
 
-            border-bottom: 1px solid rgb(219,219,219);
+            border-bottom: 1px solid rgb(219, 219, 219);
             .user-name {
                 color: #262626;
                 font-size: 14px;
@@ -152,6 +171,7 @@ const Wrapper = styled.div`
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
+        min-height: calc(100% - 64px);
         max-height: calc(100% - 64px);
     }
 
@@ -160,9 +180,11 @@ const Wrapper = styled.div`
         flex-grow: 1;
         flex-shrink: 1;
         /* order: 1; */
-        /* overflow: hidden; */
+        overflow: hidden;
         overflow-y: scroll;
     }
+
+
 
     .input-chat {
         /* flex: 0 0 auto; */

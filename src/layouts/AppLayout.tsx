@@ -3,7 +3,7 @@ import { selectUserAuth } from '@features/Auth/authSlice';
 import { Footer } from '@features/Auth/Components/Footer';
 import { IRoute } from '@models/index';
 import { useAppSelector } from '@redux/hooks';
-import { PATH_MESSAGE_LIST, routeApp } from '@routes/index';
+import { PATH_MESSAGE_DIRECT_LIST, PATH_MESSAGE_LIST, routeApp } from '@routes/index';
 import { isNull } from 'lodash';
 import React from 'react';
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import { LayoutScreen } from '.';
 
 export function AppLayout() {
-    let matchRouterNotFooter = useRouteMatch(PATH_MESSAGE_LIST);
+    let matchRouterNotFooter = useRouteMatch([PATH_MESSAGE_LIST, PATH_MESSAGE_DIRECT_LIST]) 
     return (
         <Wrapper>  
             <LayoutScreen>
