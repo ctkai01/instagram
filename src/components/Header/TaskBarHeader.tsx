@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { CompassIcon, HeartIcon, HomeIcon, PlaneIcon, PlusSquareIcon } from '@components/Icons';
 import { SettingUser } from './SettingUser';
 import { ModalPost } from '@features/UploadPost/Components';
+import { PATH_MESSAGE_LIST } from '@routes/index';
 
 export interface ITaskBarHeaderProps {
     className: string;
@@ -41,10 +42,10 @@ export default function TaskBarHeader(props: ITaskBarHeaderProps) {
 
     return (
         <Container className={className}>
-            <Link to="/home" className='item-taskbar'>
+            <Link to="/" className='item-taskbar'>
                 {showModal ? <HomeIcon ariaLabel='Home' color="white" /> : <HomeIcon ariaLabel='Home' color="black" />}
             </Link>
-            <Link to="/box" className='item-taskbar'>
+            <Link to={PATH_MESSAGE_LIST} className='item-taskbar'>
                 <PlaneIcon ariaLabel='Direct'/>
             </Link>
             <div className='item-taskbar' onClick={handleShowModalCreatePost}>

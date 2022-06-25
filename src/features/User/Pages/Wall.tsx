@@ -35,7 +35,6 @@ import PostAccountList from '../Components/PostAccountList';
 import SuggestFollowedItem from '../Components/SuggestFollowedItem';
 import SuggestFollowedList from '../Components/SuggestFollowedList';
 import UnfollowPaper from '../Components/UnfollowPaper';
-
 export interface IWallProps {}
 
 interface Params {
@@ -397,7 +396,9 @@ export function Wall(props: IWallProps) {
                                 {user_name !== useAuth.user_name &&
                                     (user ? (
                                         <div className="action-container">
-                                            <button className="btn-message">Message</button>
+                                            <Link to={`/message/${user.user_name}`}>
+                                                <button className="btn-message">Message</button>
+                                            </Link>
                                             {user?.is_following ? (
                                                 <button
                                                     className="btn-unfollow"

@@ -18,6 +18,7 @@ export default function SideBarMessage(props: ISideBarMessageProps) {
         <Container>
             <HeaderSideBar authUser={authUser} />
             <UserChatList
+                authUser={authUser}
                 activeConversation={activeConversation}
                 conversations={conversations}
                 handleChangeActiveConversation={handleChangeActiveConversation}
