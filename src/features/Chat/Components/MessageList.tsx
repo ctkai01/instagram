@@ -23,7 +23,7 @@ export default function MessageList(props: IMessageListProps) {
     const { conversations, activeConversation, loading, authUser, className, messageEnd, messageList, handleDeleteMessage } = props;
    
    const messages = conversations.find(conversation => conversation.id === activeConversation)?.messages
-   console.log('Mess', messages)
+   console.log('Mess', loading)
 
     return (
         <Container  className={className} ref={(ref) => (messageList.current = ref)}>

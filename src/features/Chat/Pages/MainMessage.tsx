@@ -36,6 +36,7 @@ export default function MainMessage(props: IMainMessageProps) {
     const [activeConversation, setActiveConversation] = React.useState<number>(-1);
     const [foundUser, setFoundUser] = React.useState<boolean>(true);
     const [user, setUser] = React.useState<User>();
+    const [isDetail, setIsDetail] = React.useState(false);
 
     let { user_name } = useParams<Params>();
     const matchMeMessage = useRouteMatch(PATH_MESSAGE_LIST);
@@ -44,18 +45,9 @@ export default function MainMessage(props: IMainMessageProps) {
             try {
                 const responseUser = await Api.getUserByUserName(user_name);
 
-                // console.log(responseUser);
+                console.log('FETCH USER', conversations);
                 setUser(responseUser.data);
-                setConversations((conversations) => [
-                    {   
-                        id: 0,
-                        messages: [],
-                        users: [responseUser.data],
-                    },
-                    ...conversations,
-                   
-                ]);
-                setActiveConversation(0)
+
                 setFoundUser(true);
                 // const userList =
             } catch (err) {
@@ -68,10 +60,24 @@ export default function MainMessage(props: IMainMessageProps) {
             fetchUser();
         }
     }, [user_name]);
+    console.log('COnversation', conversations);
 
-    // React.useEffect(() => {
+    React.useEffect(() => {
+        if (!conversations.find((conversation) => conversation.users[0].user_name === user_name)) {
+            if (user) {
+                setConversations((conversations) => [
+                    {
+                        id: 0,
+                        messages: [],
+                        users: [user],
+                    },
+                    ...conversations,
+                ]);
+            }
 
-    // }, [user])
+            setActiveConversation(0);
+        }
+    }, [user, conversations]);
 
     React.useEffect(() => {
         socketRef.current = io(host, {
@@ -83,38 +89,43 @@ export default function MainMessage(props: IMainMessageProps) {
             const conversationExist = conversationsFetch.find(
                 (conversation) => conversation.users[0].user_name === user_name
             );
-            console.log('BEFORE', conversationsFetch);
-            console.log('User', user);
+            // console.log('BEFORE', conversationsFetch);
+            // console.log('User', user);
 
             if (conversationExist) {
                 setActiveConversation(conversationExist.id);
             } else {
-                console.log('Create');
+                // console.log('Create');
                 // if  (user) {
                 //     socketRef.current?.emit('createConversation', user)
                 // }
             }
 
             if (matchMeMessage) {
-                console.log('FFF');
+                // console.log('FFF');
                 conversationsFetch = conversationsFetch.filter(
                     (conversation) => conversation.messages.length
                 );
             } else {
-                console.log('Usernamee', user_name);
+                // console.log('Usernamee', user_name);
 
                 conversationsFetch = conversationsFetch.filter(
                     (conversation) =>
                         conversation.messages.length ||
                         conversation.users[0].user_name === user_name
                 );
-                console.log('after rem', conversationsFetch);
+                // console.log('after rem', conversationsFetch);
             }
+            // if (conversations.find(conversation => conversation.id === 0)) {
 
+            // } else {
+
+            // }
             setConversations(conversationsFetch);
             // scrollToBottom()
         });
         socketRef.current.on('newMessage', (messageNew: Message) => {
+            console.log('NEW Message', messageNew)
             setConversations((conversation) => {
                 const conversationClone = [...conversation];
                 let checkConversation;
@@ -191,34 +202,55 @@ export default function MainMessage(props: IMainMessageProps) {
         };
     }, []);
 
-    // React.useEffect(() => {
-    //     scrollToBottom();
-    // }, [messages]);
+    React.useEffect(() => {
+        scrollToBottom();
+    }, [isDetail]);
 
     const authUser = useAppSelector(selectUserAuth);
     const handleSubmitMessage = (text: string) => {
-        // socketRef.current?.emit('createConversation', user)
-        socketRef.current?.emit('sendMessage', {
-            message: text,
-            user: authUser,
-            conversation: conversations.find(
-                (conversation) => conversation.id === activeConversation
-            ),
-        });
+        if (!activeConversation) {
+            socketRef.current?.emit('createConversation', {
+                user,
+                message: text,
+                authUser: authUser,
+            })
+            console.log('SEND')
+        } else {
+            socketRef.current?.emit('sendMessage', {
+                message: text,
+                user: authUser,
+                conversation: conversations.find(
+                    (conversation) => conversation.id === activeConversation
+                ),
+            });
+        }
     };
 
     const handleSendImage = (base64: string) => {
-        socketRef.current?.emit('sendMessage', {
-            image: base64,
-            user: authUser,
-            conversation: conversations.find(
-                (conversation) => conversation.id === activeConversation
-            ),
-        });
+        if (!activeConversation) {
+            socketRef.current?.emit('createConversation', {
+                user,
+                image: base64,
+                authUser: authUser,
+            })
+            console.log('SEND')
+        } else {
+            socketRef.current?.emit('sendMessage', {
+                image: base64,
+                user: authUser,
+                conversation: conversations.find(
+                    (conversation) => conversation.id === activeConversation
+                ),
+            });
+        }
+      
     };
     const handleChangeActiveConversation = (idConversation: number) => {
         setActiveConversation(idConversation);
-        setLoading(true);
+        if (idConversation) {
+            setLoading(true);
+        }
+
         socketRef.current?.emit(
             'joinConversation',
             conversations.find((conversation) => conversation.id === idConversation)?.users[0].id
@@ -262,6 +294,18 @@ export default function MainMessage(props: IMainMessageProps) {
             // })
         }
     };
+
+    if (!isDetail) {
+        console.log('LOOOO');
+    }
+
+    const handleShowDetail = () => {
+        setIsDetail(true);
+    };
+
+    const handleCloseDetail = () => {
+        setIsDetail(false);
+    };
     return (
         <Container
             container
@@ -286,6 +330,9 @@ export default function MainMessage(props: IMainMessageProps) {
                     messageList={messageList}
                     handleSubmitMessage={handleSubmitMessage}
                     // messages={messages}
+                    isDetail={isDetail}
+                    handleShowDetail={handleShowDetail}
+                    handleCloseDetail={handleCloseDetail}
                     activeConversation={activeConversation}
                     conversations={conversations}
                 />

@@ -1,10 +1,11 @@
 import { Avatar } from '@components/common';
-import { TickSmallIcon } from '@components/Icons';
+import { HeartIcon, TickSmallIcon } from '@components/Icons';
 import { Conversation } from '@models/Conversation';
 import { User } from '@models/User';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { HEART_ICON } from './InputChat';
 
 export interface IUserChatItemProps {
     conversation: Conversation;
@@ -15,7 +16,7 @@ export interface IUserChatItemProps {
 
 export default function UserChatItem(props: IUserChatItemProps) {
     const { conversation, authUser, activeConversation, handleChangeActiveConversation } = props;
-    console.log('User', conversation.users[0]);
+    // console.log('User', conversation.users[0]);
     let lastMessage;
     if (conversation.messages) {
         lastMessage = conversation.messages[conversation.messages.length - 1];
@@ -43,7 +44,8 @@ export default function UserChatItem(props: IUserChatItemProps) {
                 <div className="comment_lasted">
                     {lastMessage
                         ? lastMessage.message
-                            ? lastMessage.message
+                            
+                            ? (lastMessage.message === HEART_ICON ? <HeartIcon size={15} color="red" /> : lastMessage.message)
                             : lastMessage.user.id === authUser.id
                             ? 'You sent a image'
                             : 'You received a image'

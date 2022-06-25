@@ -18,9 +18,12 @@ export interface IContentChatProps {
     loading: boolean;
     messageEnd: React.MutableRefObject<HTMLDivElement | null>;
     messageList: React.MutableRefObject<HTMLDivElement | null>;
+    isDetail: boolean;
     handleSubmitMessage: (text: string) => void;
     handleSendImage: (base64: string) => void;
     handleDeleteMessage: (message: Message) => void;
+    handleShowDetail: () => void;
+    handleCloseDetail: () => void;
 }
 
 export default function ContentChat(props: IContentChatProps) {
@@ -32,12 +35,14 @@ export default function ContentChat(props: IContentChatProps) {
         authUser,
         activeConversation,
         // messages,
+        isDetail,
         handleSubmitMessage,
         handleSendImage,
         handleDeleteMessage,
+        handleShowDetail, 
+        handleCloseDetail
     } = props;
 
-    const [isDetail, setIsDetail] = React.useState(false);
 
     const user = conversations.find((conversation) => conversation.id === activeConversation)
         ?.users[0];
@@ -53,13 +58,7 @@ export default function ContentChat(props: IContentChatProps) {
         );
     }
 
-    const handleShowDetail = () => {
-        setIsDetail(true);
-    };
-
-    const handleCloseDetail = () => {
-        setIsDetail(false);
-    };
+   
     return (
         <Wrapper>
             <HeaderContent

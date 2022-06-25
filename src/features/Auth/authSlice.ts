@@ -10,6 +10,7 @@ export interface AuthState {
     message: string;
     error: string;
     currentUser?: User;
+    userSelected?: User;
 }
 
 const initialState: AuthState = {
@@ -18,6 +19,7 @@ const initialState: AuthState = {
     message: '',
     error: '',
     currentUser: undefined,
+    userSelected: undefined
 };
 
 const authSlice = createSlice({
@@ -67,6 +69,9 @@ const authSlice = createSlice({
             state.message = '';
             state.error = '';
         },
+        setUserActive(state, action: PayloadAction<User>) {
+            state.userSelected = action.payload
+        }
     },
 });
 
@@ -77,6 +82,7 @@ export const selectIsLoading = (state: RootState) => state.auth.loading;
 export const selectError = (state: RootState) => state.auth.error;
 export const selectIsLoggedIn = (state: RootState) => state.auth.isLoggedIn;
 export const selectUserAuth = (state: RootState): User => state.auth.currentUser;
+export const selectUserActive = (state: RootState): User => state.auth.userSelected;
 
 const authReducer = authSlice.reducer;
 
