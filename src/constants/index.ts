@@ -10,3 +10,4 @@ export * from './filter-image';
 export * from './step_create_post';
 export * from './general';
 export * from './type-follow';
+export * from './step_create_story'

@@ -1,4 +1,5 @@
 import { Api, AuthApi } from '@api/authApi';
+import { Modal } from '@components/common';
 import { selectUserAuth } from '@features/Auth/authSlice';
 import { postActions, selectPosts, UserPost } from '@features/UploadPost/postSlice';
 import { Grid } from '@material-ui/core';
@@ -10,6 +11,7 @@ import { PostList } from '../Components/Posts/PostList';
 import { FooterSideBar } from '../Components/Sidebar/FooterSideBar';
 import { SuggestForYou } from '../Components/Sidebar/SuggestForYou';
 import { SwitchAccount } from '../Components/Sidebar/SwitchAccount';
+import ModalCreateStory from '../Components/Stories/CreateStory/ModalCreateStory';
 import StoriesList from '../Components/Stories/StoriesList';
 import SuggestionsForYou from '../Components/SuggestionsForYou';
 
@@ -21,17 +23,20 @@ export function Home(props: IHomeProps) {
     const dispatch = useAppDispatch();
     const posts = useAppSelector(selectPosts);
     const userAuth = useAppSelector(selectUserAuth);
-    // const checkShowSuggestion = 
+    // const checkShowSuggestion =
+    const [showCreateStory, setShowCreateStory] = React.useState(false);
 
     React.useEffect(() => {
         dispatch(postActions.fetchData());
 
         const fetchUserSuggested = async () => {
-            const responseCheckFollowing = await Api.checkHasFollowing()
+            const responseCheckFollowing = await Api.checkHasFollowing();
 
-            const checkShowSuggest = !posts.find((post) => post.created_by.id === userAuth.id) && !responseCheckFollowing.data
+            const checkShowSuggest =
+                !posts.find((post) => post.created_by.id === userAuth.id) &&
+                !responseCheckFollowing.data;
 
-            setCheckShowSuggestion(checkShowSuggest)
+            setCheckShowSuggestion(checkShowSuggest);
             if (!checkShowSuggest) {
                 const response = await Api.usersSuggested(5);
                 setUsersSuggest(response.data);
@@ -48,34 +53,48 @@ export function Home(props: IHomeProps) {
 
     console.log('checkShowSuggestion', checkShowSuggestion);
     const handleChangeUserSuggested = (userChanged: User) => {
-        setUsersSuggest(usersSuggest => {
-            const cloneUsersSuggest= [...usersSuggest];
-            const checkUserExist = cloneUsersSuggest.find(cloneUserSuggest => cloneUserSuggest.id === userChanged.id)
+        setUsersSuggest((usersSuggest) => {
+            const cloneUsersSuggest = [...usersSuggest];
+            const checkUserExist = cloneUsersSuggest.find(
+                (cloneUserSuggest) => cloneUserSuggest.id === userChanged.id
+            );
             if (checkUserExist) {
                 checkUserExist.is_following = userChanged.is_following;
                 checkUserExist.count_follower = userChanged.count_follower;
                 checkUserExist.count_following = userChanged.count_following;
-                cloneUsersSuggest[cloneUsersSuggest.findIndex(cloneUserSuggest => cloneUserSuggest.id === userChanged.id)] = checkUserExist
+                cloneUsersSuggest[
+                    cloneUsersSuggest.findIndex(
+                        (cloneUserSuggest) => cloneUserSuggest.id === userChanged.id
+                    )
+                ] = checkUserExist;
 
-                return cloneUsersSuggest
-
+                return cloneUsersSuggest;
             } else {
-                return cloneUsersSuggest
+                return cloneUsersSuggest;
             }
-        })
-    }
+        });
+    };
 
     const handleChangeReactPost = (post: Post) => {
         dispatch(postActions.changeDataPost(post));
-    }
+    };
 
     const handleFollowUserPost = (post: Post, userChange: User) => {
         const data: UserPost = {
             post,
-            user: userChange
-        }
+            user: userChange,
+        };
         dispatch(postActions.changeDataUserPost(data));
-    }
+    };
+
+    const handleShowCreateStory = () => {
+        setShowCreateStory(true);
+    };
+
+    const handleCloseCreateStory = () => {
+        setShowCreateStory(false);
+        console.log('WTF')
+    };
 
     return (
         <Grid
@@ -86,8 +105,22 @@ export function Home(props: IHomeProps) {
             {!checkShowSuggestion ? (
                 <>
                     <Grid item lg={8}>
-                        <StoriesList />
-                        <PostList handleChangeReactPost={handleChangeReactPost} handleFollowUserPost={handleFollowUserPost} posts={posts} />
+                        {/* <Modal
+                            closeButton
+                            content={
+                                <div>11</div>
+                            }
+                            color="rgba(0, 0, 0, 0.65)"
+                            showModal={showCreateStory}
+                            onCloseModal={handleCloseCreateStory}
+                        /> */}
+                        <ModalCreateStory showCreateStory={showCreateStory} handleCloseCreateStory={handleCloseCreateStory}/>
+                        <StoriesList handleShowCreateStory={handleShowCreateStory}/>
+                        <PostList
+                            handleChangeReactPost={handleChangeReactPost}
+                            handleFollowUserPost={handleFollowUserPost}
+                            posts={posts}
+                        />
                     </Grid>
                     <Grid item lg={4} style={{ position: 'fixed', right: '20.1%' }}>
                         <SwitchAccount />
@@ -97,7 +130,10 @@ export function Home(props: IHomeProps) {
                 </>
             ) : (
                 <Grid item lg={7}>
-                    <SuggestionsForYou handleChangeUserSuggested={handleChangeUserSuggested} usersSuggest={usersSuggest}/>
+                    <SuggestionsForYou
+                        handleChangeUserSuggested={handleChangeUserSuggested}
+                        usersSuggest={usersSuggest}
+                    />
                 </Grid>
             )}
         </Grid>

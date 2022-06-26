@@ -1,3 +1,5 @@
+import { selectUserAuth } from '@features/Auth/authSlice';
+import { useAppSelector } from '@redux/hooks';
 import * as React from 'react';
 import styled from 'styled-components';
 import SwiperCore, { Navigation } from 'swiper';
@@ -6,7 +8,10 @@ import 'swiper/css/navigation';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import StoriesItem from './StoriesItem';
 // import img from './images/bgIcon.png';
-export interface IStoriesListProps {}
+export interface IStoriesListProps {
+    handleShowCreateStory: () => void;
+
+}
 SwiperCore.use([Navigation]);
 
 interface StyledStoriesProps {
@@ -14,6 +19,7 @@ interface StyledStoriesProps {
     showButton?: boolean;
 }
 export default function StoriesList(props: IStoriesListProps) {
+    const {handleShowCreateStory} = props
     const listStories = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15'];
     // const listStories = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
@@ -23,7 +29,7 @@ export default function StoriesList(props: IStoriesListProps) {
     } else {
         add = 0;
     }
-
+    const userAuth = useAppSelector(selectUserAuth)
     const arrayAddFake = Array.from(Array(add).keys());
     const urlReact = process.env.REACT_APP_URL;
     const showButton = arrayAddFake.length === 0
@@ -44,11 +50,21 @@ export default function StoriesList(props: IStoriesListProps) {
                         swiper.slideTo(slideTo, 300, false);
                     }}
                     allowTouchMove={false}
-                >
+                >   
+                        <SwiperSlide key={userAuth.user_name}>
+                            <StoriesItem
+                                me={true}
+                                handleShowCreateStory={handleShowCreateStory}
+                                key={userAuth.user_name}
+                                username={userAuth.user_name}
+                                urlImage={userAuth.avatar}
+                            />
+                        </SwiperSlide>
                     {listStories.map((story, index) => (
                         <SwiperSlide key={index}>
                             <StoriesItem
                                 key={index}
+                                me={false}
                                 username={story}
                                 urlImage={`https://picsum.photos/200/300?random=${story}`}
                             />

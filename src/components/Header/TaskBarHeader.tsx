@@ -1,12 +1,12 @@
 import { Avatar, Modal } from '@components/common';
 import { User } from '@models/User';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { CompassIcon, HeartIcon, HomeIcon, PlaneIcon, PlusSquareIcon } from '@components/Icons';
 import { SettingUser } from './SettingUser';
 import { ModalPost } from '@features/UploadPost/Components';
-import { PATH_MESSAGE_LIST } from '@routes/index';
+import { PATH_BASE, PATH_MESSAGE_LIST } from '@routes/index';
 
 export interface ITaskBarHeaderProps {
     className: string;
@@ -39,14 +39,16 @@ export default function TaskBarHeader(props: ITaskBarHeaderProps) {
             setShowModal(true);
         }
     };
-
+    console.log(useLocation())
+    const location = useLocation()
     return (
         <Container className={className}>
             <Link to="/" className='item-taskbar'>
-                {showModal ? <HomeIcon ariaLabel='Home' color="white" /> : <HomeIcon ariaLabel='Home' color="black" />}
+                {/* {showModal ? <HomeIcon ariaLabel='Home' color="white" /> : <HomeIcon ariaLabel='Home' color="black" />} */}
+            <HomeIcon ariaLabel='Home' color={location.pathname === PATH_BASE ? 'black' : 'white'} /> 
             </Link>
             <Link to={PATH_MESSAGE_LIST} className='item-taskbar'>
-                <PlaneIcon ariaLabel='Direct'/>
+                <PlaneIcon ariaLabel='Direct' color={location.pathname === PATH_MESSAGE_LIST ? 'black' : 'white'}/>
             </Link>
             <div className='item-taskbar' onClick={handleShowModalCreatePost}>
                 <PlusSquareIcon ariaLabel='New Post'/>

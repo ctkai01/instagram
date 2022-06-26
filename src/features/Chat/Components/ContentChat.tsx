@@ -3,7 +3,9 @@ import { MessageIcon } from '@components/Icons';
 import { Conversation } from '@models/Conversation';
 import { Message } from '@models/Message';
 import { User } from '@models/User';
+import { PATH_MESSAGE_LIST } from '@routes/index';
 import * as React from 'react';
+import { useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import HeaderContent from './HeaderContent';
 import InputChat from './InputChat';
@@ -43,10 +45,11 @@ export default function ContentChat(props: IContentChatProps) {
         handleCloseDetail
     } = props;
 
+    const matchMeMessage = useRouteMatch(PATH_MESSAGE_LIST);
 
     const user = conversations.find((conversation) => conversation.id === activeConversation)
         ?.users[0];
-    if (activeConversation === -1) {
+    if (matchMeMessage) {
         return (
             <Container>
                 <div className="empty-user">
