@@ -34,6 +34,7 @@ export function DiscardStory(props: IDiscardStoryProps) {
         handleSetFile(defaultFileStory);
     }
 
+
     return (
         <Container>
             <div className="title-container">

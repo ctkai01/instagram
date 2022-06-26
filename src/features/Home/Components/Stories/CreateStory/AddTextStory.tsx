@@ -1,14 +1,20 @@
+import { Button } from '@components/common';
 import { BackIcon } from '@components/Icons';
+import { TextareaAutosize } from '@material-ui/core';
 import * as React from 'react';
+import { useSpring } from 'react-spring';
 import styled from 'styled-components';
-import { FileStory } from './ModalCreateStory';
+import { FileStory, PayloadCreateStory } from './ModalCreateStory';
 
 export interface IAddTextStoryProps {
     file: FileStory;
     handleBackStep: () => void;
+    handleCreateStory: (payload: PayloadCreateStory) => void;
 }
 interface ContainerStyledProps {
     baseUrl: string;
+    font: string;
+    activeColor: string;
 }
 
 const colorCustom = [
@@ -35,11 +41,15 @@ const colorCustom = [
     '#f8e24c',
 ];
 
+const fontCustom = ['Headline', 'Casual', 'Fancy', 'Simple', 'Clean'];
+
 export default function AddTextStory(props: IAddTextStoryProps) {
-    const { file, handleBackStep } = props;
-    const input = React.useRef<HTMLInputElement>(null);
+    const { file, handleBackStep, handleCreateStory } = props;
+    const input = React.useRef<HTMLTextAreaElement>(null);
     const [addText, setAddText] = React.useState(false);
-    const [activeColor, setActiveColor] = React.useState("#ffffff");
+    const [activeColor, setActiveColor] = React.useState('#ffffff');
+    const [activeFont, setActiveFont] = React.useState(fontCustom[0]);
+    const [showFont, setShowFont] = React.useState(false);
 
     const handleClickText = () => {
         setAddText(true);
@@ -49,13 +59,28 @@ export default function AddTextStory(props: IAddTextStoryProps) {
         console.log('Fuck');
     };
 
-    // if (addText) {
-    //     if (input.current) {
-    //         input.current.focus()
-    //     }
-    // }
+    const handleSwitchFront = () => {
+        setShowFont((active) => !active);
+    };
+
+    const handleSetFont = (font: string) => {
+        setActiveFont(font);
+        setShowFont(false);
+    };
+
+    const handleSetColor = (color: string) => {
+        setActiveColor(color);
+    };
+
+    const handleRemove = () => {
+        setAddText(false);
+        if (input.current) {
+            input.current.value = ''
+        }
+    }
+
     return (
-        <Container baseUrl={window.location.origin}>
+        <Container activeColor={activeColor} font={activeFont} baseUrl={window.location.origin}>
             {/* <Container> */}
             <div className="header">
                 {/* <div className="back-button" onClick={handleBackChoseImage}> */}
@@ -66,7 +91,21 @@ export default function AddTextStory(props: IAddTextStoryProps) {
                 <div
                     className="next-button"
                     onClick={() => {
-                        // setIsSubmitEdit((isSubmit) => !isSubmit);
+                        const textStory = input.current ? input.current.value : ''
+
+                        const dataPayload:PayloadCreateStory = {
+                            file: file.file,
+                        }
+
+                        if (textStory) {
+                            dataPayload['textStory'] = {
+                                color: activeColor,
+                                font: activeFont,
+                                text: textStory
+                            }
+                        }
+
+                        handleCreateStory(dataPayload)
                     }}
                 >
                     Share
@@ -75,15 +114,21 @@ export default function AddTextStory(props: IAddTextStoryProps) {
             <div className="content-main" style={{ flexDirection: 'row', height: '80vh' }}>
                 <div className="img-list">
                     <img src={file.url} />
-
-                    <input
-                        style={{ opacity: `${addText ? '1' : '0'}` }}
+                    <TextareaAutosize
+                        maxRows={7}
+                        placeholder="Write a caption..."
+                        className="input-add-text"
+                        ref={input}
+                        style={{ opacity: `${addText ? '1' : '0'}`, color: activeColor }}
+                    />
+                    {/* <input
+                       
                         ref={input}
                         className="input-add-text"
-                    />
+                    /> */}
                 </div>
                 <div className="add-text-container">
-                    {/* {!addText && (
+                    {!addText && (
                         <div className="add-text-wrapper" onClick={handleClickText}>
                             <div className="icon-wrapper">
                                 <div className="icon"></div>
@@ -91,19 +136,58 @@ export default function AddTextStory(props: IAddTextStoryProps) {
 
                             <div className="text">Add text</div>
                         </div>
-                    )} */}
-                    <div className="custom-text-wrapper">
-                        <div className="font-family-wrapper">
-                            <div className="icon-font"></div>
-                            <div className="name-font">Headline</div>
-                            <div className="select-icon"></div>
+                    )}
+
+                    {addText && (
+                        <div className="custom-text-wrapper">
+                            <div onClick={handleSwitchFront} className="font-family-wrapper">
+                                <div className="icon-font"></div>
+                                <div className="name-font">{activeFont}</div>
+                                <div className="select-icon"></div>
+                            </div>
+
+                            {showFont ? (
+                                <div className="active-font-wrapper">
+                                    {fontCustom.map((front) => (
+                                        <div
+                                            onClick={() => handleSetFont(front)}
+                                            className="font-item"
+                                        >
+                                            {front}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="color-wrapper">
+                                    {colorCustom.map((color) => (
+                                        <div
+                                            onClick={() => handleSetColor(color)}
+                                            style={{
+                                                background: color,
+                                                border: `${
+                                                    activeColor === color
+                                                        ? '2px solid rgb(46, 137, 255)'
+                                                        : ''
+                                                }`,
+                                            }}
+                                            className="color-item"
+                                        ></div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                        <div className="color-wrapper">
-                            {colorCustom.map(color => (
-                                <div style={{ background: color, border: `${activeColor === color ? '2px solid rgb(46, 137, 255)' : ''}` }}  className='color-item'></div>
-                            ))}
-                        </div>
-                    </div>
+                    )}
+
+                    {addText && (
+                        <>
+                            <Button className="btn-set-text" handleOnClick={handleClickText}>
+                                Set text
+                            </Button>
+                            <Button className="btn-remove-text" style='border' handleOnClick={handleRemove}>
+                                Remove text
+                            </Button>
+                        </>
+                    )}
                 </div>
             </div>
         </Container>
@@ -150,6 +234,11 @@ const Container = styled.div<ContainerStyledProps>`
         }
     }
 
+    .btn-set-text {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
     .content-main {
         display: flex;
 
@@ -157,6 +246,7 @@ const Container = styled.div<ContainerStyledProps>`
             padding: 16px;
             border-radius: 10px;
             background-color: rgba(36, 37, 38, 0.9);
+            /* position: relative; */
             .color-wrapper {
                 width: 236px;
                 padding: 0 8px;
@@ -170,6 +260,28 @@ const Container = styled.div<ContainerStyledProps>`
                     cursor: pointer;
                 }
             }
+
+            .active-font-wrapper {
+                padding: 8px;
+                margin-top: -8px;
+                width: 236px;
+                border-radius: 6px;
+                background-color: rgba(36, 37, 38, 0.9);
+                border: 1px solid #ccc;
+
+                .font-item {
+                    padding: 8px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    color: #e4e6eb;
+                    font-size: 16px;
+                    &:hover {
+                        background-color: #3a3b3c;
+                        /* opacity: 0.5; */
+                    }
+                }
+            }
+
             .font-family-wrapper {
                 display: flex;
                 margin-bottom: 12px;
@@ -178,8 +290,9 @@ const Container = styled.div<ContainerStyledProps>`
                 align-items: center;
                 flex: 0;
                 border-radius: 6px;
-                border: 2px solid #ccc;
+                border: 1px solid #ccc;
                 padding: 0 5px;
+                cursor: pointer;
                 .icon-font {
                     background-image: ${(props) => `url(${props.baseUrl}/images/bgIcon5.png)`};
                     background-position: 0px -85px;
@@ -216,6 +329,14 @@ const Container = styled.div<ContainerStyledProps>`
             position: relative;
 
             .input-add-text {
+                font-family: ${(props) =>
+                    `${
+                        (props.font === 'Clean' && `'MediaevalItalique', sans-serif;`) ||
+                        (props.font === 'Simple' && `'Mendl Serif Trial', sans-serif;`) ||
+                        (props.font === 'Fancy' && `'Orffela', sans-serif;`) ||
+                        (props.font === 'Casual' && `'Curbstone', sans-serif;`) ||
+                        (props.font === 'Headline' && `Arial, Helvetica, sans-serif;`)
+                    }`};
                 position: absolute;
                 top: 30%;
                 left: 50%;
@@ -227,6 +348,10 @@ const Container = styled.div<ContainerStyledProps>`
                 background: transparent;
                 font-weight: 600;
                 color: #fff;
+
+                &::placeholder {
+                    color: ${(props) => props.activeColor};
+                }
             }
 
             img {
@@ -242,6 +367,7 @@ const Container = styled.div<ContainerStyledProps>`
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
         }
 
         .add-text-wrapper {

@@ -1,5 +1,6 @@
 import { Status } from '@constants/status';
 import { TypeFollow } from '@constants/type-follow';
+import { PayloadCreateStory } from '@features/Home/Components/Stories/CreateStory/ModalCreateStory';
 import { PayloadTransformCreatePost } from '@features/UploadPost/Components/UploadImagePost';
 import { Login, SignIn } from '@models/Auth';
 import { Comment, CreateComment } from '@models/Comment';
@@ -100,5 +101,9 @@ export const Api = {
     deleteComment: (idComment: number) => {
         const url = `api/comments/${idComment}`
         return axiosClient.delete(url)
+    },
+    createStory: (data: FormData) => {
+        const url = `api/stories`
+        return axiosClient.post(url, data)
     },
 };

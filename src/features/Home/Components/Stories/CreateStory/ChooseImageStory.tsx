@@ -3,7 +3,7 @@ import { StepCreateStory } from '@constants/step_create_story';
 import * as React from 'react';
 import styled from 'styled-components';
 import AddTextStory from './AddTextStory';
-import { FileStory } from './ModalCreateStory';
+import { FileStory, PayloadCreateStory } from './ModalCreateStory';
 
 export interface IChooseImageStoryProps {
   step: number;
@@ -12,10 +12,12 @@ export interface IChooseImageStoryProps {
   handleOnChangeFile: (e: React.FormEvent<HTMLInputElement>) => void;
   handleBackStep: () => void
   handleNextStep: () => void
+  handleCreateStory: (payload: PayloadCreateStory) => void;
+
 }
 
 export const ChooseImageStory =  React.forwardRef((props: IChooseImageStoryProps, ref: any) => {
-  const { step, file, handleClickSelectImage, handleOnChangeFile, handleBackStep, handleNextStep } = props
+  const { step, file, handleClickSelectImage, handleOnChangeFile, handleBackStep, handleNextStep, handleCreateStory } = props
   return (
     <Container>
             {step === StepCreateStory.CREATE_NEW_STORY && (
@@ -32,7 +34,7 @@ export const ChooseImageStory =  React.forwardRef((props: IChooseImageStoryProps
             )}
             {step === StepCreateStory.ADD_TEXT && (
                 <AddTextStory
-
+                handleCreateStory={handleCreateStory}               
                 file={file}
                 handleBackStep={handleBackStep}
                 // handleNextStep={handleNextStep}

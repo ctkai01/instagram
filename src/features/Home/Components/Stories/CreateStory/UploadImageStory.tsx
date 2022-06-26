@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { ChooseImageStory } from './ChooseImageStory';
-import { FileStory } from './ModalCreateStory';
+import { FileStory, PayloadCreateStory } from './ModalCreateStory';
 
 export interface IUploadImageStoryProps {
     step: number;
@@ -9,12 +9,13 @@ export interface IUploadImageStoryProps {
     handleBackStep: () => void;
     handleNextStep: () => void;
     handleSetFile: (file: FileStory) => void
+    handleCreateStory: (payload: PayloadCreateStory) => void;
 }
 
 
 
 export default function UploadImageStory(props: IUploadImageStoryProps) {
-    const { step, file, handleBackStep, handleNextStep, handleSetFile } = props;
+    const { step, file, handleBackStep, handleNextStep, handleSetFile, handleCreateStory } = props;
 
     const [isBumpContent, setIsBumpContent] = React.useState<boolean>(false);
     const refInput = React.createRef();
@@ -76,6 +77,7 @@ export default function UploadImageStory(props: IUploadImageStoryProps) {
         <Container className={isBumpContent ? 'bump' : ''}>
             <ChooseImageStory
                 ref={refInput}
+                handleCreateStory={handleCreateStory}
                 handleOnChangeFile={handleOnChangeFile}
                 step={step}
                 file={file}

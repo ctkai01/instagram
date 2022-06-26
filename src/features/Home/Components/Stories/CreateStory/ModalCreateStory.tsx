@@ -1,3 +1,4 @@
+import { Api } from '@api/authApi';
 import { Modal } from '@components/common';
 import * as React from 'react';
 import ChooseMethodStory from './ChooseMethodStory';
@@ -9,9 +10,15 @@ export interface IModalCreateStoryProps {
     handleCloseCreateStory: () => void;
 }
 
+export interface TextStory {
+    text: string;
+    color: string;
+    font: string
+}
+
 export interface PayloadCreateStory {
     file: File;
-    text?: string;
+    textStory?: TextStory;
 }
 
 export interface FileStory {
@@ -80,6 +87,21 @@ export default function ModalCreateStory(props: IModalCreateStoryProps) {
         console.log('SETTTTT')
         handleCloseCreateStory()
     }
+
+    const handleCreateStory = async (payload: PayloadCreateStory) => {
+        console.log(payload)
+        const formData = new FormData();
+
+        if (payload.textStory) {
+
+            formData.append('textStory', JSON.stringify(payload.textStory));
+        }
+        formData.append('file', payload.file);
+
+        await Api.createStory(formData)
+        
+    }
+
     return (
         <>
             {methodStory === MethodStory.NONE && (
@@ -97,10 +119,12 @@ export default function ModalCreateStory(props: IModalCreateStoryProps) {
                     content={
                         <UploadImageStory
                             file={file}
+                            handleCreateStory={handleCreateStory}
                             handleSetFile={handleSetFile}
                             handleBackStep={handleBackStep}
                             handleNextStep={handleNextStep}
                             step={step}
+                            
                         />
                     }
                     color="#000000d9"
