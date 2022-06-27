@@ -1,5 +1,4 @@
-import { Api, AuthApi } from '@api/authApi';
-import { Modal } from '@components/common';
+import { Api } from '@api/authApi';
 import { selectUserAuth } from '@features/Auth/authSlice';
 import { postActions, selectPosts, UserPost } from '@features/UploadPost/postSlice';
 import { Grid } from '@material-ui/core';
@@ -14,6 +13,7 @@ import { SwitchAccount } from '../Components/Sidebar/SwitchAccount';
 import ModalCreateStory from '../Components/Stories/CreateStory/ModalCreateStory';
 import StoriesList from '../Components/Stories/StoriesList';
 import SuggestionsForYou from '../Components/SuggestionsForYou';
+import { selectStories, storyActions } from '../storySlice';
 
 export interface IHomeProps {}
 
@@ -22,13 +22,16 @@ export function Home(props: IHomeProps) {
     const [checkShowSuggestion, setCheckShowSuggestion] = React.useState<boolean>(false);
     const dispatch = useAppDispatch();
     const posts = useAppSelector(selectPosts);
+    const storyUser = useAppSelector(selectStories);
     const userAuth = useAppSelector(selectUserAuth);
     // const checkShowSuggestion =
     const [showCreateStory, setShowCreateStory] = React.useState(false);
+    const [loadingSuggestForYou, setLoadingSuggestForYou] = React.useState(false);
 
     React.useEffect(() => {
-        dispatch(postActions.fetchData());
-
+        // Promise.all([dispatch(postActions.fetchData()), dispatch(storyActions.fetchData())])
+        setLoadingSuggestForYou(true)
+        dispatch(postActions.fetchData())
         const fetchUserSuggested = async () => {
             const responseCheckFollowing = await Api.checkHasFollowing();
 
@@ -44,9 +47,16 @@ export function Home(props: IHomeProps) {
                 const response = await Api.usersSuggested(20);
                 setUsersSuggest(response.data);
             }
+            setLoadingSuggestForYou(false)
+
         };
 
-        fetchUserSuggested();
+        const featchAll = async () => {
+            await  Promise.all([fetchUserSuggested(), dispatch(storyActions.fetchData())])
+        }
+        featchAll()
+
+        // fetchUserSuggested();
     }, []);
 
     console.log('SUGGEST', usersSuggest);
@@ -115,7 +125,7 @@ export function Home(props: IHomeProps) {
                             onCloseModal={handleCloseCreateStory}
                         /> */}
                         <ModalCreateStory showCreateStory={showCreateStory} handleCloseCreateStory={handleCloseCreateStory}/>
-                        <StoriesList handleShowCreateStory={handleShowCreateStory}/>
+                        <StoriesList storyUser={storyUser} handleShowCreateStory={handleShowCreateStory}/>
                         <PostList
                             handleChangeReactPost={handleChangeReactPost}
                             handleFollowUserPost={handleFollowUserPost}
@@ -124,7 +134,7 @@ export function Home(props: IHomeProps) {
                     </Grid>
                     <Grid item lg={4} style={{ position: 'fixed', right: '20.1%' }}>
                         <SwitchAccount />
-                        <SuggestForYou usersSuggest={usersSuggest} />
+                        <SuggestForYou usersSuggest={usersSuggest} loadingSuggestForYou={loadingSuggestForYou}/>
                         <FooterSideBar />
                     </Grid>
                 </>

@@ -1,65 +1,31 @@
 import { User } from '@models/User';
 import * as React from 'react';
 import styled from 'styled-components';
+import { boolean } from 'yup/lib/locale';
+import LoadingSuggestForYou from './LoadingSuggestForYou';
 import { SuggestItem } from './SuggestItem';
 
 export interface ISuggestForYouProps {
     usersSuggest: User[];
+    loadingSuggestForYou: boolean;
 }
 
 export function SuggestForYou(props: ISuggestForYouProps) {
-    const { usersSuggest } = props;
-    const suggestList = [
-        {
-            account: {
-                url: 'https://picsum.photos/32/32?random=1',
-                username: 'lalalalisa_m',
-            },
-            relateUserName: ['thieubaotram', 'hoang.yennn_', 'namcoi_k'],
-        },
-        {
-            account: {
-                url: 'https://picsum.photos/32/32?random=2',
-                username: 'baoang1411',
-            },
-            relateUserName: ['thieubaotram'],
-        },
-        {
-            account: {
-                url: 'https://picsum.photos/32/32?random=3',
-                username: 'nike',
-            },
-            relateUserName: ['thieubaotram', 'hoang.yennn_', 'namcoi_k'],
-        },
-        {
-            account: {
-                url: 'https://picsum.photos/32/32?random=4',
-                username: 'jennierubyjane',
-            },
-            relateUserName: ['thieubaotram', 'hoang.yennn_', 'namcoi_k'],
-        },
-        {
-            account: {
-                url: 'https://picsum.photos/32/32?random=5',
-                username: 'roses_are_rosie',
-            },
-            relateUserName: ['thieu', 'hoang', 'namcoi_k'],
-        },
-    ];
-
+    const { usersSuggest, loadingSuggestForYou } = props;
+    console.log('Loading', loadingSuggestForYou)
     return (
         <Container>
             <div className="title-wrapper">
                 <div className="suggest-title">Suggestions For You</div>
                 <div className="see-all-text">See All</div>
             </div>
-            {usersSuggest.map((user, index) => (
-                <SuggestItem
-                    key={index}
-                    index={index}
-                    user={user}
-                />
-            ))}
+            {loadingSuggestForYou ? (
+              <LoadingSuggestForYou/>
+            ) : (
+                usersSuggest.map((user, index) => (
+                    <SuggestItem key={index} index={index} user={user} />
+                ))
+            )}
         </Container>
     );
 }

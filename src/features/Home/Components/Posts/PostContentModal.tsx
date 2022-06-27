@@ -8,6 +8,7 @@ import UnfollowPaper from '@features/User/Components/UnfollowPaper';
 import { useFollow } from '@hooks/useFollow';
 import { Comment } from '@models/Comment';
 import { Post } from '@models/Post';
+import { ViewStory } from '@models/Story';
 import { User } from '@models/User';
 import { Avatar as AvatarMui, AvatarGroup, Button, Tooltip } from '@mui/material';
 import { useAppSelector } from '@redux/hooks';
@@ -37,14 +38,14 @@ export interface IPostContentModalProps {
     handleChangeIsLike: (type: Status) => void;
     handleFollowUserPost: (post: Post, userChange: User) => void;
     handleChangeDataComment: (commentChange: Comment) => void;
-    handlePostComment: (content: string, parentId?: number) => Promise<void>
-    handleDeleteCommentPost: (isComment: number, idParentComment: number | null) => Promise<void>
+    handlePostComment: (content: string, parentId?: number) => Promise<void>;
+    handleDeleteCommentPost: (isComment: number, idParentComment: number | null) => Promise<void>;
 }
 
 export interface ReplyInput {
     text: string;
     status: boolean;
-    parentIdComment: number
+    parentIdComment: number;
 }
 
 const PostContentModal = (props: IPostContentModalProps) => {
@@ -84,8 +85,8 @@ const PostContentModal = (props: IPostContentModalProps) => {
     const [statusReply, setStatusReply] = React.useState<ReplyInput>({
         status: false,
         text: '',
-        parentIdComment: 0
-    })
+        parentIdComment: 0,
+    });
 
     const userAuth = useAppSelector(selectUserAuth);
 
@@ -118,9 +119,9 @@ const PostContentModal = (props: IPostContentModalProps) => {
         setStatusReply({
             status: false,
             text: '',
-            parentIdComment: 0
-        })
-    }
+            parentIdComment: 0,
+        });
+    };
 
     const handleFollowUser = async (user: User) => {
         await fetchFollowUser(user.id);
@@ -129,7 +130,7 @@ const PostContentModal = (props: IPostContentModalProps) => {
     const handleShowUnfollow = () => {
         setShowUnfollow(true);
     };
-    // console.log(showAction);
+
     const timeCreated = convertISOTime(post.created_at);
     const { format, fromNow } = convertTime(post.created_at, 7);
 
@@ -137,9 +138,9 @@ const PostContentModal = (props: IPostContentModalProps) => {
         setStatusReply({
             status: true,
             text: `@${userName} `,
-            parentIdComment: idCommentParent
-        })
-    }
+            parentIdComment: idCommentParent,
+        });
+    };
 
     return (
         <>
@@ -150,15 +151,57 @@ const PostContentModal = (props: IPostContentModalProps) => {
                 <div className="content-wrapper">
                     <div className="header-wrapper">
                         <div className="header-content">
-                            <Avatar size="small-medium" url={post.created_by.avatar} />
-                            <div className="user_name_wrapper">
-                                <Link className="user_name" to={`/${post.created_by.user_name}`}>
-                                    {post.created_by.user_name}
-                                </Link>
+                            {post.created_by.view_all_story === ViewStory.NONE ? (
+                                <>
+                                    <Link to={`/${post.created_by.user_name}`}>
+                                        <Avatar
+                                            border="none"
+                                            size="small-medium"
+                                            url={post.created_by.avatar}
+                                        />
+                                    </Link>
+                                    <div className="user_name_wrapper">
+                                        <Link
+                                            className="user_name"
+                                            to={`/${post.created_by.user_name}`}
+                                        >
+                                            {post.created_by.user_name}
+                                        </Link>
 
-                                {!!post.created_by.is_tick && <TickSmallIcon className="tick" />}
-                            </div>
-                            {(userAuth.id !== post.created_by.id) && (
+                                        {!!post.created_by.is_tick && (
+                                            <TickSmallIcon className="tick" />
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <Link to={`/stories/${userAuth.user_name}`}>
+                                        <Avatar
+                                            border={`${
+                                                post.created_by.view_all_story === ViewStory.SEE
+                                                    ? 'watch'
+                                                    : 'watched'
+                                            }`}
+                                            size="small-medium"
+                                            url={post.created_by.avatar}
+                                        />
+                                    </Link>
+                                    <div className="user_name_wrapper">
+                                        <Link
+                                            className="user_name"
+                                            to={`/${post.created_by.user_name}`}
+                                        >
+                                            {post.created_by.user_name}
+                                        </Link>
+
+                                        {!!post.created_by.is_tick && (
+                                            <TickSmallIcon className="tick" />
+                                        )}
+                                    </div>
+                                </>
+                            )}
+
+                            {userAuth.id !== post.created_by.id && (
                                 <div className="following-text-wrapper">
                                     <span></span>
                                     {post.created_by.is_following ? (
@@ -200,7 +243,7 @@ const PostContentModal = (props: IPostContentModalProps) => {
                             )}
                         </div>
                         <div className="action-post-wrapper">
-                              <ActionReactDetailPost
+                            <ActionReactDetailPost
                                 handleChangeIsLike={handleChangeIsLike}
                                 fetchUnLikePost={fetchUnLikePost}
                                 fetchLikePost={fetchLikePost}
@@ -255,7 +298,11 @@ const PostContentModal = (props: IPostContentModalProps) => {
                             </Moment>
                         </div>
                         <div className="input-wrapper">
-                            <InputPost handleDefaultStatusReply={handleDefaultStatusReply} statusReply={statusReply} handlePostComment={handlePostComment}/>
+                            <InputPost
+                                handleDefaultStatusReply={handleDefaultStatusReply}
+                                statusReply={statusReply}
+                                handlePostComment={handlePostComment}
+                            />
                         </div>
                     </div>
                 </div>

@@ -1,3 +1,4 @@
+import { Story, ViewStory } from './Story';
 import { TypeFollow } from '@constants/type-follow';
 import { FollowStatus } from './commom';
 import { Post } from './Post';
@@ -22,6 +23,8 @@ export interface User {
     count_following?: number;
     status_story?: number;
     followed_by: string[];
+    stories?: Story[];
+    view_all_story: ViewStory
     created_at?: string
     updated_at?: string
 }

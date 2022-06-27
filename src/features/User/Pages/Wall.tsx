@@ -15,6 +15,7 @@ import { selectUserAuth } from '@features/Auth/authSlice';
 import { useFollow } from '@hooks/index';
 import { FollowUser, useFollowUser } from '@hooks/useFollowUser';
 import { Post } from '@models/Post';
+import { ViewStory } from '@models/Story';
 import { User } from '@models/User';
 import { Skeleton } from '@mui/material';
 import { useAppSelector } from '@redux/hooks';
@@ -371,7 +372,7 @@ export function Wall(props: IWallProps) {
                     <header>
                         <div className="avatar-container">
                             {user ? (
-                                <Avatar size="large" url={user.avatar} />
+                                <Avatar border={`${user.view_all_story === ViewStory.SEE ? 'watch' : 'watched'}`} size="large" url={user.avatar} />
                             ) : (
                                 <Skeleton variant="circular" height={150} width={150} />
                             )}

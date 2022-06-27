@@ -1,4 +1,7 @@
 import { selectUserAuth } from '@features/Auth/authSlice';
+import { selectIsLoading } from '@features/Home/storySlice';
+import { User } from '@models/User';
+import { Skeleton } from '@mui/material';
 import { useAppSelector } from '@redux/hooks';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -6,11 +9,12 @@ import SwiperCore, { Navigation } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import LoadingStory from './LoadingStory';
 import StoriesItem from './StoriesItem';
 // import img from './images/bgIcon.png';
 export interface IStoriesListProps {
+    storyUser: User[];
     handleShowCreateStory: () => void;
-
 }
 SwiperCore.use([Navigation]);
 
@@ -19,38 +23,39 @@ interface StyledStoriesProps {
     showButton?: boolean;
 }
 export default function StoriesList(props: IStoriesListProps) {
-    const {handleShowCreateStory} = props
-    const listStories = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15'];
-    // const listStories = ['1', '2', '3', '4', '5', '6', '7', '8'];
-
+    const { storyUser, handleShowCreateStory } = props;
+    const loading = useAppSelector(selectIsLoading);
     let add;
-    if (listStories.length <= 7) {
-        add = 8 - listStories.length;
+    if (storyUser.length <= 7) {
+        add = 8 - storyUser.length;
     } else {
         add = 0;
     }
-    const userAuth = useAppSelector(selectUserAuth)
+    const userAuth = useAppSelector(selectUserAuth);
     const arrayAddFake = Array.from(Array(add).keys());
     const urlReact = process.env.REACT_APP_URL;
-    const showButton = arrayAddFake.length === 0
+    const showButton = arrayAddFake.length === 0;
     return (
         <>
             <Container urlReact={urlReact} showButton={showButton}>
-                <Swiper
-                    slidesPerView={7.4}
-                    navigation={true}
-                    onSlideNextTransitionStart={(swiper) => {
-                        const slideCurrent = swiper.activeIndex;
-                        const slideTo = slideCurrent + 3;
-                        swiper.slideTo(slideTo, 300, false);
-                    }}
-                    onSlidePrevTransitionStart={(swiper) => {
-                        const slideCurrent = swiper.activeIndex;
-                        const slideTo = slideCurrent - 3;
-                        swiper.slideTo(slideTo, 300, false);
-                    }}
-                    allowTouchMove={false}
-                >   
+                {loading ? (
+                    <LoadingStory />
+                ) : (
+                    <Swiper
+                        slidesPerView={7.4}
+                        navigation={true}
+                        onSlideNextTransitionStart={(swiper) => {
+                            const slideCurrent = swiper.activeIndex;
+                            const slideTo = slideCurrent + 3;
+                            swiper.slideTo(slideTo, 300, false);
+                        }}
+                        onSlidePrevTransitionStart={(swiper) => {
+                            const slideCurrent = swiper.activeIndex;
+                            const slideTo = slideCurrent - 3;
+                            swiper.slideTo(slideTo, 300, false);
+                        }}
+                        allowTouchMove={false}
+                    >
                         <SwiperSlide key={userAuth.user_name} onClick={handleShowCreateStory}>
                             <StoriesItem
                                 me={true}
@@ -60,20 +65,24 @@ export default function StoriesList(props: IStoriesListProps) {
                                 urlImage={userAuth.avatar}
                             />
                         </SwiperSlide>
-                    {listStories.map((story, index) => (
-                        <SwiperSlide key={index}>
-                            <StoriesItem
-                                key={index}
-                                me={false}
-                                username={story}
-                                urlImage={`https://picsum.photos/200/300?random=${story}`}
-                            />
-                        </SwiperSlide>
-                    ))}
-                    {arrayAddFake.map((item) => {
-                        return <SwiperSlide />;
-                    })}
-                </Swiper>
+                        {storyUser.map((user, index) => (
+                            <SwiperSlide key={index}>
+                                <StoriesItem
+                                    key={index}
+                                    me={false}
+                                    view_all_story={user.view_all_story}
+                                    user={user}
+                                    username={user.user_name}
+                                    // urlImage={`https://picsum.photos/200/300?random=${story}`}
+                                    urlImage={user.avatar}
+                                />
+                            </SwiperSlide>
+                        ))}
+                        {arrayAddFake.map((item, index) => {
+                            return <SwiperSlide key={index} />;
+                        })}
+                    </Swiper>
+                )}
             </Container>
         </>
     );
@@ -93,7 +102,7 @@ const Container = styled.div<StyledStoriesProps>`
         width: 45px;
         background-position: -244px -107px;
         background-repeat: no-repeat;
-        display: ${(props) => props.showButton ? 'block' : 'none'};
+        display: ${(props) => (props.showButton ? 'block' : 'none')};
     }
 
     .swiper-button-next::after {

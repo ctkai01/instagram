@@ -106,4 +106,12 @@ export const Api = {
         const url = `api/stories`
         return axiosClient.post(url, data)
     },
+    getStory: () => {
+        const url = `api/user/stories`
+        return axiosClient.get(url)
+    },
+    viewStory: (id: number) => {
+        const url = `api/stories/${id}/view`
+        return axiosClient.post(url)
+    },
 };

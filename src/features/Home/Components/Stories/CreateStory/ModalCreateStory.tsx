@@ -1,6 +1,8 @@
 import { Api } from '@api/authApi';
 import { Modal } from '@components/common';
 import { StepCreateStory, StepCreateStoryText } from '@constants/step_create_story';
+import { storyActions } from '@features/Home/storySlice';
+import { useAppDispatch } from '@redux/hooks';
 import * as React from 'react';
 import { ChooseImageStory } from './ChooseImageStory';
 import ChooseMethodStory from './ChooseMethodStory';
@@ -55,8 +57,11 @@ export default function ModalCreateStory(props: IModalCreateStoryProps) {
     const [loadingCreatedStory, setLoadingCreatedStory] = React.useState<boolean>(false);
     const [showModalDiscard, setShowModalDiscard] = React.useState<boolean>(false);
     const [file, setFile] = React.useState<FileStory>(defaultFileStory);
+    const dispatch = useAppDispatch();
 
     const handleShowModalDiscard = () => {
+
+
         if (step === StepCreateStory.LOADING_CREATED || step === StepCreateStoryText.LOADING_CREATED) {
             handleCloseModalDiscard();
             setStep(1);
@@ -64,7 +69,8 @@ export default function ModalCreateStory(props: IModalCreateStoryProps) {
             setFile(defaultFileStory);
             setMethodStory(MethodStory.NONE);
             handleCloseCreateStory();
-            // dispatch(postActions.fetchData());
+            dispatch(storyActions.fetchData());
+
         } else {
             setShowModalDiscard(true);
         }

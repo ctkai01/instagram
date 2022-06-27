@@ -2,6 +2,7 @@ import { Avatar } from '@components/common';
 import LoadingWhite from '@components/common/LoadingWhite';
 import { TickSmallIcon } from '@components/Icons';
 import { Post } from '@models/Post';
+import { ViewStory } from '@models/Story';
 import { User } from '@models/User';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
@@ -20,16 +21,67 @@ export interface IHeaderProps {
 }
 
 export function Header(props: IHeaderProps) {
-    const { urlImage, post, userAuth, userName, loadingUnfollow, loadingFollow, handleFollowUser, handleShowActionModal } = props;
+    const {
+        urlImage,
+        post,
+        userAuth,
+        userName,
+        loadingUnfollow,
+        loadingFollow,
+        handleFollowUser,
+        handleShowActionModal,
+    } = props;
 
     return (
         <Container>
             <header>
                 <div className="user_name_wrapper">
-                    <Avatar className="avatar-user" url={urlImage} size="small-medium" />
+                    {post.created_by.view_all_story === ViewStory.NONE ? (
+                        <>
+                            <Link to={`/${userName}`} >
+                                <Avatar
+                                    border="none"
+                                    className="avatar-user"
+                                    url={urlImage}
+                                    size="small-medium"
+                                />
+                            </Link>
+
+                            <Link to={`/${userName}`} className="username">
+                                {userName}
+                            </Link>
+                        </>
+                    ) : (
+                        <>  
+                            <Link to={`/stories/${post.created_by.user_name}`}>
+                            <Avatar
+                                border={`${
+                                    post.created_by.view_all_story === ViewStory.SEE
+                                        ? 'watch'
+                                        : 'watched'
+                                }`}
+                                className="avatar-user"
+                                url={urlImage}
+                                size="small-medium"
+                            />
+                            </Link>
+                            
+                            <Link to={`/${userName}`} className="username">
+                                {userName}
+                            </Link>
+                        </>
+                    )}
+                    {/* <Avatar
+                        border={`${
+                            post.created_by.view_all_story === ViewStory.SEE ? 'watch' : 'watched'
+                        }`}
+                        className="avatar-user"
+                        url={urlImage}
+                        size="small-medium"
+                    />
                     <Link to={`/${userName}`} className="username">
                         {userName}
-                    </Link>
+                    </Link> */}
                     {!!post.created_by.is_tick && <TickSmallIcon className="tick" />}
                 </div>
                 {userAuth.id !== post.created_by.id && (

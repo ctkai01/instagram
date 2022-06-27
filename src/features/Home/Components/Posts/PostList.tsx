@@ -1,14 +1,17 @@
+import { selectIsLoading } from '@features/UploadPost/postSlice';
 import { Post } from '@models/Post';
 import { User } from '@models/User';
+// import { Skeleton } from '@mui/material';
+import { useAppSelector } from '@redux/hooks';
 import * as React from 'react';
+import Skeleton from 'react-loading-skeleton';
 import styled from 'styled-components';
 import PostItem from './PostItem';
-
+import PostLoading from './PostLoading';
 export interface IPostListProps {
     posts: Post[];
     handleChangeReactPost: (post: Post) => void;
     handleFollowUserPost: (post: Post, userChange: User) => void;
-    
 }
 
 // interface VideoRef {
@@ -38,6 +41,8 @@ export function PostList(props: IPostListProps) {
     const handleSetPause = () => {
         setIsPlay(false);
     };
+
+    const loadingPost = useAppSelector(selectIsLoading);
 
     const handleWaypointEnter = (post: Post) => {
         console.log('ENTER WAYPOINT', post);
@@ -71,24 +76,31 @@ export function PostList(props: IPostListProps) {
 
     return (
         <Container>
-            {posts.map((post, index) => (
-                <PostItem
-                    key={index}
-                    post={post}
-                    isPlay={isPlay}
-                    handleFollowUserPost={handleFollowUserPost}
-                    handleChangeReactPost={handleChangeReactPost}
-                    handleSetPlay={handleSetPlay}
-                    handleSetPause={handleSetPause}
-                    onWaypointEnter={handleWaypointEnter}
-                    onWaypointLeave={handleWaypointLeave}
-                    getVideoRef={handleVideoRef}
-                />
-            ))}
+            {loadingPost ? (
+                <PostLoading />
+            ) : (
+                posts.map((post, index) => (
+                    <PostItem
+                        key={index}
+                        post={post}
+                        isPlay={isPlay}
+                        handleFollowUserPost={handleFollowUserPost}
+                        handleChangeReactPost={handleChangeReactPost}
+                        handleSetPlay={handleSetPlay}
+                        handleSetPause={handleSetPause}
+                        onWaypointEnter={handleWaypointEnter}
+                        onWaypointLeave={handleWaypointLeave}
+                        getVideoRef={handleVideoRef}
+                    />
+                ))
+            )}
         </Container>
     );
 }
 
 const Container = styled.div`
     background-color: #fafafa;
+
+    display: flex;
+    flex-direction: column;
 `;

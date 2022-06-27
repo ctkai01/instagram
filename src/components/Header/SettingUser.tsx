@@ -1,5 +1,7 @@
 import { Arrow, Modal } from '@components/common';
+import { selectUserAuth } from '@features/Auth/authSlice';
 import { Paper } from '@material-ui/core';
+import { useAppSelector } from '@redux/hooks';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -14,12 +16,12 @@ export interface ISettingUserProps {
 
 export const SettingUser = (props: ISettingUserProps) => {
     const { className, showModal, handleCloseModal, onLogout } = props;
-    
+    const authUser = useAppSelector(selectUserAuth)
     return (
         <Wrapper>
             <Container className={className}>
                 <div className="setting-container">
-                    <Link to="/user" className="setting-item">
+                    <Link to={`/${authUser.user_name}`} className="setting-item">
                         <UserIconIcon className="icon" ariaLabel='Profile'/>
                         <div className="setting-item-text">Profile</div>
                     </Link>
