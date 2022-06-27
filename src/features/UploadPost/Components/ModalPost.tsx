@@ -68,6 +68,7 @@ export function ModalPost(props: IModalPostProps) {
                     />
                 }
                 color="#000000d9"
+                customIndex={200000}
                 showModal={showModalCreatePost}
                 onCloseModal={step === 1 ? handleCloseModalCreatePost : handleShowModalDiscard}
             />

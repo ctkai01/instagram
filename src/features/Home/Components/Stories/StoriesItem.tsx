@@ -7,7 +7,7 @@ export interface IStoriesItemProps {
     username: string;
     urlImage: string;
     me: boolean;
-    handleShowCreateStory?: () => void
+    handleShowCreateStory?: () => void;
 }
 
 export default function StoriesItem(props: IStoriesItemProps) {
@@ -17,10 +17,10 @@ export default function StoriesItem(props: IStoriesItemProps) {
         return (
             <Wrapper>
                 <AddCircleIcon onClick={handleShowCreateStory} className="add-story-icon" />
-                <Container to="gg">
+                <ContainerMe>
                     <Avatar url={urlImage} />
                     <div className="username-text">{username}</div>
-                </Container>
+                </ContainerMe>
             </Wrapper>
         );
     }
@@ -34,6 +34,7 @@ export default function StoriesItem(props: IStoriesItemProps) {
 }
 const Wrapper = styled.div`
     /* display: flex; */
+    cursor: pointer;
     position: relative;
     .add-story-icon {
         position: absolute;
@@ -47,6 +48,27 @@ const Wrapper = styled.div`
 
 const Container = styled(Link)`
     /* height: 83px; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: #000;
+
+    .username-text {
+        margin-top: 6px;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 75px;
+        width: 75px;
+        font-size: 14px;
+        line-height: 14px;
+    }
+`;
+
+const ContainerMe = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;

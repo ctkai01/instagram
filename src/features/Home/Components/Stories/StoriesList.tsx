@@ -51,7 +51,7 @@ export default function StoriesList(props: IStoriesListProps) {
                     }}
                     allowTouchMove={false}
                 >   
-                        <SwiperSlide key={userAuth.user_name}>
+                        <SwiperSlide key={userAuth.user_name} onClick={handleShowCreateStory}>
                             <StoriesItem
                                 me={true}
                                 handleShowCreateStory={handleShowCreateStory}

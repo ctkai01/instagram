@@ -9,6 +9,7 @@ export interface IModalProps {
     content?: JSX.Element;
     color?: string;
     zIndexDepth?: 'first' | 'second';
+    customIndex?: number;
     closeButton?: boolean;
 }
 
@@ -18,9 +19,13 @@ body {
 }`;
 
 export function Modal(props: IModalProps) {
-    const { showModal, onCloseModal, content, color, zIndexDepth, closeButton } = props;
+    const { showModal, onCloseModal, customIndex, content, color, zIndexDepth, closeButton } =
+        props;
     let zIndex;
-    if (zIndexDepth === 'first' || !zIndexDepth) {
+
+    if (customIndex) {
+        zIndex = customIndex;
+    } else if (zIndexDepth === 'first' || !zIndexDepth) {
         zIndex = 10000;
     } else if (zIndexDepth === 'second') {
         zIndex = 10001;

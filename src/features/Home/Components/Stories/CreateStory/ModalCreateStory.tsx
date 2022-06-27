@@ -1,8 +1,12 @@
 import { Api } from '@api/authApi';
 import { Modal } from '@components/common';
+import { StepCreateStory, StepCreateStoryText } from '@constants/step_create_story';
 import * as React from 'react';
+import { ChooseImageStory } from './ChooseImageStory';
 import ChooseMethodStory from './ChooseMethodStory';
+import ChooseTextStory from './ChooseTextStory';
 import { DiscardStory } from './DiscardStory';
+import TextStoryMethod from './TextStoryMethod';
 import UploadImageStory from './UploadImageStory';
 
 export interface IModalCreateStoryProps {
@@ -11,9 +15,14 @@ export interface IModalCreateStoryProps {
 }
 
 export interface TextStory {
-    text: string;
-    color: string;
-    font: string
+    text?: string;
+    color?: string;
+    font: string;
+    bg?: string;
+}
+
+export interface PayloadCreateStoryText {
+    textStory: TextStory;
 }
 
 export interface PayloadCreateStory {
@@ -39,22 +48,26 @@ export enum MethodStory {
 
 export default function ModalCreateStory(props: IModalCreateStoryProps) {
     const { showCreateStory, handleCloseCreateStory } = props;
-  
+
     const [methodStory, setMethodStory] = React.useState<MethodStory>(MethodStory.NONE);
     const [step, setStep] = React.useState<number>(1);
     const [isClickBackFirst, setIsClickBackFirst] = React.useState<boolean>(false);
+    const [loadingCreatedStory, setLoadingCreatedStory] = React.useState<boolean>(false);
     const [showModalDiscard, setShowModalDiscard] = React.useState<boolean>(false);
     const [file, setFile] = React.useState<FileStory>(defaultFileStory);
 
     const handleShowModalDiscard = () => {
-        // if (true) {
-        //     handleCloseCreateStory()
-        //     setStep(1);
-        //     setIsClickBackFirst(false);
-        //     setFile(defaultFileStory);
-        // } else {
+        if (step === StepCreateStory.LOADING_CREATED || step === StepCreateStoryText.LOADING_CREATED) {
+            handleCloseModalDiscard();
+            setStep(1);
+            setIsClickBackFirst(false);
+            setFile(defaultFileStory);
+            setMethodStory(MethodStory.NONE);
+            handleCloseCreateStory();
+            // dispatch(postActions.fetchData());
+        } else {
             setShowModalDiscard(true);
-        // }
+        }
     };
 
     const handleSetMethodStory = (method: MethodStory) => {
@@ -64,8 +77,6 @@ export default function ModalCreateStory(props: IModalCreateStoryProps) {
     const handleSetFile = (file: FileStory) => {
         setFile(file);
     };
-
-
 
     const handleBackStep = () => {
         setStep((stepPrev: number) => stepPrev - 1);
@@ -81,26 +92,34 @@ export default function ModalCreateStory(props: IModalCreateStoryProps) {
         setShowModalDiscard(false);
     };
 
-    console.log('METHOD', methodStory)
     const handleCloseMethodStory = () => {
-        setMethodStory(MethodStory.NONE)
-        console.log('SETTTTT')
-        handleCloseCreateStory()
-    }
+        setMethodStory(MethodStory.NONE);
+        handleCloseCreateStory();
+    };
 
     const handleCreateStory = async (payload: PayloadCreateStory) => {
-        console.log(payload)
+        console.log(payload);
         const formData = new FormData();
 
         if (payload.textStory) {
-
             formData.append('textStory', JSON.stringify(payload.textStory));
         }
         formData.append('file', payload.file);
+        setLoadingCreatedStory(true);
+        await Api.createStory(formData);
+        setLoadingCreatedStory(false);
+    };
 
-        await Api.createStory(formData)
-        
-    }
+    const handleCreateStoryText = async (payload: PayloadCreateStoryText) => {
+        console.log(payload);
+        const formData = new FormData();
+
+        formData.append('textStory', JSON.stringify(payload.textStory));
+     
+        setLoadingCreatedStory(true);
+        await Api.createStory(formData);
+        setLoadingCreatedStory(false);
+    };
 
     return (
         <>
@@ -124,7 +143,24 @@ export default function ModalCreateStory(props: IModalCreateStoryProps) {
                             handleBackStep={handleBackStep}
                             handleNextStep={handleNextStep}
                             step={step}
-                            
+                            loadingCreatedStory={loadingCreatedStory}
+                        />
+                    }
+                    color="#000000d9"
+                    showModal={showCreateStory}
+                    onCloseModal={step === 1 ? handleCloseMethodStory : handleShowModalDiscard}
+                />
+            )}
+            {methodStory === MethodStory.TEXT && (
+                <Modal
+                    closeButton
+                    content={
+                        <ChooseTextStory
+                            loadingCreatedStory={loadingCreatedStory}
+                            handleCreateStoryText={handleCreateStoryText}
+                            handleBackStep={handleBackStep}
+                            handleNextStep={handleNextStep}
+                            step={step}
                         />
                     }
                     color="#000000d9"

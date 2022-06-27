@@ -1,63 +1,31 @@
-import { Button } from '@components/common';
 import { BackIcon } from '@components/Icons';
 import { TextareaAutosize } from '@material-ui/core';
+import { ImagePostText } from '@utils/commom';
 import * as React from 'react';
-import { useSpring } from 'react-spring';
 import styled from 'styled-components';
-import { FileStory, PayloadCreateStory } from './ModalCreateStory';
+import { PayloadCreateStoryText } from './ModalCreateStory';
 
-export interface IAddTextStoryProps {
-    file: FileStory;
+export interface ITextStoryMethodProps {
     handleBackStep: () => void;
     handleNextStep: () => void;
-    handleCreateStory: (payload: PayloadCreateStory) => void;
+    handleCreateStoryText: (payload: PayloadCreateStoryText) => void;
 }
 interface ContainerStyledProps {
     baseUrl: string;
     font: string;
-    activeColor: string;
 }
-
-const colorCustom = [
-    '#000000',
-    '#2986ae',
-    '#702929',
-    '#f7724a',
-    '#5ed5ff',
-    '#f1c43a',
-    '#8e939c',
-    '#88bf4b',
-    '#caedf8',
-    '#ced0d4',
-    '#dcd3ef',
-    '#fb3ea0',
-    '#b9fccb',
-    '#2B457C',
-    '#f4923a',
-    '#f9cbd1',
-    '#941fb1',
-    '#f83d3d',
-    '#583b9a',
-    '#ffffff',
-    '#f8e24c',
-];
 
 const fontCustom = ['Headline', 'Casual', 'Fancy', 'Simple', 'Clean'];
 
-export default function AddTextStory(props: IAddTextStoryProps) {
-    const { file, handleBackStep, handleCreateStory, handleNextStep } = props;
-    const input = React.useRef<HTMLTextAreaElement>(null);
-    const [addText, setAddText] = React.useState(false);
-    const [activeColor, setActiveColor] = React.useState('#ffffff');
+export default function TextStoryMethod(props: ITextStoryMethodProps) {
+    const { handleBackStep, handleNextStep, handleCreateStoryText } = props;
+    const [activeColorBg, setActiveColorBg] = React.useState(ImagePostText[0]);
     const [activeFont, setActiveFont] = React.useState(fontCustom[0]);
     const [showFont, setShowFont] = React.useState(false);
+    const [inputTyping, setInputTyping] = React.useState('');
 
-    const handleClickText = () => {
-        setAddText(true);
-        if (input.current) {
-            input.current.focus();
-        }
-        console.log('Fuck');
+    const handleChangeTypingInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setInputTyping(e.target.value);
     };
 
     const handleSwitchFront = () => {
@@ -69,22 +37,15 @@ export default function AddTextStory(props: IAddTextStoryProps) {
         setShowFont(false);
     };
 
-    const handleSetColor = (color: string) => {
-        setActiveColor(color);
+    const handleSetBgColor = (image: string) => {
+        setActiveColorBg(image);
     };
 
-    const handleRemove = () => {
-        setAddText(false);
-        if (input.current) {
-            input.current.value = ''
-        }
-    }
 
     return (
-        <Container activeColor={activeColor} font={activeFont} baseUrl={window.location.origin}>
+        <Container font={activeFont} baseUrl={window.location.origin}>
             {/* <Container> */}
             <div className="header">
-                {/* <div className="back-button" onClick={handleBackChoseImage}> */}
                 <div className="back-button" onClick={handleBackStep}>
                     <BackIcon ariaLabel="Back" />
                 </div>
@@ -92,22 +53,14 @@ export default function AddTextStory(props: IAddTextStoryProps) {
                 <div
                     className="next-button"
                     onClick={() => {
-                        const textStory = input.current ? input.current.value : ''
-
-                        const dataPayload:PayloadCreateStory = {
-                            file: file.file,
-                        }
-
-                        if (textStory) {
-                            dataPayload['textStory'] = {
-                                color: activeColor,
+                        const dataPayload:PayloadCreateStoryText = {
+                            textStory: {
                                 font: activeFont,
-                                text: textStory
+                                bg: activeColorBg,
+                                text: inputTyping
                             }
                         }
-
-
-                        handleCreateStory(dataPayload)
+                        handleCreateStoryText(dataPayload)
                         handleNextStep()
                     }}
                 >
@@ -116,13 +69,15 @@ export default function AddTextStory(props: IAddTextStoryProps) {
             </div>
             <div className="content-main" style={{ flexDirection: 'row', height: '80vh' }}>
                 <div className="img-list">
-                    <img src={file.url} />
+                    <img src={activeColorBg} />
                     <TextareaAutosize
                         maxRows={7}
-                        placeholder="Write a caption..."
+                        disabled={true}
+                        placeholder="Start typing"
                         className="input-add-text"
-                        ref={input}
-                        style={{ opacity: `${addText ? '1' : '0'}`, color: activeColor }}
+                        // ref={input}
+                        value={inputTyping}
+                        // style={{ opacity: `${addText ? '1' : '0'}`, color: activeColor }}
                     />
                     {/* <input
                        
@@ -131,66 +86,52 @@ export default function AddTextStory(props: IAddTextStoryProps) {
                     /> */}
                 </div>
                 <div className="add-text-container">
-                    {!addText && (
-                        <div className="add-text-wrapper" onClick={handleClickText}>
-                            <div className="icon-wrapper">
-                                <div className="icon"></div>
-                            </div>
-
-                            <div className="text">Add text</div>
+                    <TextareaAutosize
+                        maxRows={7}
+                        placeholder="Start typing"
+                        className="input-typing-text"
+                        onChange={handleChangeTypingInput}
+                        value={inputTyping}
+                        // style={{boxShadow: `${isFocusInput ? '0 0 2px #fff , 0 0 0 4px #1877f2' : 'none'}` }}
+                        // style={{border: `${isFocusInput ? '1px solid #1877f2' : 'none'}` }}
+                        // style={{ opacity: `${addText ? '1' : '0'}`, color: activeColor }}
+                    />
+                    <div className="custom-text-wrapper">
+                        <div onClick={handleSwitchFront} className="font-family-wrapper">
+                            <div className="icon-font"></div>
+                            <div className="name-font">{activeFont}</div>
+                            <div className="select-icon"></div>
                         </div>
-                    )}
 
-                    {addText && (
-                        <div className="custom-text-wrapper">
-                            <div onClick={handleSwitchFront} className="font-family-wrapper">
-                                <div className="icon-font"></div>
-                                <div className="name-font">{activeFont}</div>
-                                <div className="select-icon"></div>
+                        {showFont ? (
+                            <div className="active-font-wrapper">
+                                {fontCustom.map((front) => (
+                                    <div onClick={() => handleSetFont(front)} className="font-item">
+                                        {front}
+                                    </div>
+                                ))}
                             </div>
+                        ) : (
+                            <div className="color-wrapper">
+                                {ImagePostText.map((img, index) => (
+                                    <div
+                                        key={index}
+                                        onClick={() => handleSetBgColor(img)}
+                                        style={{
+                                            backgroundImage: `url(${img})`,
+                                            border: `${
+                                                activeColorBg === img
+                                                    ? '2px solid rgb(46, 137, 255)'
+                                                    : ''
+                                            }`,
+                                        }}
+                                        className="color-item"
+                                    ></div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
-                            {showFont ? (
-                                <div className="active-font-wrapper">
-                                    {fontCustom.map((front) => (
-                                        <div
-                                            onClick={() => handleSetFont(front)}
-                                            className="font-item"
-                                        >
-                                            {front}
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="color-wrapper">
-                                    {colorCustom.map((color) => (
-                                        <div
-                                            onClick={() => handleSetColor(color)}
-                                            style={{
-                                                background: color,
-                                                border: `${
-                                                    activeColor === color
-                                                        ? '2px solid rgb(46, 137, 255)'
-                                                        : ''
-                                                }`,
-                                            }}
-                                            className="color-item"
-                                        ></div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {addText && (
-                        <>
-                            <Button className="btn-set-text" handleOnClick={handleClickText}>
-                                Set text
-                            </Button>
-                            <Button className="btn-remove-text" style='border' handleOnClick={handleRemove}>
-                                Remove text
-                            </Button>
-                        </>
-                    )}
                 </div>
             </div>
         </Container>
@@ -203,6 +144,22 @@ const Container = styled.div<ContainerStyledProps>`
     min-height: 391px;
     max-height: 898px;
 
+    .input-typing-text {
+        padding: 20px;
+        width: 288px;
+        border-radius: 10px;
+        background: rgba(36, 37, 38, 0.9);
+        min-height: 250px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        color: #fff;
+        margin-bottom: 20px;
+
+        &::placeholder {
+            color: #fff;
+        }
+    }
+
     .header {
         display: flex;
         border-bottom: 1px solid rgb(219, 219, 219);
@@ -210,6 +167,7 @@ const Container = styled.div<ContainerStyledProps>`
         justify-content: center;
         align-items: center;
         height: 42px;
+        background-color: #fff;
 
         .main-header {
             flex: 8;
@@ -237,21 +195,21 @@ const Container = styled.div<ContainerStyledProps>`
         }
     }
 
-    .btn-set-text {
+    /* .btn-set-text {
         margin-top: 10px;
         margin-bottom: 10px;
-    }
+    } */
 
     .content-main {
         display: flex;
-
+        background-color: #fff;
         .custom-text-wrapper {
             padding: 16px;
             border-radius: 10px;
             background-color: rgba(36, 37, 38, 0.9);
             /* position: relative; */
             .color-wrapper {
-                width: 236px;
+                width: 256px;
                 padding: 0 8px;
                 display: flex;
                 flex-wrap: wrap;
@@ -330,6 +288,7 @@ const Container = styled.div<ContainerStyledProps>`
             height: 100%;
             cursor: pointer;
             position: relative;
+            background-color: rgb(24, 25, 26);
 
             .input-add-text {
                 font-family: ${(props) =>
@@ -353,7 +312,7 @@ const Container = styled.div<ContainerStyledProps>`
                 color: #fff;
 
                 &::placeholder {
-                    color: ${(props) => props.activeColor};
+                    color: #fff;
                 }
             }
 
@@ -361,6 +320,8 @@ const Container = styled.div<ContainerStyledProps>`
                 object-fit: cover;
                 width: 100%;
                 height: 100%;
+                /* height: 600px; */
+                /* width: 600px; */
             }
         }
 

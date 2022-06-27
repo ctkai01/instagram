@@ -1,0 +1,18 @@
+export const ImagePostText = [
+    `${process.env.REACT_APP_URL}/images/textBg1.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg2.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg3.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg4.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg5.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg6.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg7.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg8.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg9.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg10.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg11.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg12.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg13.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg14.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg15.jpg`,
+    `${process.env.REACT_APP_URL}/images/textBg16.jpg`,
+];

@@ -4,41 +4,56 @@ import * as React from 'react';
 import styled from 'styled-components';
 import AddTextStory from './AddTextStory';
 import { FileStory, PayloadCreateStory } from './ModalCreateStory';
+import SharedStory from './SharedStory';
 
 export interface IChooseImageStoryProps {
-  step: number;
-  file: FileStory;
-  handleClickSelectImage: (e: React.MouseEvent<HTMLElement>) => void;
-  handleOnChangeFile: (e: React.FormEvent<HTMLInputElement>) => void;
-  handleBackStep: () => void
-  handleNextStep: () => void
-  handleCreateStory: (payload: PayloadCreateStory) => void;
-
+    step: number;
+    file: FileStory;
+    loadingCreatedStory: boolean;
+    handleClickSelectImage: (e: React.MouseEvent<HTMLElement>) => void;
+    handleOnChangeFile: (e: React.FormEvent<HTMLInputElement>) => void;
+    handleBackStep: () => void;
+    handleNextStep: () => void;
+    handleCreateStory: (payload: PayloadCreateStory) => void;
 }
 
-export const ChooseImageStory =  React.forwardRef((props: IChooseImageStoryProps, ref: any) => {
-  const { step, file, handleClickSelectImage, handleOnChangeFile, handleBackStep, handleNextStep, handleCreateStory } = props
-  return (
-    <Container>
+export const ChooseImageStory = React.forwardRef((props: IChooseImageStoryProps, ref: any) => {
+    const {
+        step,
+        file,
+        loadingCreatedStory,
+        handleClickSelectImage,
+        handleOnChangeFile,
+        handleBackStep,
+        handleNextStep,
+        handleCreateStory,
+    } = props;
+    return (
+        <Container>
             {step === StepCreateStory.CREATE_NEW_STORY && (
-                <div className='input-choose'>
+                <div className="input-choose">
                     <div className="header">
                         <div className="main-header">Create new story</div>
                     </div>
                     <div className="content-main">
                         <MediaIcon ariaLabel="Icon to represent media such as images or videos" />
                         <div className="text-upload">Drag photos</div>
-                        <button className='btn-select-file' onClick={handleClickSelectImage}>Select from computer</button>
+                        <button className="btn-select-file" onClick={handleClickSelectImage}>
+                            Select from computer
+                        </button>
                     </div>
                 </div>
             )}
             {step === StepCreateStory.ADD_TEXT && (
                 <AddTextStory
-                handleCreateStory={handleCreateStory}               
-                file={file}
-                handleBackStep={handleBackStep}
-                // handleNextStep={handleNextStep}
+                    handleCreateStory={handleCreateStory}
+                    file={file}
+                    handleBackStep={handleBackStep}
+                    handleNextStep={handleNextStep}
                 />
+            )}
+            {step === StepCreateStory.LOADING_CREATED && (
+                <SharedStory loadingCreatedStory={loadingCreatedStory} />
             )}
             <form>
                 <input
@@ -49,18 +64,18 @@ export const ChooseImageStory =  React.forwardRef((props: IChooseImageStoryProps
                     type="file"
                 />
             </form>
-    </Container>
-  );
-})
+        </Container>
+    );
+});
 
 const Container = styled.div`
-   .input-choose {
+    .input-choose {
         position: relative;
         max-width: 751px;
         min-width: 550px;
         min-height: 575px;
     }
-    
+
     .header {
         display: flex;
         border-bottom: 1px solid rgb(219, 219, 219);
@@ -108,5 +123,4 @@ const Container = styled.div`
             outline: none;
         }
     }
-
-`
+`;
