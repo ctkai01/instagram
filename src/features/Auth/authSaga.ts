@@ -1,4 +1,4 @@
-import { AuthApi } from '@api/authApi';
+import { Api, AuthApi } from '@api/authApi';
 import { Login, SignIn } from '@models/Auth';
 import { ErrorResponse, ResponseAuthPagination } from '@models/commom';
 import { User } from '@models/User';
@@ -46,6 +46,28 @@ function* handleLogout() {
     }
 }
 
+function* handleUpdateProfile(payload: any) {
+    try {
+        const response: ResponseAuthPagination<User> = yield Api.updateProfile(payload)
+        yield put(authActions.updateProfileSuccess(response));
+
+    } catch (err) {
+        const errorResponse = (err as ErrorResponse);
+        yield put(authActions.updateProfileFailed(errorResponse))
+    }
+}
+
+function* handleUpdateAvatar(payload: any) {
+    try {
+        const response: ResponseAuthPagination<User> = yield Api.updateAvatar(payload)
+        yield put(authActions.updateAvatarSuccess(response));
+
+    } catch (err) {
+        const errorResponse = (err as ErrorResponse);
+        yield put(authActions.updateAvatarFailed(errorResponse))
+    }
+}
+
 function* watchRegisterFlow() {
     while (true) {
         const action: PayloadAction<SignIn> = yield take(authActions.register.type);
@@ -72,6 +94,23 @@ function* watchLogout() {
     }
 }
 
+function* watchUpdateProfile() {
+    while (true) {
+        const action: PayloadAction<any> = yield take(authActions.updateProfile.type)
+        yield fork(handleUpdateProfile, action.payload);
+
+    }
+}
+
+function* watchUpdateAvatar() {
+    while (true) {
+        const action: PayloadAction<any> = yield take(authActions.updateAvatar.type)
+        yield fork(handleUpdateAvatar, action.payload);
+
+    }
+}
+
+
 export function* authSaga() {
-    yield all([watchRegisterFlow(), watchLoginFlow(), watchLogout()]);
+    yield all([watchRegisterFlow(), watchLoginFlow(), watchLogout(), watchUpdateProfile(), watchUpdateAvatar()]);
 }

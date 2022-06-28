@@ -1,5 +1,7 @@
 import { Avatar } from '@components/common';
+import { PATH_ACCOUNT_PASSWORD_SETTING } from '@routes/index';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 export interface IOptionsUserProps {
@@ -27,8 +29,8 @@ export default function OptionsUser(props: IOptionsUserProps) {
     
     return (
         <Container className={isBumpContent ? 'bump' : ''}>
-            <div className="action-item">Change password</div>
-            <div className="action-item">Log Out</div>
+            <Link to={PATH_ACCOUNT_PASSWORD_SETTING} className="action-item">Change password</Link>
+            {/* <div className="action-item">Log Out</div> */}
             <div className="action-item" onClick={handleCloseOptionsUser}>Cancel</div>
         </Container>
     );
@@ -55,6 +57,7 @@ const Container = styled.div`
         justify-content: center;
         align-items: center;
         border-top: 1px solid rgb(219, 219, 219);
+        text-decoration: none;
         cursor: pointer;
         &.red {
             color: #ed4956;

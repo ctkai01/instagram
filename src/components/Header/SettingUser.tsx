@@ -2,6 +2,7 @@ import { Arrow, Modal } from '@components/common';
 import { selectUserAuth } from '@features/Auth/authSlice';
 import { Paper } from '@material-ui/core';
 import { useAppSelector } from '@redux/hooks';
+import { PATH_ACCOUNT_SETTING } from '@routes/index';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -29,7 +30,7 @@ export const SettingUser = (props: ISettingUserProps) => {
                         <SaveIconIcon className="icon" ariaLabel='Saved'/>
                         <div className="setting-item-text">Saved</div>
                     </Link>
-                    <Link to="/setting" className="setting-item">
+                    <Link to={PATH_ACCOUNT_SETTING} className="setting-item">
                         <SettingIcon className="icon" ariaLabel='Settings'/>
                         <div className="setting-item-text">Settings</div>
                     </Link>

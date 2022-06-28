@@ -1,9 +1,14 @@
+import { Status } from '@constants/status';
+import { TypeFollow } from '@constants/type-follow';
 import PostContentModal from '@features/Home/Components/Posts/PostContentModal';
+import { useFollow } from '@hooks/useFollow';
+import { useReactPost } from '@hooks/useReactPost';
 import { Post } from '@models/Post';
 import * as React from 'react';
 import styled from 'styled-components';
 import SwiperCore, { Navigation } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import GalleryPostItem from './GalleryPostItem';
 import NextBtn from './NextBtn';
 
 export interface IGalleryPostProps {
@@ -29,6 +34,8 @@ export default function GalleryPost(props: IGalleryPostProps) {
     //         swiper.slideTo(currentIndexShow)
     //     }
     // }, [])
+    
+
     console.log('Post', posts)
     return (
         <>
@@ -48,7 +55,13 @@ export default function GalleryPost(props: IGalleryPostProps) {
                 >
                     {posts?.map((post, index) => (
                         <SwiperSlide key={index}>
-                            {/* {currentIndexShow === index && <PostContentModal post={post} />} */}
+                            {currentIndexShow === index && 
+                            GalleryPostItem
+                                key={index}
+                                post={post}
+                                currentIndexShow={currentIndexShow}
+                            />
+                            }
                         </SwiperSlide>
                     ))}
                 </Swiper>

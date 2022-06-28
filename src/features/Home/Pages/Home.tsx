@@ -134,7 +134,7 @@ export function Home(props: IHomeProps) {
                     </Grid>
                     <Grid item lg={4} style={{ position: 'fixed', right: '20.1%' }}>
                         <SwitchAccount />
-                        <SuggestForYou usersSuggest={usersSuggest} loadingSuggestForYou={loadingSuggestForYou}/>
+                        <SuggestForYou handleChangeUserSuggested={handleChangeUserSuggested} usersSuggest={usersSuggest} loadingSuggestForYou={loadingSuggestForYou}/>
                         <FooterSideBar />
                     </Grid>
                 </>

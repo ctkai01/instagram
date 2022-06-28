@@ -1,4 +1,4 @@
-import { Login, SignIn } from '@models/Auth';
+import { Login, SignIn, UpdateProfile } from '@models/Auth';
 import { ErrorResponse, ResponseAuthPagination } from '@models/commom';
 import { User } from '@models/User';
 import { RootState } from '@redux/store';
@@ -71,7 +71,40 @@ const authSlice = createSlice({
         },
         setUserActive(state, action: PayloadAction<User>) {
             state.userSelected = action.payload
-        }
+        },
+        updateProfile(state, action: PayloadAction<UpdateProfile>) {
+            state.loading = true;
+            state.error = '';
+            state.message = '';
+        },
+        updateProfileSuccess(state, action: PayloadAction<any>) {
+            state.currentUser = action.payload.data;
+            state.loading = false;
+            state.message = action.payload.message;
+            state.error = '';
+        },
+        updateProfileFailed(state, action: PayloadAction<ErrorResponse>) {
+            state.loading = false;
+            state.message = '';
+            state.error = action.payload.response.data.message;
+        },
+
+        updateAvatar(state, action: PayloadAction<any>) {
+            state.loading = true;
+            state.error = '';
+            state.message = '';
+        },
+       updateAvatarSuccess(state, action: PayloadAction<any>) {
+            state.currentUser = action.payload.data;
+            state.loading = false;
+            state.message = action.payload.message;
+            state.error = '';
+        },
+       updateAvatarFailed(state, action: PayloadAction<ErrorResponse>) {
+            state.loading = false;
+            state.message = '';
+            state.error = action.payload.response.data.message;
+        },
     },
 });
 

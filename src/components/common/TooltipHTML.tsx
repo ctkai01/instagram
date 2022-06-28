@@ -27,6 +27,7 @@ export function TooltipHTML(props: ITooltipHTMLProps) {
             title={content}
             enterDelay={500}
             leaveDelay={200} 
+            // leaveDelay={20000000} 
             TransitionComponent={Fade}
         >
             {children}

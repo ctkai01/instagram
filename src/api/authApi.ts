@@ -2,7 +2,7 @@ import { Status } from '@constants/status';
 import { TypeFollow } from '@constants/type-follow';
 import { PayloadCreateStory } from '@features/Home/Components/Stories/CreateStory/ModalCreateStory';
 import { PayloadTransformCreatePost } from '@features/UploadPost/Components/UploadImagePost';
-import { Login, SignIn } from '@models/Auth';
+import { ChangePassword, Login, SignIn } from '@models/Auth';
 import { Comment, CreateComment } from '@models/Comment';
 import { ListResponsePagination, ResponseNoPagination, ResponseNoPaginationNoList, ResponsePagination, Tokens } from '@models/commom';
 import { Post } from '@models/Post';
@@ -114,4 +114,16 @@ export const Api = {
         const url = `api/stories/${id}/view`
         return axiosClient.post(url)
     },
+    updateProfile: (data: any) => {
+        const url = `api/user/profile`
+        return axiosClient.post(url, data)
+    },
+    updateAvatar: (data: any) => {
+        const url = `api/user/profile/avatar`
+        return axiosClient.post(url, data)
+    },
+    changePassword: (data: ChangePassword) => {
+        const url = `api/user/change-password`
+        return axiosClient.post(url, data)
+    }
 };

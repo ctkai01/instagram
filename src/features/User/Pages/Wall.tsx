@@ -19,7 +19,7 @@ import { ViewStory } from '@models/Story';
 import { User } from '@models/User';
 import { Skeleton } from '@mui/material';
 import { useAppSelector } from '@redux/hooks';
-import { PATH_PERSON_ACCOUNT } from '@routes/index';
+import { PATH_ACCOUNT_SETTING, PATH_PERSON_ACCOUNT } from '@routes/index';
 import * as React from 'react';
 // import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import { Link, useParams, useRouteMatch } from 'react-router-dom';
@@ -78,6 +78,8 @@ export function Wall(props: IWallProps) {
 
     const [postUser, setPostUser] = React.useState<Post[]>([]);
     const [foundUser, setFoundUser] = React.useState<boolean>(true);
+
+    const [loadingFetchUser, setLoadingFetchUser] = React.useState<boolean>(true);
     const [dataUnfollow, loadingUnfollow, fetchUnFollowUser] = useFollow({
         type: TypeFollow.UNFOLLOW,
     });
@@ -218,6 +220,7 @@ export function Wall(props: IWallProps) {
         const fetchUser = async () => {
             setShowFollower(false);
             setShowFollowing(false);
+            setLoadingFetchUser(true)
             try {
                 const [responseUser, usersSimilar] = await Promise.all([
                     Api.getUserByUserName(user_name),
@@ -230,10 +233,13 @@ export function Wall(props: IWallProps) {
                 setPostUser(responseUser.data.posts);
 
                 setFoundUser(true);
+                setLoadingFetchUser(false)
+
                 // const userList =
             } catch (err) {
                 console.log(err);
                 setFoundUser(false);
+                setLoadingFetchUser(false)
             }
         };
 
@@ -372,7 +378,11 @@ export function Wall(props: IWallProps) {
                     <header>
                         <div className="avatar-container">
                             {user ? (
-                                <Avatar border={`${user.view_all_story === ViewStory.SEE ? 'watch' : 'watched'}`} size="large" url={user.avatar} />
+                                user.view_all_story === ViewStory.NONE ? (
+                                    <Avatar border='none' size="large" url={user.avatar} />
+                                ) : (
+                                    <Link to={`/stories/${user.user_name}`}><Avatar border={`${user.view_all_story === ViewStory.SEE ? 'watch' : 'watched'}`} size="large" url={user.avatar} /></Link>
+                                )
                             ) : (
                                 <Skeleton variant="circular" height={150} width={150} />
                             )}
@@ -468,9 +478,12 @@ export function Wall(props: IWallProps) {
                                 {user_name === useAuth.user_name &&
                                     (user ? (
                                         <div className="action-container">
+                                            <Link to={PATH_ACCOUNT_SETTING}>
                                             <button className="btn-edit-profile">
                                                 Edit profile
                                             </button>
+                                            </Link>
+                                          
                                             <button
                                                 className="btn-options"
                                                 onClick={handleShowOptionsUser}
@@ -646,7 +659,7 @@ export function Wall(props: IWallProps) {
                             <div className="text">TAGGED</div>
                         </div>
                     </div>
-                    <PostAccountList posts={postUser.length ? postUser : undefined} />
+                    <PostAccountList loadingFetchUser={loadingFetchUser} posts={postUser.length ? postUser : undefined} />
                 </Container>
             ) : (
                 <div style={{ padding: '20px', margin: '30% auto' }}>

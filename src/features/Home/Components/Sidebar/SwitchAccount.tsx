@@ -54,7 +54,7 @@ export function SwitchAccount(props: ISwitchAccountProps) {
                     </>
                 )}
             </div>
-            <div className="switch-button">Switch</div>
+            {/* <div className="switch-button">Switch</div> */}
         </Container>
     );
 }

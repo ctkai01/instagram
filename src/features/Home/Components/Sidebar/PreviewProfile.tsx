@@ -18,7 +18,14 @@ export interface IPreviewProfileProps {
 }
 
 export function PreviewProfile(props: IPreviewProfileProps) {
-    const { user, currentUser, loadingUnfollow, loadingFollow, handleFollowUser, handleUnfollowUser } = props;
+    const {
+        user,
+        currentUser,
+        loadingUnfollow,
+        loadingFollow,
+        handleFollowUser,
+        handleUnfollowUser,
+    } = props;
 
     return (
         <Container>
@@ -69,23 +76,26 @@ export function PreviewProfile(props: IPreviewProfileProps) {
             <div className="follow-wrapper">
                 {user.is_following ? (
                     <div className="wrapper-message-unfollow">
-                        <Button style="border" className="message-button">
-                            Message
-                        </Button>
+                        <Link className="message-button" to={`/message/${user.user_name}`}>
+                            <Button style="border" className="btn" >
+                                Message
+                            </Button>
+                        </Link>
+
                         <Button
                             handleOnClick={() => handleUnfollowUser(user.id)}
                             style="border"
                             className="unfollow-button"
                         >
-                            {loadingUnfollow && currentUser?.id === user.id ? <LoadingWhite /> : 'Following'}
-
+                            {loadingUnfollow && currentUser?.id === user.id ? (
+                                <LoadingWhite />
+                            ) : (
+                                'Following'
+                            )}
                         </Button>
                     </div>
                 ) : (
-                    <Button
-                        handleOnClick={() => handleFollowUser(user)}
-                        className="follow-button"
-                    >
+                    <Button handleOnClick={() => handleFollowUser(user)} className="follow-button">
                         {loadingFollow && currentUser?.id === user.id ? <LoadingWhite /> : 'Follow'}
                     </Button>
                 )}
@@ -97,6 +107,7 @@ export function PreviewProfile(props: IPreviewProfileProps) {
 const Container = styled.div`
     width: 390px;
     margin-left: -9px;
+
     header {
         padding: 16px;
         display: flex;
@@ -205,6 +216,10 @@ const Container = styled.div`
         .message-button,
         .unfollow-button {
             width: 48%;
+        }
+
+        .message-button .btn {
+            width: 100%;
         }
 
         .follow-button {

@@ -1,4 +1,5 @@
 import { Avatar, TooltipHTML } from '@components/common';
+import LoadingWhite from '@components/common/LoadingWhite';
 import { User } from '@models/User';
 import { convertStringUsernameRelate } from '@utils/index';
 import * as React from 'react';
@@ -8,10 +9,25 @@ import { PreviewProfile } from './PreviewProfile';
 export interface ISuggestItemProps {
     user: User;
     index: number;
+    currentUser?: User;
+    loadingUnfollow: boolean;
+    loadingFollow: boolean;
+    handleUnfollowUser: (idUser: number) => Promise<void>;
+    handleFollowUser: (user: User) => Promise<void>;
+    handleShowUnfollow: (user: User) => void;
 }
 
 export function SuggestItem(props: ISuggestItemProps) {
-    const { user, index } = props;
+    const {
+        user,
+        index,
+        currentUser,
+        loadingFollow,
+        loadingUnfollow,
+        handleFollowUser,
+        handleUnfollowUser,
+        handleShowUnfollow
+    } = props;
 
     const userRelated: string[] = user.followed_by ? user.followed_by : [];
     const nameUserRelate = convertStringUsernameRelate(userRelated);
@@ -19,7 +35,20 @@ export function SuggestItem(props: ISuggestItemProps) {
     return (
         <Container>
             <div className="account-wrapper">
-                {/* <TooltipHTML placement="bottom-start" content={<PreviewProfile index={index} />}> */}
+                <TooltipHTML
+                    placement="bottom-start"
+                    content={
+                        <PreviewProfile
+                            handleFollowUser={handleFollowUser}
+                            handleUnfollowUser={handleUnfollowUser}
+                            loadingFollow={loadingFollow}
+                            loadingUnfollow={loadingUnfollow}
+                            currentUser={currentUser}
+                            user={user}
+                            index={index}
+                        />
+                    }
+                >
                     <div>
                         <Avatar
                             className="avatar-account"
@@ -28,22 +57,47 @@ export function SuggestItem(props: ISuggestItemProps) {
                             url={user.avatar}
                         />
                     </div>
-                {/* </TooltipHTML> */}
+                </TooltipHTML>
                 <div className="name-account-wrapper">
-                    {/* <TooltipHTML placement="bottom-start" content={<PreviewProfile index={index} />}> */}
+                    <TooltipHTML
+                        placement="bottom-start"
+                        content={
+                            <PreviewProfile
+                                handleFollowUser={handleFollowUser}
+                                handleUnfollowUser={handleUnfollowUser}
+                                loadingFollow={loadingFollow}
+                                loadingUnfollow={loadingUnfollow}
+                                currentUser={currentUser}
+                                user={user}
+                                index={index}
+                            />
+                        }
+                    >
                         <Link to={`/${user.user_name}`} className="username">
                             {user.user_name}
                         </Link>
-                    {/* </TooltipHTML> */}
+                    </TooltipHTML>
 
                     <div className="relate-user">
                         {userRelated.length > 0 && 'Followed by'}
                         &nbsp;
-                        {nameUserRelate ? nameUserRelate :  'Popular'}
+                        {nameUserRelate ? nameUserRelate : 'Popular'}
                     </div>
                 </div>
             </div>
-            <div className="follow-button">Follow</div>
+            {
+                user.is_following ? (
+                    <div onClick={() => handleUnfollowUser(user.id)} className="following-button">
+                        {loadingUnfollow && currentUser?.id === user.id? <LoadingWhite/> : 'Following'}
+                    </div>
+
+                ) :
+              
+                <div onClick={() => handleFollowUser(user)}  className="follow-button">
+                        {loadingFollow  && currentUser?.id === user.id? <LoadingWhite/> : 'Follow'}
+                </div>
+
+            }
         </Container>
     );
 }
@@ -94,6 +148,13 @@ const Container = styled.div`
 
     .follow-button {
         color: #0095f6;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .following-button {
+        color: #262626;
         cursor: pointer;
         font-size: 12px;
         font-weight: 600;

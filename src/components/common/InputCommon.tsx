@@ -38,6 +38,7 @@ export interface InputCommonProps {
     placeholder?: string;
     className?: string;
     form: UseFormMethods<any>;
+    disabled?: boolean;
 }
 
 export function InputCommon(props: InputCommonProps) {
@@ -55,8 +56,9 @@ export function InputCommon(props: InputCommonProps) {
         className,
         required,
         labelInput,
+        disabled
     } = props;
-
+    const defaultDisabled = disabled ? disabled : false
     const hasError = form.formState.touched && form.errors[name] && form.formState.isSubmitted;
 
     return (
@@ -89,6 +91,7 @@ export function InputCommon(props: InputCommonProps) {
                             // fullWidth
                             type={showPassword ? 'text' : type}
                             value={value || ''}
+                            disabled={defaultDisabled}
                             autoComplete={name}
                             autoFocus={focus}
                             defaultValue={defaultValue}
