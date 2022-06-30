@@ -254,7 +254,7 @@ const PostContentModal = (props: IPostContentModalProps) => {
                             />
                         </div>
                         <div className="like-wrapper">
-                            <div className="list-avatar">
+                            {/* <div className="list-avatar">
                                 <AvatarGroup max={3}>
                                     <AvatarMui
                                         sx={{ width: 20, height: 20 }}
@@ -269,7 +269,7 @@ const PostContentModal = (props: IPostContentModalProps) => {
                                         src="http://localhost:5000/uploads/posts/9f8f7b21-521d-42f7-a813-542a21e18c71.jpg"
                                     />
                                 </AvatarGroup>
-                            </div>
+                            </div> */}
                             {/* <div className='text-like'> */}
                             {!!(loadingUnLikePost || loadingLikePost
                                 ? loadingUnLikePost

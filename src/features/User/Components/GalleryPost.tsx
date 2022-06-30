@@ -4,6 +4,7 @@ import PostContentModal from '@features/Home/Components/Posts/PostContentModal';
 import { useFollow } from '@hooks/useFollow';
 import { useReactPost } from '@hooks/useReactPost';
 import { Post } from '@models/Post';
+import { User } from '@models/User';
 import * as React from 'react';
 import styled from 'styled-components';
 import SwiperCore, { Navigation } from 'swiper';
@@ -14,7 +15,9 @@ import NextBtn from './NextBtn';
 export interface IGalleryPostProps {
     posts?: Post[];
     currentIndexShow: number;
+    handleFollowUserPostProfile: (post: Post, userChange: User) => void
     changeCurrentIndexShow: (index: number) => void;
+    handleActionPostProfile: (postChange: Post) => void;
 }
 SwiperCore.use([Navigation]);
 
@@ -22,7 +25,7 @@ interface StyledGalleryPostProps {
     urlReact?: string;
 }
 export default function GalleryPost(props: IGalleryPostProps) {
-    const { posts, currentIndexShow, changeCurrentIndexShow } = props;
+    const { posts, currentIndexShow, handleActionPostProfile, handleFollowUserPostProfile, changeCurrentIndexShow } = props;
     const urlReact = process.env.REACT_APP_URL;
     // const [swiper, setSwiper] = React.useState<SwiperCore>();
 
@@ -56,9 +59,12 @@ export default function GalleryPost(props: IGalleryPostProps) {
                     {posts?.map((post, index) => (
                         <SwiperSlide key={index}>
                             {currentIndexShow === index && 
-                            GalleryPostItem
+                            <GalleryPostItem
                                 key={index}
                                 post={post}
+                                index={index}
+                                handleActionPostProfile={handleActionPostProfile}
+                                handleFollowUserPostProfile={handleFollowUserPostProfile}
                                 currentIndexShow={currentIndexShow}
                             />
                             }

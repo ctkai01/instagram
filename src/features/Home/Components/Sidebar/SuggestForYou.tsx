@@ -70,7 +70,7 @@ export function SuggestForYou(props: ISuggestForYouProps) {
             <Container>
                 <div className="title-wrapper">
                     <div className="suggest-title">Suggestions For You</div>
-                    <div className="see-all-text">See All</div>
+                    {/* <div className="see-all-text">See All</div> */}
                 </div>
                 {loadingSuggestForYou ? (
                     <LoadingSuggestForYou />

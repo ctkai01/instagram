@@ -12,10 +12,12 @@ import GalleryPost from './GalleryPost';
 export interface IPostAccountListProps {
     posts?: Post[];
     loadingFetchUser: boolean;
+    handleActionPostProfile: (postChange: Post) => void;
+    handleFollowUserPostProfile: (post: Post, userChange: User) => void;
 }
 
 export default function PostAccountList(props: IPostAccountListProps) {
-    const { posts, loadingFetchUser } = props;
+    const { posts, loadingFetchUser, handleFollowUserPostProfile, handleActionPostProfile } = props;
 
     const [showGalleryPost, setShowGalleryPost] = React.useState(false);
     const [currentIndexShow, setCurrentIndexShow] = React.useState(-1);
@@ -34,7 +36,7 @@ export default function PostAccountList(props: IPostAccountListProps) {
     const changeCurrentIndexShow = (index: number) => {
         setCurrentIndexShow(index);
     };
-    console.log('Post', posts)
+    console.log('Post', posts);
     return (
         <Container>
             {loadingFetchUser ? (
@@ -90,8 +92,10 @@ export default function PostAccountList(props: IPostAccountListProps) {
                 closeButton
                 content={
                     <GalleryPost
+                        handleFollowUserPostProfile={handleFollowUserPostProfile}
                         currentIndexShow={currentIndexShow}
                         posts={posts}
+                        handleActionPostProfile={handleActionPostProfile}
                         changeCurrentIndexShow={changeCurrentIndexShow}
                     />
                 }

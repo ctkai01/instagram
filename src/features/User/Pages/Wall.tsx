@@ -108,6 +108,41 @@ export function Wall(props: IWallProps) {
         await fetchFollowUser(idUser);
     };
 
+    const handleFollowUserPostProfile = (post: Post, userChange: User) => {
+        setPostUser((posts) => {
+            const clonePosts = [...posts]
+            const postExist = clonePosts.find(postBefore => postBefore.id === post.id)
+            if (postExist) {
+                postExist.created_by.is_following = userChange.is_following;
+                postExist.created_by.count_follower = userChange.count_follower;
+                postExist.created_by.count_following = userChange.count_following;
+                clonePosts[clonePosts.findIndex(postBefore => postBefore.id === post.id)] = postExist
+               
+               return clonePosts
+
+            } else {
+                return clonePosts
+            }
+        } )
+    }
+
+    const handleActionPostProfile = (postChange: Post) => {
+        setPostUser((posts) => {
+            const clonePosts = [...posts]
+            const postExist = clonePosts.find(post => post.id === postChange.id)
+            if (postExist) {
+                postExist.is_like = postChange.is_like;
+                clonePosts[clonePosts.findIndex(post => post.id === postChange.id)] = postExist
+               
+               return clonePosts
+
+            } else {
+                return clonePosts
+            }
+        } )
+    }
+
+
     React.useEffect(() => {
         if (dataFollowerUser) {
             setUsersFollower((usersFollower) => ({
@@ -659,7 +694,7 @@ export function Wall(props: IWallProps) {
                             <div className="text">TAGGED</div>
                         </div>
                     </div>
-                    <PostAccountList loadingFetchUser={loadingFetchUser} posts={postUser.length ? postUser : undefined} />
+                    <PostAccountList handleActionPostProfile={handleActionPostProfile} handleFollowUserPostProfile={handleFollowUserPostProfile} loadingFetchUser={loadingFetchUser} posts={postUser.length ? postUser : undefined} />
                 </Container>
             ) : (
                 <div style={{ padding: '20px', margin: '30% auto' }}>

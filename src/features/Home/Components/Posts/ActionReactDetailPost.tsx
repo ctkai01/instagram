@@ -68,7 +68,6 @@ export function ActionReactDetailPost(props: IActionReactDetailPostProps) {
             await fetchUnLikePost(idPost);
         } else {
             handleChangeIsLike(Status.ACTIVE);
-
             await fetchLikePost(idPost);
         }
     };
@@ -80,8 +79,12 @@ export function ActionReactDetailPost(props: IActionReactDetailPostProps) {
                     <div
                         className="item"
                         onClick={() => {
+                            console.log('hh', loadingLikePost)
+                            console.log('h1', loadingUnLikePost)
                             if (!loadingLikePost && !loadingUnLikePost) {
                                 handleFetchReactPost(post.id);
+                                console.log('Call')
+
                             }
                         }}
                     >
