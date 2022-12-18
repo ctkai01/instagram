@@ -54,12 +54,12 @@ export default function TaskBarHeader(props: ITaskBarHeaderProps) {
                 <PlusSquareIcon ariaLabel='New Post'/>
                 <ModalPost showModalCreatePost={showModalCreatePost} handleCloseModalCreatePost={handleCloseModalCreatePost}/>
             </div>
-            <Link to="/find-people" className='item-taskbar'>
+            {/* <Link to="/find-people" className='item-taskbar'>
                 <CompassIcon ariaLabel='Find People'/>
-            </Link>
-            <Link to="/activity-feed"className='item-taskbar'>
+            </Link> */}
+            {/* <Link to="/activity-feed"className='item-taskbar'>
                 <HeartIcon ariaLabel='Activity Feed'/>
-            </Link>
+            </Link> */}
             <div onClick={handleShowModal} className="user-current-box item-taskbar">
                 <Avatar className='image-user' size='small' thicknessBorder={1} border={showModal ? 'normal' : 'none'} url={userAuth.avatar}/>
                 {showModal ? (

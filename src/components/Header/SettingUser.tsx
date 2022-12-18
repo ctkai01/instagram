@@ -26,18 +26,18 @@ export const SettingUser = (props: ISettingUserProps) => {
                         <UserIconIcon className="icon" ariaLabel='Profile'/>
                         <div className="setting-item-text">Profile</div>
                     </Link>
-                    <Link to="/saved" className="setting-item">
+                    {/* <Link to="/saved" className="setting-item">
                         <SaveIconIcon className="icon" ariaLabel='Saved'/>
                         <div className="setting-item-text">Saved</div>
-                    </Link>
+                    </Link> */}
                     <Link to={PATH_ACCOUNT_SETTING} className="setting-item">
                         <SettingIcon className="icon" ariaLabel='Settings'/>
                         <div className="setting-item-text">Settings</div>
                     </Link>
-                    <div className="setting-item">
+                    {/* <div className="setting-item">
                         <SwitchIcon className="icon" ariaLabel='Switch Account'/>
                         <div className="setting-item-text">Switch Accounts</div>
-                    </div>
+                    </div> */}
                     <div className="setting-item setting-footer" onClick={onLogout}>
                         <div className="setting-item-text">Log Out</div>
                     </div>

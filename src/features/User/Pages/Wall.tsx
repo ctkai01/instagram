@@ -1,6 +1,7 @@
 // import { Avatar } from '@components/common';
 import { Api } from '@api/authApi';
 import { Avatar, Modal } from '@components/common';
+import InputCopy from '@components/common/InputCopy';
 import {
     ArrowTopIcon,
     MultipleSquareIcon,
@@ -17,7 +18,7 @@ import { FollowUser, useFollowUser } from '@hooks/useFollowUser';
 import { Post } from '@models/Post';
 import { ViewStory } from '@models/Story';
 import { User } from '@models/User';
-import { Skeleton } from '@mui/material';
+import { Skeleton, TextField } from '@mui/material';
 import { useAppSelector } from '@redux/hooks';
 import { PATH_ACCOUNT_SETTING, PATH_PERSON_ACCOUNT } from '@routes/index';
 import * as React from 'react';
@@ -347,6 +348,14 @@ export function Wall(props: IWallProps) {
             }
         });
     };
+
+    async function copyTextToClipboard(text: string) {
+        if ('clipboard' in navigator) {
+          return await navigator.clipboard.writeText(text);
+        } else {
+          return document.execCommand('copy', true, text);
+        }
+      }
     return (
         <>
             <Modal
@@ -525,6 +534,27 @@ export function Wall(props: IWallProps) {
                                             >
                                                 <OptionsIcon />
                                             </button>
+                                          <InputCopy onMouseOver={(e: React.MouseEvent<HTMLButtonElement>, changeActive: () => void) => {
+                                                changeActive()
+                                            }} 
+                                            onMouseOut={(e: React.MouseEvent<HTMLButtonElement>, changeInActive: () => void) => {
+                                                changeInActive()
+                                            }} 
+                                            onClick={(e: React.MouseEvent<HTMLButtonElement>, changeShowCopy: () => void, changeHiddenCopy: () => void) => {
+                                                console.log(2)
+                                                copyTextToClipboard(`http://localhost:3000/${useAuth.user_name}`)
+                                                .then(() => {
+                                                    // If successful, update the isCopied state value
+                                                    changeShowCopy()
+                                                    setTimeout(() => {
+                                                        changeHiddenCopy()
+                                                    }, 1500);
+                                                  })
+                                                  .catch((err) => {
+                                                    console.log(err);
+                                                  });
+                                            }}
+                                          className='input-copy' text={`http://localhost:3000/${useAuth.user_name}`}/>
                                         </div>
                                     ) : (
                                         <Skeleton
@@ -786,6 +816,9 @@ const Container = styled.div<StyledWallProps>`
             display: flex;
             align-items: center;
             /* margin-bottom: 20px; */
+            .input-copy {
+                margin-left: 10px;
+            }
         }
 
         .btn-message,
